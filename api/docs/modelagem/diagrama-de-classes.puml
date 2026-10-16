@@ -1,0 +1,185 @@
+@startuml diagrama-de-classes
+title E-commerce de mouses — classes de domínio propostas (MVP)
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #F5F9FF
+skinparam classBorderColor #355473
+hide empty methods
+
+abstract class DefaultEntity <<MappedSuperclass>> {
+  - id : Long
+  - dataCadastro : LocalDateTime
+  - dataAlteracao : LocalDateTime
+  + registrarDataCadastro() : void
+  + registrarDataAlteracao() : void
+}
+
+package "Catálogo" {
+  class Marca <<Entity>> {
+    - nome : String
+    - ativo : Boolean
+  }
+  class Mouse <<Entity>> {
+    - sku : String
+    - nome : String
+    - descricao : String
+    - cor : String
+    - preco : BigDecimal
+    - quantidadeEstoque : Integer
+    - dpiMaximo : Integer
+    - quantidadeBotoes : Integer
+    - pesoGramas : BigDecimal
+    - ativo : Boolean
+    - versao : Long <<Version>>
+    - tiposConexao : Set<TipoConexao>
+  }
+  class ImagemMouse <<Entity>> {
+    - url : String
+    - textoAlternativo : String
+    - ordem : Integer
+  }
+  enum TipoConexao {
+    USB (1, "USB")
+    BLUETOOTH (2, "Bluetooth")
+    RECEPTOR_USB (3, "Receptor USB sem fio")
+  }
+}
+
+package "Usuários" {
+  class Usuario <<Entity>> {
+    - nome : String
+    - email : String
+    - senhaHash : String
+    - telefone : String [0..1]
+    - perfil : Perfil
+    - ativo : Boolean
+  }
+  class Endereco <<Entity>> {
+    - apelido : String
+    - destinatario : String
+    - cep : String
+    - logradouro : String
+    - numero : String
+    - complemento : String [0..1]
+    - bairro : String
+    - cidade : String
+    - uf : String
+  }
+  enum Perfil {
+    CLIENTE (1, "Cliente")
+    ADMINISTRADOR (2, "Administrador")
+  }
+}
+
+package "Compras" {
+  class ListaDesejos <<Entity>> {
+  }
+  class ItemListaDesejos <<Entity>> {
+  }
+  class Pedido <<Entity>> {
+    - chaveCheckout : UUID
+    - status : StatusPedido
+    - expiraEm : LocalDateTime
+    - valorFrete : BigDecimal
+    - versao : Long <<Version>>
+    - codigoRastreio : String [0..1]
+    + calcularSubtotal() : BigDecimal
+    + calcularTotal() : BigDecimal
+  }
+  class ItemPedido <<Entity>> {
+    - skuMouse : String
+    - nomeMouse : String
+    - corMouse : String
+    - quantidade : Integer
+    - precoUnitario : BigDecimal
+    + calcularSubtotal() : BigDecimal
+  }
+  class EnderecoEntrega <<Embeddable>> {
+    - destinatario : String
+    - cep : String
+    - logradouro : String
+    - numero : String
+    - complemento : String [0..1]
+    - bairro : String
+    - cidade : String
+    - uf : String
+  }
+  class Pagamento <<Entity>> {
+    - chaveIdempotencia : UUID
+    - forma : FormaPagamento
+    - status : StatusPagamento
+    - valor : BigDecimal
+    - versao : Long <<Version>>
+    - processadoEm : LocalDateTime [0..1]
+  }
+  enum StatusPedido {
+    AGUARDANDO_PAGAMENTO (1, "Aguardando pagamento")
+    PAGO (2, "Pago")
+    ENVIADO (3, "Enviado")
+    ENTREGUE (4, "Entregue")
+    CANCELADO (5, "Cancelado")
+    EXPIRADO (6, "Expirado")
+  }
+  enum FormaPagamento {
+    PIX (1, "Pix simulado")
+    CARTAO (2, "Cartão simulado")
+  }
+  enum StatusPagamento {
+    PENDENTE (1, "Pendente")
+    APROVADO (2, "Aprovado")
+    RECUSADO (3, "Recusado")
+    CANCELADO (4, "Cancelado")
+  }
+}
+
+DefaultEntity <|-- Marca
+DefaultEntity <|-- Mouse
+DefaultEntity <|-- ImagemMouse
+DefaultEntity <|-- Usuario
+DefaultEntity <|-- Endereco
+DefaultEntity <|-- ListaDesejos
+DefaultEntity <|-- ItemListaDesejos
+DefaultEntity <|-- Pedido
+DefaultEntity <|-- ItemPedido
+DefaultEntity <|-- Pagamento
+
+Marca "1" -- "0..*" Mouse : marca
+Mouse "1" *-- "0..*" ImagemMouse : imagens
+Mouse ..> TipoConexao : coleção de 1..3 valores
+Usuario "1" -- "0..*" Endereco : endereços
+Usuario ..> Perfil
+Usuario "1" -- "0..1" ListaDesejos : listaDesejos
+ListaDesejos "1" *-- "0..*" ItemListaDesejos : itens
+ItemListaDesejos "0..*" --> "1" Mouse : mouse
+Usuario "1" -- "0..*" Pedido : pedidos
+Pedido "1" *-- "1..*" ItemPedido : itens
+ItemPedido "0..*" --> "1" Mouse : mouse
+Pedido "1" *-- "1" EnderecoEntrega : enderecoEntrega
+Pedido "1" -- "0..*" Pagamento : tentativas
+Pedido ..> StatusPedido
+Pagamento ..> FormaPagamento
+Pagamento ..> StatusPagamento
+
+note bottom of EnderecoEntrega
+  Objeto de valor copiado no checkout.
+  Sem identidade própria e sem herança de DefaultEntity.
+  Persistido nas colunas entrega_* de pedido.
+end note
+
+legend left
+  Classes de domínio; não representa todas as camadas da aplicação.
+  Associações representam os atributos de relacionamento, sem duplicá-los nas classes.
+  Todas as entidades herdam de DefaultEntity; getters/setters omitidos.
+  Enums: id Integer, label String, construtor privado,
+  getId(), getLabel() e valueOf(Integer id) estático.
+  Cada enum terá AttributeConverter<Enum, Integer> com autoApply = true
+  em br.unitins.tp2.model.converterjpa. Não usar ordinal como ID.
+  Mouse.tiposConexao: ElementCollection em mouse_conexao.
+  Regras transacionais e acesso aos repositórios pertencem aos serviços.
+  Métodos calcular* são cálculos locais, sem acesso ao banco.
+  Carrinho é estado do frontend; o checkout recebe IDs e quantidades e os revalida.
+  ListaDesejos e ItemListaDesejos persistem favoritos, sem quantidade ou reserva.
+  Composição UML não autoriza exclusão em cascata de histórico de pedidos.
+endlegend
+@enduml
