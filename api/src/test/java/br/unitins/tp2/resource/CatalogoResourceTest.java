@@ -35,7 +35,8 @@ class CatalogoResourceTest {
     void deveRealizarCrudDeMarcaEValidarNomeDuplicado() {
         String nome = "Marca " + unico();
         long id = criarMarca(nome);
-        given().get("/marcas").then().statusCode(200).body("nome", hasItem(nome));
+        given().get("/marcas?page=0&pageSize=10").then().statusCode(200)
+                .body("items.nome", hasItem(nome)).body("page", is(0)).body("pageSize", is(10));
         given().get("/marcas/" + id).then().statusCode(200).body("nome", equalTo(nome));
         given().contentType("application/json").body(Map.of("nome", "  " + nome.toUpperCase() + "  ", "ativo", true))
                 .post("/marcas").then().statusCode(400).contentType("application/problem+json")
@@ -44,6 +45,21 @@ class CatalogoResourceTest {
                 .put("/marcas/" + id).then().statusCode(200).body("ativo", is(false));
         given().delete("/marcas/" + id).then().statusCode(204);
         given().get("/marcas/" + id).then().statusCode(404);
+    }
+
+    @Test
+    void deveFiltrarMarcasPorNomeEPaginarResultados() {
+        String prefixo = "Filtro-" + unico();
+        criarMarca(prefixo + " Alpha");
+        criarMarca(prefixo + " Beta");
+        criarMarca(prefixo + " Gamma");
+
+        given().get("/marcas/nome/" + java.net.URLEncoder.encode(prefixo, java.nio.charset.StandardCharsets.UTF_8)
+                + "?page=1&pageSize=2")
+                .then().statusCode(200).body("items", hasSize(1)).body("totalItems", is(3))
+                .body("totalPages", is(2)).body("page", is(1));
+        given().get("/marcas?page=-1&pageSize=10").then().statusCode(400);
+        given().get("/marcas?page=0&pageSize=101").then().statusCode(400);
     }
 
     @Test
@@ -57,7 +73,8 @@ class CatalogoResourceTest {
         long versao = criado.getLong("versao");
         String skuNormalizado = dto.get("sku").toString().toUpperCase(java.util.Locale.ROOT);
         given().get("/mouses/" + id).then().statusCode(200).body("sku", equalTo(skuNormalizado));
-        given().get("/mouses").then().statusCode(200).body("sku", hasItem(skuNormalizado));
+        given().get("/mouses?page=0&pageSize=10").then().statusCode(200)
+                .body("items.sku", hasItem(skuNormalizado)).body("page", is(0)).body("pageSize", is(10));
         given().delete("/marcas/" + idMarca).then().statusCode(400).body("errors.field", hasItem("marca"));
         given().contentType("application/json").body(dto).post("/mouses")
                 .then().statusCode(400).body("errors.field", hasItem("sku"));
@@ -73,6 +90,24 @@ class CatalogoResourceTest {
         given().delete("/mouses/" + id).then().statusCode(204);
         given().get("/mouses/" + id).then().statusCode(404);
         given().delete("/marcas/" + idMarca).then().statusCode(204);
+    }
+
+    @Test
+    void deveFiltrarMousesPorNomeEPaginarResultados() {
+        long idMarca = criarMarca("Fabricante filtro " + unico());
+        String prefixo = "MouseFiltro-" + unico();
+        for (int i = 0; i < 3; i++) {
+            Map<String, Object> dto = mouse(idMarca);
+            dto.put("nome", prefixo + " " + i);
+            given().contentType("application/json").body(dto).post("/mouses").then().statusCode(201);
+        }
+
+        given().get("/mouses/nome/" + java.net.URLEncoder.encode(prefixo, java.nio.charset.StandardCharsets.UTF_8)
+                + "?page=1&pageSize=2")
+                .then().statusCode(200).body("items", hasSize(1)).body("totalItems", is(3))
+                .body("totalPages", is(2)).body("page", is(1));
+        given().get("/mouses?page=-1&pageSize=10").then().statusCode(400);
+        given().get("/mouses?page=0&pageSize=101").then().statusCode(400);
     }
 
     @Test

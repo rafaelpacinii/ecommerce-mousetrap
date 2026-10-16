@@ -7,7 +7,6 @@ import br.unitins.tp2.exception.ValidationException;
 import br.unitins.tp2.model.Marca;
 import br.unitins.tp2.repository.MarcaRepository;
 import br.unitins.tp2.repository.MouseRepository;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -19,8 +18,23 @@ public class MarcaServiceImpl implements MarcaService {
     @Inject MouseRepository mouseRepository;
 
     @Override
-    public List<MarcaResponseDTO> findAll() {
-        return repository.listAll(Sort.by("nome")).stream().map(MarcaResponseDTO::valueOf).toList();
+    public List<Marca> findAll(int page, int pageSize) {
+        return repository.findAll().page(page, pageSize).list();
+    }
+
+    @Override
+    public List<Marca> findByNome(String nome, int page, int pageSize) {
+        return repository.findByNome(nome).page(page, pageSize).list();
+    }
+
+    @Override
+    public long count() {
+        return repository.findAll().count();
+    }
+
+    @Override
+    public long count(String nome) {
+        return repository.findByNome(nome).count();
     }
 
     @Override

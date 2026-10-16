@@ -10,7 +10,6 @@ import br.unitins.tp2.model.Mouse;
 import br.unitins.tp2.model.TipoConexao;
 import br.unitins.tp2.repository.MarcaRepository;
 import br.unitins.tp2.repository.MouseRepository;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.OptimisticLockException;
@@ -23,8 +22,23 @@ public class MouseServiceImpl implements MouseService {
     @Inject MarcaRepository marcaRepository;
 
     @Override
-    public List<MouseResponseDTO> findAll() {
-        return repository.listAll(Sort.by("nome")).stream().map(MouseResponseDTO::valueOf).toList();
+    public List<Mouse> findAll(int page, int pageSize) {
+        return repository.findAll().page(page, pageSize).list();
+    }
+
+    @Override
+    public List<Mouse> findByNome(String nome, int page, int pageSize) {
+        return repository.findByNome(nome).page(page, pageSize).list();
+    }
+
+    @Override
+    public long count() {
+        return repository.findAll().count();
+    }
+
+    @Override
+    public long count(String nome) {
+        return repository.findByNome(nome).count();
     }
 
     @Override

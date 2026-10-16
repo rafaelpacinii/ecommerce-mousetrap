@@ -26,11 +26,31 @@ A URL base de desenvolvimento é `http://localhost:8080`. Os corpos de requisiç
 
 | Operação | Marca | Mouse | Sucesso |
 | --- | --- | --- | --- |
-| Listar | GET `/marcas` | GET `/mouses` | 200, array |
+| Listar | GET `/marcas?page=0&pageSize=10` | GET `/mouses?page=0&pageSize=10` | 200, página de registros |
 | Consultar | GET `/marcas/{id}` | GET `/mouses/{id}` | 200, objeto |
 | Cadastrar | POST `/marcas` | POST `/mouses` | 201, objeto criado |
 | Editar | PUT `/marcas/{id}` | PUT `/mouses/{id}` | 200, objeto atualizado |
 | Excluir | DELETE `/marcas/{id}` | DELETE `/mouses/{id}` | 204, sem corpo |
+
+### Listagem de marcas
+
+`GET /marcas` retorna uma página ordenada pelo nome. `page` começa em zero e `pageSize` aceita valores entre 1 e 100. O filtro opcional usa `GET /marcas/nome/{nome}` e preserva os mesmos parâmetros de paginação.
+
+```json
+{
+  "items": [{ "id": 1, "nome": "Logitech", "ativo": true }],
+  "page": 0,
+  "pageSize": 10,
+  "totalItems": 1,
+  "totalPages": 1
+}
+```
+
+Ao alterar o filtro, a interface volta para a primeira página. A consulta é executada no backend, evitando carregar o catálogo inteiro no navegador.
+
+### Listagem de mouses
+
+`GET /mouses` usa os mesmos parâmetros de paginação e ordena os resultados pelo nome. O filtro opcional usa `GET /mouses/nome/{nome}` e retorna o mesmo formato de resposta paginada. A marca relacionada continua sendo incluída em cada item.
 
 ### Cadastro de marca
 

@@ -5,6 +5,7 @@ API REST do MouseTrap, um e-commerce especializado em mouses. O catálogo permit
 ## Funcionalidades
 
 - Cadastro, consulta, edição e exclusão de marcas e mouses.
+- Paginação e filtro server-side por nome nas listagens administrativas.
 - Validação de dados e unicidade de nomes de marcas e SKUs.
 - Proteção contra exclusão de marcas vinculadas a produtos.
 - Controle de versão na edição de mouses para detectar alterações concorrentes.
@@ -67,7 +68,7 @@ Quando o banco estiver aceitando conexões:
 ./mvnw clean verify
 ```
 
-A suíte cobre operações do catálogo, validações, registros inexistentes, vínculos entre marca e mouse, conflitos de versão e CORS. A configuração atual usa `skipITs=true` para Failsafe; os testes HTTP executam pelo Surefire.
+A suíte cobre operações do catálogo, validações, paginação e filtro de marcas, registros inexistentes, vínculos entre marca e mouse, conflitos de versão e CORS. A configuração atual usa `skipITs=true` para Failsafe; os testes HTTP executam pelo Surefire.
 
 Ao terminar, remova o banco descartável:
 
