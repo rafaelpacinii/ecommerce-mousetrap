@@ -1,0 +1,51 @@
+<section>
+  <div class="cabecalho">
+    <h1>Clientes</h1>
+    <a mat-raised-button color="primary" routerLink="/clientes/novo"
+      ><mat-icon>add</mat-icon>Novo Cadastro</a
+    >
+  </div>
+  @if (carregando()) {
+    <p role="status">Carregando clientes…</p>
+  }
+  @if (erro()) {
+    <p role="alert">{{ erro() }}</p>
+    <button mat-button (click)="carregar()">Tentar novamente</button>
+  }
+  <table mat-table [dataSource]="registros()">
+    <ng-container matColumnDef="nome"
+      ><th mat-header-cell *matHeaderCellDef>Nome</th>
+      <td mat-cell *matCellDef="let c">{{ c.nome }}</td></ng-container
+    >
+    <ng-container matColumnDef="email"
+      ><th mat-header-cell *matHeaderCellDef>E-mail</th>
+      <td mat-cell *matCellDef="let c">{{ c.email }}</td></ng-container
+    >
+    <ng-container matColumnDef="municipio"
+      ><th mat-header-cell *matHeaderCellDef>Município / UF</th>
+      <td mat-cell *matCellDef="let c">
+        {{ c.municipio.nome }} / {{ c.municipio.estado.sigla }}
+      </td></ng-container
+    >
+    <ng-container matColumnDef="acoes"
+      ><th mat-header-cell *matHeaderCellDef>Ações</th>
+      <td mat-cell *matCellDef="let c">
+        <a mat-icon-button [routerLink]="['/clientes/editar', c.id]" aria-label="Editar cliente"
+          ><mat-icon>edit</mat-icon></a
+        ><button
+          mat-icon-button
+          (click)="excluir(c)"
+          [disabled]="excluindo() !== null"
+          aria-label="Excluir cliente"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td></ng-container
+    >
+    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+    <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td colspan="4">Nenhum cliente cadastrado.</td>
+    </tr>
+  </table>
+</section>
