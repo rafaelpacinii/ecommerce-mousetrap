@@ -10,6 +10,18 @@
     </a>
   </div>
 
+  <mat-form-field appearance="outline" class="campo-filtro">
+    <mat-label>Filtrar por nome</mat-label>
+    <input
+      matInput
+      placeholder="Ex.: Mouse sem fio"
+      [value]="filtro()"
+      (input)="applyFilter($event)"
+      aria-label="Filtrar mouses por nome"
+    />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
   @if (carregando()) {
     <p role="status" class="estado-pagina">Carregando mouses…</p>
   } @else if (erro()) {
@@ -19,9 +31,15 @@
     </div>
   } @else if (registros().length === 0) {
     <div class="estado-pagina">
-      <mat-icon>mouse</mat-icon>
-      <h2>Nenhum mouse cadastrado</h2>
-      <p>Use “Novo Cadastro” para adicionar o primeiro mouse.</p>
+      <mat-icon>{{ filtro().trim() ? 'search_off' : 'mouse' }}</mat-icon>
+      <h2>{{ filtro().trim() ? 'Nenhum mouse encontrado' : 'Nenhum mouse cadastrado' }}</h2>
+      <p>
+        {{
+          filtro().trim()
+            ? 'Tente ajustar o termo de busca.'
+            : 'Use “Novo Cadastro” para adicionar o primeiro mouse.'
+        }}
+      </p>
     </div>
   } @else {
     <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de mouses">
@@ -78,5 +96,13 @@
         <tr mat-row *matRowDef="let row; columns: colunas"></tr>
       </table>
     </div>
+    <mat-paginator
+      [length]="totalItems()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[5, 10, 20]"
+      (page)="onPageChange($event)"
+      aria-label="Paginação de mouses"
+    />
   }
 </section>

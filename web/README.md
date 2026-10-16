@@ -6,6 +6,7 @@ Interface administrativa do MouseTrap para gerenciar o catálogo de marcas e mou
 
 - Listagens com ações de edição e exclusão.
 - Formulários de criação e edição com validações.
+- Paginação e filtro por nome nas listagens administrativas de marcas e mouses.
 - Seleção da marca e de múltiplos tipos de conexão de cada mouse.
 - Carregamento dos registros antes da edição por route resolvers.
 - Confirmação de exclusão, mensagens de erro e notificações de sucesso.
@@ -60,7 +61,7 @@ npm test -- --watch=false
 npm run build
 ```
 
-Os testes usam Vitest e cobrem navegação, formulários, exclusão e tratamento de falhas. O build gera os arquivos em `dist/web`, com o conteúdo estático em `dist/web/browser`. A otimização das fontes referenciadas em `src/index.html` requer acesso aos serviços de fontes do Google.
+Os testes usam Vitest e cobrem navegação, formulários, exclusão, paginação, filtro e tratamento de falhas. O build gera os arquivos em `dist/web`, com o conteúdo estático em `dist/web/browser`. A otimização das fontes referenciadas em `src/index.html` requer acesso aos serviços de fontes do Google.
 
 Ao hospedar a SPA, configure o servidor para servir `index.html` nas rotas da aplicação. A URL da API e sua política de CORS devem corresponder ao ambiente de hospedagem. O acesso administrativo ainda não possui autenticação.
 

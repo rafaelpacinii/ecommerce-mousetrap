@@ -134,7 +134,7 @@ export class MouseFormComponent implements OnInit {
         }),
       )
       .subscribe({
-        next: (marcas) => this.marcas.set(marcas),
+        next: (response) => this.marcas.set(response.items),
         error: (erro: unknown) => this.erroMarcas.set(mensagemErro(erro)),
       });
   }

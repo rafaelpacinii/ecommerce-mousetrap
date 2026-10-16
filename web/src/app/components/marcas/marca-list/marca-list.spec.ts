@@ -24,7 +24,9 @@ describe('MarcaListComponent', () => {
     const fixture = TestBed.createComponent(MarcaListComponent);
     fixture.detectChanges();
     const marca = { id: 5, nome: 'Marca de teste', ativo: true };
-    http.expectOne('http://localhost:8080/marcas').flush([marca]);
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
     const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(false);
     fixture.componentInstance.excluir(marca);
     http.expectNone('http://localhost:8080/marcas/5');
@@ -41,7 +43,9 @@ describe('MarcaListComponent', () => {
     const fixture = TestBed.createComponent(MarcaListComponent);
     fixture.detectChanges();
     const marca = { id: 5, nome: 'Marca vinculada', ativo: true };
-    http.expectOne('http://localhost:8080/marcas').flush([marca]);
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     fixture.componentInstance.excluir(marca);
     http
@@ -52,5 +56,19 @@ describe('MarcaListComponent', () => {
       );
     expect(fixture.componentInstance.registros()).toEqual([marca]);
     expect(fixture.componentInstance.excluindo()).toBeNull();
+  });
+
+  it('consulta o filtro por nome e reinicia na primeira página', () => {
+    const fixture = TestBed.createComponent(MarcaListComponent);
+    fixture.detectChanges();
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [], page: 0, pageSize: 10, totalItems: 0, totalPages: 0 });
+    const input = document.createElement('input');
+    input.value = 'Logitech';
+    fixture.componentInstance.applyFilter({ target: input } as unknown as Event);
+    const request = http.expectOne('http://localhost:8080/marcas/nome/Logitech?page=0&pageSize=10');
+    request.flush({ items: [], page: 0, pageSize: 10, totalItems: 0, totalPages: 0 });
+    expect(fixture.componentInstance.pageIndex()).toBe(0);
   });
 });
