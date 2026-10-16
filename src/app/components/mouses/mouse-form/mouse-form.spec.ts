@@ -43,7 +43,9 @@ describe('MouseFormComponent', () => {
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const fixture = TestBed.createComponent(MouseFormComponent);
     fixture.detectChanges();
-    http.expectOne('http://localhost:8080/marcas').flush([marca]);
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
     const form = fixture.componentInstance.form;
     expect(form.controls.idMarca.value).toBe(4);
     expect(form.controls.tiposConexao.value).toEqual([2]);
@@ -64,13 +66,15 @@ describe('MouseFormComponent', () => {
     const fixture = TestBed.createComponent(MouseFormComponent);
     fixture.detectChanges();
     http
-      .expectOne('http://localhost:8080/marcas')
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
       .flush('Falha', { status: 500, statusText: 'Erro' });
     expect(fixture.componentInstance.erroMarcas()).not.toBe('');
     fixture.componentInstance.salvar();
     http.expectNone('http://localhost:8080/mouses/9');
     fixture.componentInstance.carregarMarcas();
-    http.expectOne('http://localhost:8080/marcas').flush([]);
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [], page: 0, pageSize: 10, totalItems: 0, totalPages: 0 });
     fixture.componentInstance.salvar();
     http.expectNone('http://localhost:8080/mouses/9');
     expect(fixture.componentInstance.carregandoMarcas()).toBe(false);

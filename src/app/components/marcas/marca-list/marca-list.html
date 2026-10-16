@@ -10,6 +10,12 @@
     </a>
   </div>
 
+  <mat-form-field appearance="outline" class="campo-filtro">
+    <mat-label>Filtrar por nome</mat-label>
+    <input matInput placeholder="Ex.: Logitech" (input)="applyFilter($event)" [value]="filtro()" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
   @if (carregando()) {
     <p role="status" class="estado-pagina">Carregando marcas…</p>
   } @else if (erro()) {
@@ -19,9 +25,13 @@
     </div>
   } @else if (registros().length === 0) {
     <div class="estado-pagina">
-      <mat-icon>sell</mat-icon>
-      <h2>Nenhuma marca cadastrada</h2>
-      <p>Use “Novo Cadastro” para adicionar a primeira marca.</p>
+      <mat-icon>{{ filtro() ? 'search_off' : 'sell' }}</mat-icon>
+      <h2>{{ filtro() ? 'Nenhuma marca encontrada' : 'Nenhuma marca cadastrada' }}</h2>
+      <p>
+        {{
+          filtro() ? 'Tente outro nome.' : 'Use “Novo Cadastro” para adicionar a primeira marca.'
+        }}
+      </p>
     </div>
   } @else {
     <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de marcas">
@@ -64,6 +74,14 @@
         <tr mat-header-row *matHeaderRowDef="colunas"></tr>
         <tr mat-row *matRowDef="let row; columns: colunas"></tr>
       </table>
+      <mat-paginator
+        [length]="totalItems()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[5, 10, 20]"
+        (page)="onPageChange($event)"
+        aria-label="Paginação de marcas"
+      />
     </div>
   }
 </section>

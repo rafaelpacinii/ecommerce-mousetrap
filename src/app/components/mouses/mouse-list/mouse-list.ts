@@ -5,6 +5,9 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { Mouse } from '../../../models/mouse.model';
@@ -14,7 +17,16 @@ import { mensagemErro } from '../../../services/erro-api';
 @Component({
   selector: 'app-mouse-list',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatTableModule, CurrencyPipe],
+  imports: [
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    CurrencyPipe,
+  ],
   templateUrl: './mouse-list.html',
   styleUrl: './mouse-list.css',
 })
@@ -26,6 +38,10 @@ export class MouseListComponent implements OnInit {
   readonly carregando = signal(true);
   readonly erro = signal('');
   readonly excluindo = signal<number | null>(null);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly totalItems = signal(0);
+  readonly filtro = signal('');
   readonly colunas = ['nome', 'marca', 'preco', 'estoque', 'ativo', 'acoes'];
 
   ngOnInit(): void {
@@ -35,16 +51,34 @@ export class MouseListComponent implements OnInit {
   carregar(): void {
     this.carregando.set(true);
     this.erro.set('');
-    this.service
-      .findAll()
+    const filtro = this.filtro().trim();
+    const consulta = filtro
+      ? this.service.findByNome(filtro, this.pageIndex(), this.pageSize())
+      : this.service.findAll(this.pageIndex(), this.pageSize());
+    consulta
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.carregando.set(false)),
       )
       .subscribe({
-        next: (registros) => this.registros.set(registros),
+        next: (response) => {
+          this.registros.set(response.items);
+          this.totalItems.set(response.totalItems);
+        },
         error: (erro: unknown) => this.erro.set(mensagemErro(erro)),
       });
+  }
+
+  applyFilter(event: Event): void {
+    this.filtro.set((event.target as HTMLInputElement).value);
+    this.pageIndex.set(0);
+    this.carregar();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.carregar();
   }
 
   excluir(registro: Mouse): void {
@@ -65,6 +99,7 @@ export class MouseListComponent implements OnInit {
       .subscribe({
         next: () => {
           this.registros.update((registros) => registros.filter((item) => item.id !== id));
+          this.totalItems.update((total) => Math.max(0, total - 1));
           this.snack.open('Mouse excluído com sucesso.', 'Fechar', { duration: 4000 });
         },
         error: (erro: unknown) => this.snack.open(mensagemErro(erro), 'Fechar', { duration: 7000 }),
