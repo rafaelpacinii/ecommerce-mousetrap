@@ -1,3 +1,32 @@
+:root {
+  /* Core Brand Palette */
+  --prussian-blue: #0a122aff;
+  --golden-glow: #dacc3eff;
+  --light-cyan: #d1f5ffff;
+  --alice-blue: #eef8ffff;
+  --slate-blue: #7d53deff;
+
+  /* Extended Neutral Surface & Typography Scale */
+  --surface-pure: #ffffff;
+  --surface-canvas: #f6f9fc;
+  --neutral-900: #0a122a;
+  --neutral-700: #2c3652;
+  --neutral-500: #64708d;
+  --neutral-300: #c2cde0;
+  --neutral-200: #dde5f0;
+  --neutral-100: #eef3f9;
+
+  /* Semantic Status Scale */
+  --status-success: #10b981;
+  --status-success-bg: #e6f9f1;
+  --status-warning: #f59e0b;
+  --status-warning-bg: #fef5e7;
+  --status-info: #0ea5e9;
+  --status-info-bg: #e0f2fe;
+  --status-danger: #ef4444;
+  --status-danger-bg: #fee2e2;
+}
+
 * {
   box-sizing: border-box;
 }

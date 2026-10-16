@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="'Inter', 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif">
+  <title>08 — Customer Registration (/cadastro)</title>
+  <desc>Clean customer registration form with automatic CEP lookup</desc>
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a122a"/>
+      <stop offset="100%" stop-color="#1c1947"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="72%" cy="50%" r="38%">
+      <stop offset="0%" stop-color="#d1f5ff" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#7d53de" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0a122a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0a122a" flood-opacity="0.04"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#f6f9fc"/>
+  <!-- Minimalist Top Brand Bar -->
+  <rect x="0" y="0" width="1440" height="76" fill="#ffffff"/>
+  <line x1="0" y1="76" x2="1440" y2="76" stroke="#dde5f0"/>
+  <g transform="translate(80, 20)">
+    <rect x="0" y="0" width="36" height="36" rx="10" fill="#0a122a"/>
+    <rect x="15" y="7" width="6" height="12" rx="3" fill="#dacc3e"/>
+    <text x="48" y="25" fill="#0a122a" font-size="19" font-weight="800">MOUSETRAP</text>
+  </g>
+  <text x="1360" y="44" text-anchor="end" fill="#64708d" font-size="14" font-weight="600">Já possui conta? <tspan fill="#7d53de" font-weight="800">Entrar</tspan></text>
+
+  <!-- Centered Registration Card (760px wide) -->
+  <g transform="translate(340, 112)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="760" height="736" rx="22" fill="#ffffff" stroke="#dde5f0"/>
+
+    <text x="48" y="56" fill="#0a122a" font-size="26" font-weight="800">Criar sua conta</text>
+    <text x="48" y="84" fill="#64708d" font-size="14">Preencha seus dados pessoais e endereço de entrega</text>
+
+    <line x1="48" y1="108" x2="712" y2="108" stroke="#dde5f0"/>
+
+    <!-- Section 1: Personal Data -->
+    <text x="48" y="142" fill="#7d53de" font-size="12" font-weight="800" letter-spacing="1">DADOS PESSOAIS</text>
+
+    <text x="48" y="174" fill="#2c3652" font-size="13" font-weight="700">Nome completo</text>
+    <rect x="48" y="184" width="320" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="64" y="212" fill="#0a122a" font-size="14">Rafael Pacini</text>
+
+    <text x="392" y="174" fill="#2c3652" font-size="13" font-weight="700">E-mail</text>
+    <rect x="392" y="184" width="320" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="408" y="212" fill="#0a122a" font-size="14">rafael@email.com.br</text>
+
+    <text x="48" y="256" fill="#2c3652" font-size="13" font-weight="700">Senha</text>
+    <rect x="48" y="266" width="320" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="64" y="295" fill="#0a122a" font-size="15" font-weight="800">••••••••••</text>
+
+    <text x="392" y="256" fill="#2c3652" font-size="13" font-weight="700">Telefone</text>
+    <rect x="392" y="266" width="320" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="408" y="294" fill="#0a122a" font-size="14">(63) 99999-0000</text>
+
+    <line x1="48" y1="340" x2="712" y2="340" stroke="#dde5f0"/>
+
+    <!-- Section 2: Address with CEP auto-fill -->
+    <text x="48" y="374" fill="#7d53de" font-size="12" font-weight="800" letter-spacing="1">ENDEREÇO DE ENTREGA</text>
+
+    <text x="48" y="406" fill="#2c3652" font-size="13" font-weight="700">CEP</text>
+    <rect x="48" y="416" width="180" height="46" rx="10" fill="#ffffff" stroke="#7d53de" stroke-width="2"/>
+    <text x="64" y="444" fill="#0a122a" font-size="14" font-weight="700" font-family="monospace">77020-020</text>
+
+    <rect x="240" y="416" width="128" height="46" rx="10" fill="#0a122a"/>
+    <text x="304" y="444" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Buscar CEP</text>
+
+    <text x="392" y="406" fill="#2c3652" font-size="13" font-weight="700">Cidade / UF</text>
+    <rect x="392" y="416" width="320" height="46" rx="10" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="408" y="444" fill="#0a122a" font-size="14" font-weight="600">Palmas / TO</text>
+
+    <text x="48" y="488" fill="#2c3652" font-size="13" font-weight="700">Logradouro (Rua / Avenida)</text>
+    <rect x="48" y="498" width="460" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="64" y="526" fill="#0a122a" font-size="14">Quadra 104 Sul, Avenida JK</text>
+
+    <text x="532" y="488" fill="#2c3652" font-size="13" font-weight="700">Número</text>
+    <rect x="532" y="498" width="180" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="548" y="526" fill="#0a122a" font-size="14">Lote 12</text>
+
+    <text x="48" y="570" fill="#2c3652" font-size="13" font-weight="700">Bairro</text>
+    <rect x="48" y="580" width="320" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="64" y="608" fill="#0a122a" font-size="14">Plano Diretor Sul</text>
+
+    <text x="392" y="570" fill="#2c3652" font-size="13" font-weight="700">Complemento (Opcional)</text>
+    <rect x="392" y="580" width="320" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="408" y="608" fill="#64708d" font-size="14">Sala 04</text>
+
+    <!-- Submit Button -->
+    <rect x="48" y="652" width="664" height="52" rx="12" fill="#dacc3e"/>
+    <text x="380" y="684" text-anchor="middle" fill="#0a122a" font-size="16" font-weight="800">Concluir Cadastro</text>
+  </g>
+</svg>

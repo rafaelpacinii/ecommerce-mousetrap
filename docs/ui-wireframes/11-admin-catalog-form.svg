@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="'Inter', 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif">
+  <title>11 — Admin Catalog: Product Form (/admin/mouses/novo)</title>
+  <desc>Clean product registration and edit form</desc>
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a122a"/>
+      <stop offset="100%" stop-color="#1c1947"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="72%" cy="50%" r="38%">
+      <stop offset="0%" stop-color="#d1f5ff" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#7d53de" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0a122a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0a122a" flood-opacity="0.04"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#f6f9fc"/>
+  <!-- Admin Left Sidebar (240px) -->
+  <rect x="0" y="0" width="240" height="900" fill="#0a122a"/>
+  <g transform="translate(24, 26)">
+    <rect x="0" y="0" width="34" height="34" rx="9" fill="#7d53de"/>
+    <rect x="14" y="7" width="6" height="11" rx="3" fill="#dacc3e"/>
+    <text x="46" y="23" fill="#ffffff" font-size="17" font-weight="800">MOUSETRAP</text>
+  </g>
+  <line x1="20" y1="84" x2="220" y2="84" stroke="#162246"/>
+  
+    <text x="44" y="147" fill="#c2cde0" font-size="14" font-weight="500">Pedidos</text>
+    <rect x="20" y="176" width="200" height="44" rx="10" fill="#7d53de"/>
+    <rect x="20" y="186" width="4" height="24" rx="2" fill="#dacc3e"/>
+    <text x="44" y="203" fill="#ffffff" font-size="14" font-weight="700">Mouses</text>
+    <text x="44" y="259" fill="#c2cde0" font-size="14" font-weight="500">Marcas</text>
+    <text x="44" y="315" fill="#c2cde0" font-size="14" font-weight="500">Clientes</text>
+  <!-- Bottom User Profile -->
+  <rect x="20" y="820" width="200" height="56" rx="12" fill="#162246"/>
+  <circle cx="46" cy="848" r="14" fill="#dacc3e"/>
+  <text x="46" y="853" text-anchor="middle" fill="#0a122a" font-size="12" font-weight="800">RP</text>
+  <text x="70" y="844" fill="#ffffff" font-size="13" font-weight="700">Rafael Pacini</text>
+  <text x="70" y="861" fill="#c2cde0" font-size="11">Administrador</text>
+
+  <!-- Page Header -->
+  <text x="284" y="64" fill="#0a122a" font-size="26" font-weight="800">Cadastrar Novo Mouse</text>
+  <text x="284" y="90" fill="#64708d" font-size="14">Preencha as informações técnicas e adicione as fotos do produto</text>
+
+  <!-- Main Form Card (1112px wide) -->
+  <g transform="translate(284, 128)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="1112" height="712" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+
+    <!-- Left Form Fields (640px) -->
+    <text x="40" y="48" fill="#7d53de" font-size="12" font-weight="800" letter-spacing="1">INFORMAÇÕES DO PRODUTO</text>
+
+    <!-- Row 1: Modelo + Marca -->
+    <text x="40" y="84" fill="#2c3652" font-size="13" font-weight="700">Modelo do Mouse</text>
+    <rect x="40" y="94" width="380" height="48" rx="10" fill="#ffffff" stroke="#7d53de" stroke-width="2"/>
+    <text x="58" y="123" fill="#0a122a" font-size="14" font-weight="600">Razer Viper V3 Pro</text>
+
+    <text x="444" y="84" fill="#2c3652" font-size="13" font-weight="700">Marca</text>
+    <rect x="444" y="94" width="240" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="462" y="123" fill="#0a122a" font-size="14">Razer</text>
+    <text x="660" y="123" fill="#64708d" font-size="12">▼</text>
+
+    <!-- Row 2: Sensor + DPI + Peso -->
+    <text x="40" y="176" fill="#2c3652" font-size="13" font-weight="700">Sensor Óptico</text>
+    <rect x="40" y="186" width="240" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="58" y="215" fill="#0a122a" font-size="14">Focus Pro 35K</text>
+
+    <text x="304" y="176" fill="#2c3652" font-size="13" font-weight="700">DPI Máximo</text>
+    <rect x="304" y="186" width="180" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="322" y="215" fill="#0a122a" font-size="14" font-family="monospace">35000</text>
+
+    <text x="508" y="176" fill="#2c3652" font-size="13" font-weight="700">Peso (g)</text>
+    <rect x="508" y="186" width="176" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="526" y="215" fill="#0a122a" font-size="14" font-family="monospace">54</text>
+
+    <!-- Row 3: Conexão + Pegada + Polling Rate -->
+    <text x="40" y="268" fill="#2c3652" font-size="13" font-weight="700">Tipo de Conexão</text>
+    <rect x="40" y="278" width="240" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="58" y="307" fill="#0a122a" font-size="14">Sem Fio (Wireless)</text>
+
+    <text x="304" y="268" fill="#2c3652" font-size="13" font-weight="700">Pegada Recomendada</text>
+    <rect x="304" y="278" width="180" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="322" y="307" fill="#0a122a" font-size="14">Claw</text>
+
+    <text x="508" y="268" fill="#2c3652" font-size="13" font-weight="700">Polling Rate</text>
+    <rect x="508" y="278" width="176" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="526" y="307" fill="#0a122a" font-size="14" font-family="monospace">8000 Hz</text>
+
+    <!-- Row 4: Preço + Estoque -->
+    <text x="40" y="360" fill="#2c3652" font-size="13" font-weight="700">Preço de Venda (R$)</text>
+    <rect x="40" y="370" width="310" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="58" y="399" fill="#0a122a" font-size="15" font-weight="700" font-family="monospace">1.199,90</text>
+
+    <text x="374" y="360" fill="#2c3652" font-size="13" font-weight="700">Quantidade em Estoque</text>
+    <rect x="374" y="370" width="310" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="392" y="399" fill="#0a122a" font-size="15" font-weight="700" font-family="monospace">14</text>
+
+    <!-- Row 5: Descrição -->
+    <text x="40" y="452" fill="#2c3652" font-size="13" font-weight="700">Descrição do Produto</text>
+    <rect x="40" y="462" width="644" height="110" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="58" y="494" fill="#2c3652" font-size="14">Mouse gamer sem fio ultraleve projetado para e-sports profissionais.</text>
+
+    <!-- Right Column: Clean Image Upload Box (348px) -->
+    <text x="724" y="48" fill="#7d53de" font-size="12" font-weight="800" letter-spacing="1">FOTO DO PRODUTO</text>
+    <rect x="724" y="94" width="348" height="324" rx="16" fill="#eef8ff" stroke="#7d53de" stroke-dasharray="6 4" stroke-width="1.5"/>
+      <g transform="translate(898,224) scale(1.2)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+    <text x="898" y="346" text-anchor="middle" fill="#0a122a" font-size="14" font-weight="700">Arraste uma imagem ou clique aqui</text>
+    <text x="898" y="370" text-anchor="middle" fill="#64708d" font-size="12">PNG, JPG ou WEBP (Máx. 5MB)</text>
+
+    <!-- Bottom Action Buttons -->
+    <line x1="40" y1="612" x2="1072" y2="612" stroke="#dde5f0"/>
+
+    <rect x="740" y="636" width="144" height="48" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="812" y="665" text-anchor="middle" fill="#0a122a" font-size="14" font-weight="700">Cancelar</text>
+
+    <rect x="900" y="636" width="172" height="48" rx="10" fill="#dacc3e"/>
+    <text x="986" y="665" text-anchor="middle" fill="#0a122a" font-size="14" font-weight="800">Salvar Produto</text>
+  </g>
+</svg>

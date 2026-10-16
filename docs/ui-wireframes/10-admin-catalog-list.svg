@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="'Inter', 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif">
+  <title>10 — Admin Catalog: Products List (/admin/mouses)</title>
+  <desc>Clean product management table view</desc>
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a122a"/>
+      <stop offset="100%" stop-color="#1c1947"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="72%" cy="50%" r="38%">
+      <stop offset="0%" stop-color="#d1f5ff" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#7d53de" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0a122a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0a122a" flood-opacity="0.04"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#f6f9fc"/>
+  <!-- Admin Left Sidebar (240px) -->
+  <rect x="0" y="0" width="240" height="900" fill="#0a122a"/>
+  <g transform="translate(24, 26)">
+    <rect x="0" y="0" width="34" height="34" rx="9" fill="#7d53de"/>
+    <rect x="14" y="7" width="6" height="11" rx="3" fill="#dacc3e"/>
+    <text x="46" y="23" fill="#ffffff" font-size="17" font-weight="800">MOUSETRAP</text>
+  </g>
+  <line x1="20" y1="84" x2="220" y2="84" stroke="#162246"/>
+  
+    <text x="44" y="147" fill="#c2cde0" font-size="14" font-weight="500">Pedidos</text>
+    <rect x="20" y="176" width="200" height="44" rx="10" fill="#7d53de"/>
+    <rect x="20" y="186" width="4" height="24" rx="2" fill="#dacc3e"/>
+    <text x="44" y="203" fill="#ffffff" font-size="14" font-weight="700">Mouses</text>
+    <text x="44" y="259" fill="#c2cde0" font-size="14" font-weight="500">Marcas</text>
+    <text x="44" y="315" fill="#c2cde0" font-size="14" font-weight="500">Clientes</text>
+  <!-- Bottom User Profile -->
+  <rect x="20" y="820" width="200" height="56" rx="12" fill="#162246"/>
+  <circle cx="46" cy="848" r="14" fill="#dacc3e"/>
+  <text x="46" y="853" text-anchor="middle" fill="#0a122a" font-size="12" font-weight="800">RP</text>
+  <text x="70" y="844" fill="#ffffff" font-size="13" font-weight="700">Rafael Pacini</text>
+  <text x="70" y="861" fill="#c2cde0" font-size="11">Administrador</text>
+
+  <!-- Header & New Button -->
+  <text x="284" y="64" fill="#0a122a" font-size="26" font-weight="800">Mouses Cadastrados</text>
+  <text x="284" y="90" fill="#64708d" font-size="14">Gerencie o catálogo de produtos e o estoque disponível</text>
+
+  <g transform="translate(1216, 42)">
+    <rect x="0" y="0" width="180" height="46" rx="12" fill="#dacc3e"/>
+    <text x="90" y="29" text-anchor="middle" fill="#0a122a" font-size="14" font-weight="800">+ Novo Mouse</text>
+  </g>
+
+  <!-- Main Table Card -->
+  <g transform="translate(284, 128)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="1112" height="712" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+
+    <!-- Search Input -->
+    <rect x="32" y="28" width="380" height="44" rx="10" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="52" y="55" fill="#64708d" font-size="13">Buscar por modelo ou marca...</text>
+
+    <rect x="424" y="28" width="116" height="44" rx="10" fill="#0a122a"/>
+    <text x="482" y="55" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Buscar</text>
+
+    <!-- Table Header -->
+    <rect x="32" y="96" width="1048" height="44" rx="8" fill="#eef8ff"/>
+    <text x="112" y="123" fill="#2c3652" font-size="12" font-weight="800">PRODUTO</text>
+    <text x="372" y="123" fill="#2c3652" font-size="12" font-weight="800">MARCA</text>
+    <text x="532" y="123" fill="#2c3652" font-size="12" font-weight="800">ESPECIFICAÇÃO</text>
+    <text x="722" y="123" fill="#2c3652" font-size="12" font-weight="800">PREÇO</text>
+    <text x="862" y="123" fill="#2c3652" font-size="12" font-weight="800">ESTOQUE</text>
+    <text x="976" y="123" fill="#2c3652" font-size="12" font-weight="800">AÇÕES</text>
+
+    <text x="1080" y="668" text-anchor="end" fill="#64708d" font-size="13">Mostrando 1–5 de 24 produtos   ·   ◄   1   2   3   ►</text>
+  </g>
+
+  
+  <g transform="translate(316, 304)">
+    <rect x="0" y="0" width="1048" height="68" rx="10" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="16" y="10" width="48" height="48" rx="8" fill="#eef8ff"/>
+      <g transform="translate(40,34) scale(0.28)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+    <text x="80" y="39" fill="#0a122a" font-size="15" font-weight="800">Razer Viper V3 Pro</text>
+    <text x="340" y="39" fill="#2c3652" font-size="14" font-weight="600">Razer</text>
+    <text x="500" y="39" fill="#64708d" font-size="14">Sem Fio · 54g</text>
+    <text x="690" y="39" fill="#0a122a" font-size="15" font-weight="800" font-family="monospace">R$ 1.199,90</text>
+
+    <rect x="804" y="19" width="76" height="30" rx="8" fill="#e6f9f1"/>
+    <text x="842" y="39" text-anchor="middle" fill="#065f46" font-size="12" font-weight="800">14 un.</text>
+
+    <rect x="896" y="17" width="64" height="34" rx="8" fill="#eef8ff"/>
+    <text x="928" y="39" text-anchor="middle" fill="#7d53de" font-size="12" font-weight="800">Editar</text>
+
+    <rect x="968" y="17" width="66" height="34" rx="8" fill="#fee2e2"/>
+    <text x="1001" y="39" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="800">Excluir</text>
+  </g>
+  <g transform="translate(316, 386)">
+    <rect x="0" y="0" width="1048" height="68" rx="10" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="16" y="10" width="48" height="48" rx="8" fill="#eef8ff"/>
+      <g transform="translate(40,34) scale(0.28)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+    <text x="80" y="39" fill="#0a122a" font-size="15" font-weight="800">G Pro X Superlight 2</text>
+    <text x="340" y="39" fill="#2c3652" font-size="14" font-weight="600">Logitech G</text>
+    <text x="500" y="39" fill="#64708d" font-size="14">Sem Fio · 60g</text>
+    <text x="690" y="39" fill="#0a122a" font-size="15" font-weight="800" font-family="monospace">R$ 949,90</text>
+
+    <rect x="804" y="19" width="76" height="30" rx="8" fill="#e6f9f1"/>
+    <text x="842" y="39" text-anchor="middle" fill="#065f46" font-size="12" font-weight="800">22 un.</text>
+
+    <rect x="896" y="17" width="64" height="34" rx="8" fill="#eef8ff"/>
+    <text x="928" y="39" text-anchor="middle" fill="#7d53de" font-size="12" font-weight="800">Editar</text>
+
+    <rect x="968" y="17" width="66" height="34" rx="8" fill="#fee2e2"/>
+    <text x="1001" y="39" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="800">Excluir</text>
+  </g>
+  <g transform="translate(316, 468)">
+    <rect x="0" y="0" width="1048" height="68" rx="10" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="16" y="10" width="48" height="48" rx="8" fill="#eef8ff"/>
+      <g transform="translate(40,34) scale(0.28)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+    <text x="80" y="39" fill="#0a122a" font-size="15" font-weight="800">Lamzu Atlantis Mini 4K</text>
+    <text x="340" y="39" fill="#2c3652" font-size="14" font-weight="600">Lamzu</text>
+    <text x="500" y="39" fill="#64708d" font-size="14">Sem Fio · 49g</text>
+    <text x="690" y="39" fill="#0a122a" font-size="15" font-weight="800" font-family="monospace">R$ 749,90</text>
+
+    <rect x="804" y="19" width="76" height="30" rx="8" fill="#e6f9f1"/>
+    <text x="842" y="39" text-anchor="middle" fill="#065f46" font-size="12" font-weight="800">8 un.</text>
+
+    <rect x="896" y="17" width="64" height="34" rx="8" fill="#eef8ff"/>
+    <text x="928" y="39" text-anchor="middle" fill="#7d53de" font-size="12" font-weight="800">Editar</text>
+
+    <rect x="968" y="17" width="66" height="34" rx="8" fill="#fee2e2"/>
+    <text x="1001" y="39" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="800">Excluir</text>
+  </g>
+  <g transform="translate(316, 550)">
+    <rect x="0" y="0" width="1048" height="68" rx="10" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="16" y="10" width="48" height="48" rx="8" fill="#eef8ff"/>
+      <g transform="translate(40,34) scale(0.28)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+    <text x="80" y="39" fill="#0a122a" font-size="15" font-weight="800">Pulsar X2V2 Mini</text>
+    <text x="340" y="39" fill="#2c3652" font-size="14" font-weight="600">Pulsar</text>
+    <text x="500" y="39" fill="#64708d" font-size="14">Sem Fio · 51g</text>
+    <text x="690" y="39" fill="#0a122a" font-size="15" font-weight="800" font-family="monospace">R$ 699,90</text>
+
+    <rect x="804" y="19" width="76" height="30" rx="8" fill="#fef5e7"/>
+    <text x="842" y="39" text-anchor="middle" fill="#92400e" font-size="12" font-weight="800">3 un.</text>
+
+    <rect x="896" y="17" width="64" height="34" rx="8" fill="#eef8ff"/>
+    <text x="928" y="39" text-anchor="middle" fill="#7d53de" font-size="12" font-weight="800">Editar</text>
+
+    <rect x="968" y="17" width="66" height="34" rx="8" fill="#fee2e2"/>
+    <text x="1001" y="39" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="800">Excluir</text>
+  </g>
+  <g transform="translate(316, 632)">
+    <rect x="0" y="0" width="1048" height="68" rx="10" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="16" y="10" width="48" height="48" rx="8" fill="#eef8ff"/>
+      <g transform="translate(40,34) scale(0.28)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+    <text x="80" y="39" fill="#0a122a" font-size="15" font-weight="800">Ninjutso Sora V2</text>
+    <text x="340" y="39" fill="#2c3652" font-size="14" font-weight="600">Ninjutso</text>
+    <text x="500" y="39" fill="#64708d" font-size="14">Sem Fio · 39g</text>
+    <text x="690" y="39" fill="#0a122a" font-size="15" font-weight="800" font-family="monospace">R$ 799,90</text>
+
+    <rect x="804" y="19" width="76" height="30" rx="8" fill="#e6f9f1"/>
+    <text x="842" y="39" text-anchor="middle" fill="#065f46" font-size="12" font-weight="800">11 un.</text>
+
+    <rect x="896" y="17" width="64" height="34" rx="8" fill="#eef8ff"/>
+    <text x="928" y="39" text-anchor="middle" fill="#7d53de" font-size="12" font-weight="800">Editar</text>
+
+    <rect x="968" y="17" width="66" height="34" rx="8" fill="#fee2e2"/>
+    <text x="1001" y="39" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="800">Excluir</text>
+  </g>
+</svg>

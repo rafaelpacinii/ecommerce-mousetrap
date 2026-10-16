@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="'Inter', 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif">
+  <title>00 — Design System &amp; Tokens</title>
+  <desc>Clean visual identity and component tokens</desc>
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a122a"/>
+      <stop offset="100%" stop-color="#1c1947"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="72%" cy="50%" r="38%">
+      <stop offset="0%" stop-color="#d1f5ff" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#7d53de" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0a122a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0a122a" flood-opacity="0.04"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#f6f9fc"/>
+  <!-- Top Banner -->
+  <rect x="0" y="0" width="1440" height="96" fill="#0a122a"/>
+  <text x="80" y="42" fill="#dacc3e" font-size="12" font-weight="800" letter-spacing="1.5">IDENTIDADE VISUAL UNIFICADA</text>
+  <text x="80" y="72" fill="#ffffff" font-size="26" font-weight="800">MouseTrap — Design System &amp; Componentes</text>
+
+  
+  <g transform="translate(80, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="240" height="190" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="12" y="12" width="216" height="92" rx="10" fill="#0a122a"/>
+    <text x="24" y="44" fill="#ffffff" font-size="14" font-weight="800">#0a122a</text>
+    <text x="20" y="132" fill="#0a122a" font-size="15" font-weight="800">Prussian Blue</text>
+    <text x="20" y="152" fill="#7d53de" font-size="12" font-family="monospace">--prussian-blue</text>
+    <text x="20" y="172" fill="#64708d" font-size="12">Textos, Header e Sidebar</text>
+  </g>
+  <g transform="translate(340, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="240" height="190" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="12" y="12" width="216" height="92" rx="10" fill="#7d53de"/>
+    <text x="24" y="44" fill="#ffffff" font-size="14" font-weight="800">#7d53de</text>
+    <text x="20" y="132" fill="#0a122a" font-size="15" font-weight="800">Slate Blue</text>
+    <text x="20" y="152" fill="#7d53de" font-size="12" font-family="monospace">--slate-blue</text>
+    <text x="20" y="172" fill="#64708d" font-size="12">Cor Primária e Filtros Ativos</text>
+  </g>
+  <g transform="translate(600, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="240" height="190" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="12" y="12" width="216" height="92" rx="10" fill="#dacc3e"/>
+    <text x="24" y="44" fill="#0a122a" font-size="14" font-weight="800">#dacc3e</text>
+    <text x="20" y="132" fill="#0a122a" font-size="15" font-weight="800">Golden Glow</text>
+    <text x="20" y="152" fill="#7d53de" font-size="12" font-family="monospace">--golden-glow</text>
+    <text x="20" y="172" fill="#64708d" font-size="12">Botões de Compra (CTA)</text>
+  </g>
+  <g transform="translate(860, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="240" height="190" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="12" y="12" width="216" height="92" rx="10" fill="#d1f5ff"/>
+    <text x="24" y="44" fill="#0a122a" font-size="14" font-weight="800">#d1f5ff</text>
+    <text x="20" y="132" fill="#0a122a" font-size="15" font-weight="800">Light Cyan</text>
+    <text x="20" y="152" fill="#7d53de" font-size="12" font-family="monospace">--light-cyan</text>
+    <text x="20" y="172" fill="#64708d" font-size="12">Tags Técnicas e Destaques</text>
+  </g>
+  <g transform="translate(1120, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="240" height="190" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="12" y="12" width="216" height="92" rx="10" fill="#eef8ff"/>
+    <text x="24" y="44" fill="#0a122a" font-size="14" font-weight="800">#eef8ff</text>
+    <text x="20" y="132" fill="#0a122a" font-size="15" font-weight="800">Alice Blue</text>
+    <text x="20" y="152" fill="#7d53de" font-size="12" font-family="monospace">--alice-blue</text>
+    <text x="20" y="172" fill="#64708d" font-size="12">Fundo de Imagens e Seções</text>
+  </g>
+
+  <!-- Left Card: Typography -->
+  <g transform="translate(80, 366)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="620" height="480" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <text x="36" y="44" fill="#7d53de" font-size="12" font-weight="800" letter-spacing="1.2">TIPOGRAFIA &amp; HIERARQUIA</text>
+    <line x1="36" y1="62" x2="584" y2="62" stroke="#dde5f0"/>
+
+    <text x="36" y="114" fill="#0a122a" font-size="32" font-weight="800">Título Principal (H1)</text>
+    <text x="36" y="140" fill="#64708d" font-size="13">Plus Jakarta Sans / Inter · 32px · Bold</text>
+
+    <text x="36" y="198" fill="#0a122a" font-size="22" font-weight="700">Título de Seção (H2)</text>
+    <text x="36" y="222" fill="#64708d" font-size="13">Plus Jakarta Sans / Inter · 22px · SemiBold</text>
+
+    <text x="36" y="276" fill="#2c3652" font-size="15">Texto de apoio limpo, legível e com espaçamento confortável.</text>
+    <text x="36" y="298" fill="#64708d" font-size="13">Inter / Roboto · 15px · Regular</text>
+
+    <rect x="36" y="336" width="548" height="108" rx="12" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="56" y="370" fill="#64708d" font-size="12" font-weight="700">VALORES NUMÉRICOS E ESPECIFICAÇÕES</text>
+    <text x="56" y="410" fill="#0a122a" font-size="24" font-weight="800" font-family="monospace">R$ 899,90  ·  54g  ·  8000 Hz</text>
+  </g>
+
+  <!-- Right Card: UI Components -->
+  <g transform="translate(740, 366)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="620" height="480" rx="16" fill="#ffffff" stroke="#dde5f0"/>
+    <text x="36" y="44" fill="#7d53de" font-size="12" font-weight="800" letter-spacing="1.2">BOTÕES, CAMPOS E STATUS (ANGULAR MATERIAL)</text>
+    <line x1="36" y1="62" x2="584" y2="62" stroke="#dde5f0"/>
+
+    <!-- Buttons -->
+    <text x="36" y="96" fill="#64708d" font-size="12" font-weight="700">BOTÕES</text>
+    <rect x="36" y="112" width="180" height="46" rx="10" fill="#dacc3e"/>
+    <text x="126" y="140" text-anchor="middle" fill="#0a122a" font-size="14" font-weight="800">Comprar Agora</text>
+
+    <rect x="232" y="112" width="170" height="46" rx="10" fill="#7d53de"/>
+    <text x="317" y="140" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">Salvar Dados</text>
+
+    <rect x="418" y="112" width="150" height="46" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="493" y="140" text-anchor="middle" fill="#0a122a" font-size="14" font-weight="700">Cancelar</text>
+
+    <!-- Inputs -->
+    <text x="36" y="198" fill="#64708d" font-size="12" font-weight="700">CAMPOS DE FORMULÁRIO</text>
+    <rect x="36" y="214" width="264" height="54" rx="10" fill="#ffffff" stroke="#7d53de" stroke-width="2"/>
+    <text x="52" y="234" fill="#7d53de" font-size="11" font-weight="700">Nome do Produto</text>
+    <text x="52" y="255" fill="#0a122a" font-size="14" font-weight="600">Razer Viper V3 Pro</text>
+
+    <rect x="320" y="214" width="264" height="54" rx="10" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="336" y="234" fill="#64708d" font-size="11" font-weight="700">Marca</text>
+    <text x="336" y="255" fill="#0a122a" font-size="14" font-weight="600">Razer</text>
+
+    <!-- Badges -->
+    <text x="36" y="310" fill="#64708d" font-size="12" font-weight="700">TAGS TÉCNICAS E STATUS DE PEDIDO</text>
+    <rect x="36" y="328" width="96" height="32" rx="8" fill="#d1f5ff"/>
+    <text x="84" y="349" text-anchor="middle" fill="#0a122a" font-size="12" font-weight="800">8000 Hz</text>
+
+    <rect x="144" y="328" width="84" height="32" rx="8" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="186" y="349" text-anchor="middle" fill="#0a122a" font-size="12" font-weight="700">54g</text>
+
+    <rect x="240" y="328" width="104" height="32" rx="8" fill="#e6f9f1"/>
+    <text x="292" y="349" text-anchor="middle" fill="#065f46" font-size="12" font-weight="800">Pago</text>
+
+    <rect x="356" y="328" width="116" height="32" rx="8" fill="#fef5e7"/>
+    <text x="414" y="349" text-anchor="middle" fill="#92400e" font-size="12" font-weight="800">Aguardando</text>
+
+    <rect x="484" y="328" width="100" height="32" rx="8" fill="#e0f2fe"/>
+    <text x="534" y="349" text-anchor="middle" fill="#075985" font-size="12" font-weight="800">Enviado</text>
+
+    <!-- Rule Note -->
+    <rect x="36" y="388" width="548" height="56" rx="10" fill="#eef8ff"/>
+    <text x="56" y="421" fill="#2c3652" font-size="13" font-weight="600">Regra de ouro: Mais espaço em branco, textos concisos e foco no produto.</text>
+  </g>
+</svg>
