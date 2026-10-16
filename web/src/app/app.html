@@ -1,10 +1,14 @@
 <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 <header class="topo">
-  <a class="identidade" routerLink="/mouses"><mat-icon>mouse</mat-icon><span>MouseTrap<small>Administração do
-        catálogo</small></span></a>
+  <a class="identidade" routerLink="/mouses"
+    ><mat-icon>mouse</mat-icon><span>MouseTrap<small>Administração do catálogo</small></span></a
+  >
   <nav aria-label="Navegação principal">
     <a routerLink="/marcas" routerLinkActive="selecionado" ariaCurrentWhenActive="page">Marcas</a>
     <a routerLink="/mouses" routerLinkActive="selecionado" ariaCurrentWhenActive="page">Mouses</a>
+    <a routerLink="/clientes" routerLinkActive="selecionado" ariaCurrentWhenActive="page"
+      >Clientes</a
+    >
   </nav>
 </header>
 <main id="conteudo" tabindex="-1"><router-outlet /></main>

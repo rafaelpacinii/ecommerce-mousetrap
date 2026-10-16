@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+.formulario {
+  max-width: 760px;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.acoes {
+  display: flex;
+  gap: 1rem;
+}

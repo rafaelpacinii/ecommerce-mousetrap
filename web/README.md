@@ -72,3 +72,7 @@ Na estrutura com `api` e `web` lado a lado:
 - [API: execução e testes](../api/README.md).
 - [Catálogo: contratos e regras de negócio](../api/docs/catalogo.md).
 - [Modelagem em PlantUML](../api/docs/modelagem/README.md).
+
+## Clientes e consulta por CEP
+
+Cadastro, edição, listagem e exclusão de clientes com endereço estruturado em Município e Estado, preenchimento por ViaCEP e validações nos dois lados. Acesse `/clientes` pelo menu. Consulte o CEP, complete o endereço e informe os dados do cliente. Na edição, o resolver pré-carrega o cadastro; alterar o CEP exige nova consulta. CEP inexistente ou indisponibilidade são exibidos no formulário. O backend determina Município e Estado pelo código IBGE e UF retornados pelo ViaCEP.

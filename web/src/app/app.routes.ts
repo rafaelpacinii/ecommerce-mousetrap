@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { marcaResolver } from './resolvers/marca.resolver';
 import { mouseResolver } from './resolvers/mouse.resolver';
 
+import { clienteResolver } from './resolvers/cliente.resolver';
+
 export const routes: Routes = [
   {
     path: 'marcas',
@@ -40,6 +42,25 @@ export const routes: Routes = [
       import('./components/mouses/mouse-form/mouse-form').then((m) => m.MouseFormComponent),
     resolve: { mouse: mouseResolver },
     title: 'Editar mouse | MouseTrap',
+  },
+  {
+    path: 'clientes',
+    loadComponent: () =>
+      import('./components/clientes/cliente-list/cliente-list').then((m) => m.ClienteListComponent),
+    title: 'Clientes | MouseTrap',
+  },
+  {
+    path: 'clientes/novo',
+    loadComponent: () =>
+      import('./components/clientes/cliente-form/cliente-form').then((m) => m.ClienteFormComponent),
+    title: 'Cadastrar cliente | MouseTrap',
+  },
+  {
+    path: 'clientes/editar/:id',
+    loadComponent: () =>
+      import('./components/clientes/cliente-form/cliente-form').then((m) => m.ClienteFormComponent),
+    resolve: { cliente: clienteResolver },
+    title: 'Editar cliente | MouseTrap',
   },
   { path: '', redirectTo: 'marcas', pathMatch: 'full' },
   { path: '**', redirectTo: 'marcas' },
