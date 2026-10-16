@@ -15,7 +15,7 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
     @Override
     public Response toResponse(WebApplicationException exception) {
         int status = exception.getResponse().getStatus();
-        String detail = status == 404 ? "Registro ou rota não encontrado." : "Não foi possível processar a requisição.";
+        String detail = status == 503 ? "Consulta de CEP indisponível. Tente novamente mais tarde." : status == 404 ? "Registro ou rota não encontrado." : "Não foi possível processar a requisição.";
         return Problem.response(status, exception.getResponse().getStatusInfo().getReasonPhrase(),
                 detail, uri.getPath(), List.of());
     }

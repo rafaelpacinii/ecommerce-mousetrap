@@ -90,3 +90,7 @@ java -jar target/quarkus-app/quarkus-run.jar
 - [Modelo de dados e diagrama de classes](docs/modelagem/README.md).
 
 Os endpoints administrativos ainda não exigem autenticação. O controle de acesso deve ser implementado antes de disponibilizá-los publicamente.
+
+## Clientes e consulta por CEP
+
+Cadastro, edição, listagem e exclusão de clientes com endereço estruturado em Município e Estado, preenchimento por ViaCEP e validações nos dois lados. [Contratos, arquitetura, migration e avaliação](docs/clientes-cep.md).

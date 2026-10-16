@@ -31,3 +31,6 @@ quarkus.http.cors.access-control-allow-credentials=true
 
 # Base URL para RFC-7807 (Tratamento de problemas e erros)
 %dev.problem.base-url=http://localhost:8080
+
+# Consulta externa de CEP (timeout: conexão 5s, requisição 8s).
+viacep.url=https://viacep.com.br/ws/
