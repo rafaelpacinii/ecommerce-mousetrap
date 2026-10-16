@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="'Inter', 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif">
+  <title>03 — Storefront Product Detail (/mouses/:id)</title>
+  <desc>Clean split gallery and product buy-box</desc>
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a122a"/>
+      <stop offset="100%" stop-color="#1c1947"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="72%" cy="50%" r="38%">
+      <stop offset="0%" stop-color="#d1f5ff" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#7d53de" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0a122a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0a122a" flood-opacity="0.04"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#f6f9fc"/>
+  <!-- Clean Storefront Header (76px) -->
+  <rect x="0" y="0" width="1440" height="76" fill="#ffffff"/>
+  <line x1="0" y1="76" x2="1440" y2="76" stroke="#dde5f0"/>
+
+  <!-- Logo -->
+  <g transform="translate(80, 20)">
+    <rect x="0" y="0" width="36" height="36" rx="10" fill="#0a122a"/>
+    <rect x="15" y="7" width="6" height="12" rx="3" fill="#dacc3e"/>
+    <text x="48" y="25" fill="#0a122a" font-size="19" font-weight="800" letter-spacing="-0.5">MOUSETRAP</text>
+  </g>
+
+  <!-- Navigation Links -->
+  <g transform="translate(320, 44)" font-size="14" font-weight="600">
+    <text x="0" y="0" fill="#2c3652">Início</text>
+    <text x="76" y="0" fill="#7d53de">Mouses</text>
+    <text x="164" y="0" fill="#2c3652">Marcas</text>
+    <text x="252" y="0" fill="#2c3652">Meus Pedidos</text>
+  </g>
+
+  <!-- Search Input -->
+  <g transform="translate(860, 18)">
+    <rect x="0" y="0" width="240" height="40" rx="10" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="16" y="25" fill="#64708d" font-size="13">Buscar mouse...</text>
+  </g>
+
+  <!-- Actions: Cart + Entrar/Conta -->
+  <g transform="translate(1116, 18)">
+    <rect x="0" y="0" width="120" height="40" rx="10" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="44" y="25" text-anchor="middle" fill="#0a122a" font-size="13" font-weight="700">Carrinho</text>
+    <rect x="86" y="8" width="24" height="24" rx="6" fill="#dacc3e"/>
+    <text x="98" y="25" text-anchor="middle" fill="#0a122a" font-size="12" font-weight="800">2</text>
+
+    <rect x="132" y="0" width="112" height="40" rx="10" fill="#0a122a"/>
+    <text x="188" y="25" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Minha Conta</text>
+  </g>
+
+  <!-- Breadcrumb -->
+  <text x="80" y="116" fill="#64708d" font-size="13">Início  /  Mouses  /  <tspan fill="#0a122a" font-weight="700">Razer Viper V3 Pro</tspan></text>
+
+  <!-- Left Column: Product Gallery (600px) -->
+  <g transform="translate(80, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="600" height="540" rx="20" fill="#ffffff" stroke="#dde5f0"/>
+    <rect x="24" y="24" width="552" height="380" rx="16" fill="#eef8ff"/>
+      <g transform="translate(300,214) scale(1.85)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+
+    <!-- 3 Clean Thumbnails -->
+    <rect x="132" y="424" width="96" height="88" rx="12" fill="#eef8ff" stroke="#7d53de" stroke-width="2"/>
+      <g transform="translate(180,468) scale(0.45)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#0a122a" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+
+    <rect x="252" y="424" width="96" height="88" rx="12" fill="#eef8ff" stroke="#dde5f0"/>
+      <g transform="translate(300,468) scale(0.45)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#2c3652" stroke="#d1f5ff" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#d1f5ff" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#d1f5ff" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#d1f5ff"/>
+  </g>
+
+    <rect x="372" y="424" width="96" height="88" rx="12" fill="#eef8ff" stroke="#dde5f0"/>
+      <g transform="translate(420,468) scale(0.45)">
+    <ellipse cx="0" cy="4" rx="36" ry="54" fill="#d1f5ff" opacity="0.35"/>
+    <rect x="-26" y="-44" width="52" height="88" rx="26" fill="#7d53de" stroke="#dacc3e" stroke-width="2"/>
+    <line x1="0" y1="-44" x2="0" y2="-8" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -25,-8 Q 0,-2 25,-8" fill="none" stroke="#dacc3e" stroke-width="1.5" opacity="0.7"/>
+    <rect x="-4" y="-34" width="8" height="18" rx="4" fill="#dacc3e"/>
+  </g>
+  </g>
+
+  <!-- Right Column: Product Info & Buy Box (632px) -->
+  <g transform="translate(728, 140)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="632" height="690" rx="20" fill="#ffffff" stroke="#dde5f0"/>
+
+    <rect x="40" y="36" width="84" height="26" rx="6" fill="#d1f5ff"/>
+    <text x="82" y="54" text-anchor="middle" fill="#0a122a" font-size="11" font-weight="800">RAZER</text>
+
+    <rect x="136" y="36" width="112" height="26" rx="6" fill="#e6f9f1"/>
+    <text x="192" y="54" text-anchor="middle" fill="#065f46" font-size="11" font-weight="800">Em estoque</text>
+
+    <text x="40" y="102" fill="#0a122a" font-size="30" font-weight="800">Razer Viper V3 Pro</text>
+    <text x="40" y="130" fill="#64708d" font-size="14">Mouse gamer sem fio ultraleve de 54g com dongle HyperPolling 8000 Hz.</text>
+
+    <!-- Price Block -->
+    <rect x="40" y="156" width="552" height="88" rx="14" fill="#eef8ff" stroke="#dde5f0"/>
+    <text x="64" y="198" fill="#0a122a" font-size="30" font-weight="800" font-family="monospace">R$ 1.199,90</text>
+    <text x="64" y="224" fill="#64708d" font-size="13">À vista no PIX ou em até 10x de R$ 119,99 sem juros</text>
+
+    <!-- 2x2 Essential Specs Grid -->
+    <text x="40" y="280" fill="#0a122a" font-size="13" font-weight="800">ESPECIFICAÇÕES PRINCIPAIS</text>
+
+    <rect x="40" y="296" width="266" height="68" rx="12" fill="#f6f9fc" stroke="#dde5f0"/>
+    <text x="60" y="322" fill="#64708d" font-size="11" font-weight="700">SENSOR ÓPTICO</text>
+    <text x="60" y="346" fill="#0a122a" font-size="15" font-weight="800">Focus Pro 35K (35.000 DPI)</text>
+
+    <rect x="326" y="296" width="266" height="68" rx="12" fill="#f6f9fc" stroke="#dde5f0"/>
+    <text x="346" y="322" fill="#64708d" font-size="11" font-weight="700">PESO E PEGADA</text>
+    <text x="346" y="346" fill="#0a122a" font-size="15" font-weight="800">54g · Claw / Fingertip</text>
+
+    <rect x="40" y="378" width="266" height="68" rx="12" fill="#f6f9fc" stroke="#dde5f0"/>
+    <text x="60" y="404" fill="#64708d" font-size="11" font-weight="700">POLLING RATE</text>
+    <text x="60" y="428" fill="#0a122a" font-size="15" font-weight="800">8000 Hz Real Wireless</text>
+
+    <rect x="326" y="378" width="266" height="68" rx="12" fill="#f6f9fc" stroke="#dde5f0"/>
+    <text x="346" y="404" fill="#64708d" font-size="11" font-weight="700">CONEXÃO</text>
+    <text x="346" y="428" fill="#0a122a" font-size="15" font-weight="800">Sem Fio 2.4GHz + Cabo USB-C</text>
+
+    <!-- Primary CTA Button -->
+    <rect x="40" y="476" width="552" height="54" rx="12" fill="#dacc3e"/>
+    <text x="316" y="509" text-anchor="middle" fill="#0a122a" font-size="16" font-weight="800">Adicionar ao Carrinho</text>
+
+    <line x1="40" y1="558" x2="592" y2="558" stroke="#dde5f0"/>
+
+    <!-- Clean Shipping Calculator -->
+    <text x="40" y="590" fill="#0a122a" font-size="13" font-weight="800">Calcular frete e prazo</text>
+    <rect x="40" y="604" width="220" height="44" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="58" y="631" fill="#0a122a" font-size="14" font-family="monospace">77001-000</text>
+    <rect x="272" y="604" width="120" height="44" rx="10" fill="#0a122a"/>
+    <text x="332" y="631" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Calcular</text>
+    <text x="412" y="631" fill="#065f46" font-size="13" font-weight="700">Frete: R$ 29,90 (3 dias)</text>
+  </g>
+</svg>

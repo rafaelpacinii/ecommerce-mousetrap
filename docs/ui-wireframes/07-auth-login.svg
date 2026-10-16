@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" font-family="'Inter', 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif">
+  <title>07 — Unified Login (/login)</title>
+  <desc>Single unified login screen with automatic role-based redirect after login</desc>
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a122a"/>
+      <stop offset="100%" stop-color="#1c1947"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="72%" cy="50%" r="38%">
+      <stop offset="0%" stop-color="#d1f5ff" stop-opacity="0.25"/>
+      <stop offset="55%" stop-color="#7d53de" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0a122a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#0a122a" flood-opacity="0.04"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="#f6f9fc"/>
+  <!-- Minimalist Top Brand Bar -->
+  <rect x="0" y="0" width="1440" height="76" fill="#ffffff"/>
+  <line x1="0" y1="76" x2="1440" y2="76" stroke="#dde5f0"/>
+  <g transform="translate(80, 20)">
+    <rect x="0" y="0" width="36" height="36" rx="10" fill="#0a122a"/>
+    <rect x="15" y="7" width="6" height="12" rx="3" fill="#dacc3e"/>
+    <text x="48" y="25" fill="#0a122a" font-size="19" font-weight="800">MOUSETRAP</text>
+  </g>
+  <text x="1360" y="44" text-anchor="end" fill="#64708d" font-size="14" font-weight="600">← Voltar para a loja</text>
+
+  <!-- Centered Single Login Card (480px wide) -->
+  <g transform="translate(480, 164)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="480" height="540" rx="22" fill="#ffffff" stroke="#dde5f0"/>
+
+    <!-- Logo Badge Centered -->
+    <rect x="212" y="40" width="56" height="56" rx="16" fill="#0a122a"/>
+    <rect x="236" y="52" width="8" height="18" rx="4" fill="#dacc3e"/>
+
+    <text x="240" y="132" text-anchor="middle" fill="#0a122a" font-size="26" font-weight="800">Entrar na sua conta</text>
+    <text x="240" y="160" text-anchor="middle" fill="#64708d" font-size="14">Informe seu e-mail e senha para continuar</text>
+
+    <!-- Email Input -->
+    <text x="48" y="208" fill="#2c3652" font-size="13" font-weight="700">E-mail</text>
+    <rect x="48" y="220" width="384" height="50" rx="10" fill="#ffffff" stroke="#7d53de" stroke-width="2"/>
+    <text x="66" y="250" fill="#0a122a" font-size="14" font-weight="600">seu@email.com.br</text>
+
+    <!-- Password Input -->
+    <text x="48" y="302" fill="#2c3652" font-size="13" font-weight="700">Senha</text>
+    <text x="432" y="302" text-anchor="end" fill="#7d53de" font-size="12" font-weight="700">Esqueceu a senha?</text>
+    <rect x="48" y="314" width="384" height="50" rx="10" fill="#ffffff" stroke="#c2cde0"/>
+    <text x="66" y="345" fill="#0a122a" font-size="16" font-weight="800">••••••••••</text>
+
+    <!-- Submit Button -->
+    <rect x="48" y="394" width="384" height="52" rx="12" fill="#dacc3e"/>
+    <text x="240" y="426" text-anchor="middle" fill="#0a122a" font-size="16" font-weight="800">Entrar</text>
+
+    <line x1="48" y1="474" x2="432" y2="474" stroke="#dde5f0"/>
+
+    <text x="240" y="508" text-anchor="middle" fill="#64708d" font-size="14">Ainda não tem conta? <tspan fill="#7d53de" font-weight="800">Criar conta</tspan></text>
+  </g>
+</svg>

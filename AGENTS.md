@@ -13,7 +13,7 @@ Although developed in an academic setting, this project follows enterprise softw
 
 ## 1. Specialist Agent Directory & Roles
 
-In accordance with GitHub's analysis of over 2,500 top-performing agent configurations (*specialists over general helpers*), the repository defines four dedicated agent personas located under `.github/agents/` and `.agents/rules/`:
+In accordance with GitHub's analysis of over 2,500 top-performing agent configurations (*specialists over general helpers*), the repository defines five dedicated agent personas located under `.github/agents/` and `.agents/rules/`:
 
 | Agent | Config File | Primary Responsibility | Standard / Reference |
 | :--- | :--- | :--- | :--- |
@@ -21,6 +21,7 @@ In accordance with GitHub's analysis of over 2,500 top-performing agent configur
 | **Gitflow & Release Agent** | [`.github/agents/gitflow-agent.md`](.github/agents/gitflow-agent.md) | Manages branching, Conventional Commits, and GitHub CLI PR workflows | [Atlassian Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) |
 | **Release Packager Agent** | [`.github/agents/packager-agent.md`](.github/agents/packager-agent.md) | Generates clean, minimized ZIP submission archives for evaluation | Educational Delivery Standard |
 | **Principal Architect Agent** | [`.github/agents/architect-agent.md`](.github/agents/architect-agent.md) | Guides commercial e-commerce roadmap, Keycloak RBAC, and fullstack consistency | Enterprise Clean Architecture |
+| **UI/UX, Design System & SEO Agent** | [`.github/agents/ui-ux-agent.md`](.github/agents/ui-ux-agent.md) | Enforces unified color palette, Angular Material M3 theming, SVG wireframes, and SEO | Material Design 3 & WCAG 2.1 AA |
 
 ---
 
@@ -29,6 +30,7 @@ In accordance with GitHub's analysis of over 2,500 top-performing agent configur
 Run all development and verification tasks using these standard commands:
 
 ### Backend (Quarkus 3.15+, Java 17)
+
 ```bash
 # Start backend in dev mode (Dev UI at /q/dev, Swagger UI at /q/swagger-ui)
 cd api && ./mvnw quarkus:dev
@@ -41,6 +43,7 @@ cd api && ./mvnw clean compile
 ```
 
 ### Frontend (Angular 22+, Node.js)
+
 ```bash
 # Install dependencies
 cd web && npm ci
@@ -56,6 +59,7 @@ cd web && npm run build
 ```
 
 ### Local Infrastructure (PostgreSQL 16 & Keycloak 24+)
+
 ```bash
 # PostgreSQL 16 container for development
 docker run --detach --name mouse-store-postgres \
@@ -71,6 +75,7 @@ docker run --detach --name mousetrap-keycloak \
 ```
 
 ### Packaging & Distribution
+
 ```bash
 # Generate clean, minimized ZIP submission package
 python3 scripts/package_release.py
@@ -86,6 +91,7 @@ unzip -l ../mousetrap_submission_*.zip | grep -E "node_modules|\.git|target|\.an
 The commercial vision of MouseTrap is a competitive gaming peripheral store. The v1.0 release roadmap consists of:
 
 ### 3.1 Backoffice Administration
+
 - **Catalog CRUD:** Brands (`Marca`), Gaming Mice (`Mouse`), Connection Types (`TipoConexao`), and Categories.
 - **Gaming Specifications Management:** Optical sensor models (PixArt PAW3395, Focus Pro 30K, HERO 2), polling rate support (up to 8000Hz), optical/mechanical switches, weight, and multi-mode connectivity.
 - **Inventory & Pricing:** Stock tracking, price updates, optimistic locking concurrency control.
@@ -93,12 +99,14 @@ The commercial vision of MouseTrap is a competitive gaming peripheral store. The
 - **Customer Directory:** Customer list, registration details, and address data.
 
 ### 3.2 Customer Storefront
+
 - **Esports Product Catalog:** Responsive grid with gaming-centric facet filters (Brand, Sensor, Polling Rate, Weight, Grip Style, Connectivity).
 - **Product Detail Page:** Interactive specs sheet, image gallery, switch feel description, stock availability.
 - **Cart & Checkout:** Client-side cart persistence, address autocomplete via ViaCEP, order placement.
 - **Order Tracking:** Customer order history and live status timeline.
 
 ### 3.3 Keycloak Authentication & Authorization
+
 - **Realm:** `mousetrap` configured on Keycloak 24+.
 - **Clients:**
   - `mousetrap-api`: Bearer-only backend client validating JWT tokens via `quarkus-oidc`.
@@ -113,6 +121,7 @@ The commercial vision of MouseTrap is a competitive gaming peripheral store. The
 ## 4. Architectural Standards & Code Conventions
 
 ### 4.1 Backend Patterns (Quarkus / Java 17)
+
 - **Domain Entities & Inheritance:**
   - All business entities inherit from `DefaultEntity` (`id` via `IDENTITY`, `dataCadastro`, `dataAlteracao` with `@PrePersist` and `@PreUpdate`).
   - Domain entity names and table names remain in **Portuguese** for consistency with educational domain requirements (`Mouse`, `Marca`, `TipoConexao`, `Cliente`, `Endereco`, `Municipio`, `Estado`, `Pedido`).
@@ -137,8 +146,10 @@ The commercial vision of MouseTrap is a competitive gaming peripheral store. The
   - Maintained in `application.properties` allowing origin `http://localhost:4200` with credentials and standard HTTP verbs (`GET,PUT,POST,DELETE,PATCH,OPTIONS`).
 
 ### 4.2 Frontend Patterns (Angular 22+)
+
 - **Standalone Components:** All components must use `standalone: true`. Import only necessary Angular Material modules and common directives.
 - **Directory Structure:**
+
   ```text
   web/src/app/
   ├── components/
@@ -149,6 +160,7 @@ The commercial vision of MouseTrap is a competitive gaming peripheral store. The
   ├── services/                    # HttpClient communication and error mapping
   └── resolvers/                   # Functional Route Resolvers (ResolveFn<T>)
   ```
+
 - **List Component Pattern:**
   - Use `mat-table` with sortable headers, pagination, and filter inputs.
   - Action column containing Edit (`edit` icon -> `/editar/:id`) and Delete (`delete` icon with confirmation dialog).
@@ -163,16 +175,31 @@ The commercial vision of MouseTrap is a competitive gaming peripheral store. The
   - Services provide standard CRUD observables (`findAll`, `findById`, `create`, `update`, `delete`).
   - Route Resolvers use modern functional `ResolveFn<T>` to fetch data before navigation completes.
 
+### 4.3 Unified Design System, Color Palette & SVG Wireframes
+- **Core Brand Palette (CSS Custom Properties):**
+  - `--prussian-blue: #0a122a` (Primary dark navy/obsidian for headers, Admin sidebar, Hero banners, primary headings)
+  - `--slate-blue: #7d53de` (Primary interactive accent, M3 primary seed, active states, focus rings)
+  - `--golden-glow: #dacc3e` (High-conversion CTAs, Pro/8KHz highlight badges — always paired with `#0a122a` dark text for AAA contrast)
+  - `--light-cyan: #d1f5ff` (Technical spec pills, wireless/sensor badges — always paired with `#0a122a` text)
+  - `--alice-blue: #eef8ff` (Product image stages, secondary filter boxes, subtle surface highlights)
+- **Extended Neutral & Semantic Tokens:**
+  - `--surface-pure: #ffffff`, `--surface-canvas: #f6f9fc`, `--neutral-900: #0a122a`, `--neutral-700: #2c3652`, `--neutral-500: #64708d`, `--neutral-200: #dde5f0`, `--neutral-100: #eef3f9`.
+  - Semantic status colors: `--status-success` (`#10b981`), `--status-warning` (`#f59e0b`), `--status-info` (`#0ea5e9`), `--status-danger` (`#ef4444`).
+- **Architectural SVG Screen Wireframes (`docs/ui-wireframes/`):**
+  - Every screen in the application has a canonical SVG wireframe in [`docs/ui-wireframes/`](docs/ui-wireframes/) that must be consulted prior to frontend implementation.
+
 ---
 
 ## 5. Gitflow & Version Control Rules (Monorepo)
 
 The project operates as a unified **Monorepo** (`origin` -> `https://github.com/rafaelpacinii/ecommerce-mousetrap.git`) containing:
+
 - `api/`: Quarkus 3.15+ backend module
 - `web/`: Angular 22+ frontend module
 - `.github/agents/`, `.agents/rules/`, `scripts/`: Agent configurations and tooling
 
 ### 5.1 Branching Strategy (Gitflow)
+
 - `main`: Production-ready code; each merge receives an annotated semantic version tag (`vX.Y.Z`).
 - `develop`: Primary integration branch; base for all new feature and bugfix branches.
 - `feature/<name>`: New features, branched from `develop` and merged into `develop`.
@@ -182,10 +209,13 @@ The project operates as a unified **Monorepo** (`origin` -> `https://github.com/
 - `support/<version>`: Long-term maintenance branches from historical release tags.
 
 ### 5.2 Conventional Commits
+
 All commit messages must follow the Conventional Commits specification in **English**:
+
 ```text
 <type>(<scope>): <clear, imperative description>
 ```
+
 Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`.
 
 ---
@@ -195,6 +225,7 @@ Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`.
 To prevent destructive mistakes and ensure high-velocity delivery, all agents must operate within these boundaries:
 
 ### ✅ Always Do
+
 - Write all documentation, commit messages, code comments, and agent definitions in **English**.
 - Retain Portuguese domain naming for business entities, tables, and attributes (`Mouse`, `Marca`, `TipoConexao`, `dataCadastro`).
 - Keep `application.properties.example` updated with mock configurations while excluding active `application.properties`.
@@ -203,11 +234,13 @@ To prevent destructive mistakes and ensure high-velocity delivery, all agents mu
 - Verify that every package generated by the packaging script strictly excludes `.git`, `node_modules`, `target`, `.angular`, and secrets.
 
 ### ⚠️ Ask First
+
 - Before altering existing Flyway migrations (`V1__...`, `V2__...`); always create a new incremental migration (`V3__...`).
 - Before modifying or removing existing endpoints and breaking frontend contracts.
 - Before introducing external state management libraries (e.g., NgRx) or alternative persistence frameworks.
 
 ### 🚫 Never Do
+
 - Never commit secrets, database passwords, private keys, or active `application.properties`.
 - Never execute `git push`, force pushes (`git push -f`), or `gh pr create` automatically without explicit user authorization.
 - Never package `node_modules`, `target`, or `.git` in release submission archives.
@@ -272,6 +305,7 @@ gh pr create \
 ## 8. Educational Package Generation Standard
 
 Whenever submitting the project for teacher evaluation or grading:
+
 1. Run `python3 scripts/package_release.py`.
 2. Ensure the generated ZIP is stored outside `api/` and `web/`.
 3. Report the package path, compressed size, uncompressed size, compression ratio, file count, and SHA256 checksum.
