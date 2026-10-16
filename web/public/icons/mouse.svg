@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>MouseTrap</title>
+  
+  <path d="M32 10c-9 0-14 7-14 16v12c0 10 6 16 14 16s14-6 14-16V26c0-9-5-16-14-16Z" fill="#0a122a"/>
+  <path d="M32 10v19M18 29h28" fill="none" stroke="#eef8ff" stroke-width="2"/>
+  <rect x="29" y="16" width="6" height="10" rx="3" fill="#dacc3e" stroke="#eef8ff" stroke-width="2"/>
+</svg>
