@@ -1,0 +1,72 @@
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 24px max(24px, calc((100vw - 1120px) / 2));
+  background: var(--mat-sys-surface-container-lowest);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+.identidade {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+}
+.identidade mat-icon {
+  color: var(--mat-sys-primary);
+}
+small {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--mat-sys-on-surface-variant);
+}
+nav {
+  display: flex;
+  gap: 8px;
+}
+nav a {
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--mat-sys-on-surface-variant);
+  font-weight: 500;
+}
+nav a:hover,
+nav a.selecionado {
+  color: var(--mat-sys-on-secondary-container);
+  background: var(--mat-sys-secondary-container);
+}
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  outline: none;
+}
+.pular-conteudo {
+  position: fixed;
+  top: -80px;
+  left: 16px;
+  padding: 12px;
+  z-index: 10;
+  background: white;
+}
+.pular-conteudo:focus {
+  top: 8px;
+}
+@media (max-width: 600px) {
+  .topo {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+    gap: 18px;
+  }
+  main {
+    padding: 28px 16px;
+  }
+}

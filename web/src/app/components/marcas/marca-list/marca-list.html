@@ -1,0 +1,69 @@
+<section aria-labelledby="titulo-lista">
+  <div class="cabecalho-pagina">
+    <div>
+      <p class="sobretitulo">Catálogo</p>
+      <h1 id="titulo-lista">Marcas</h1>
+      <p class="descricao-pagina">Gerencie os fabricantes dos produtos da loja.</p>
+    </div>
+    <a mat-raised-button color="primary" routerLink="/marcas/novo">
+      <mat-icon>add</mat-icon>Novo Cadastro
+    </a>
+  </div>
+
+  @if (carregando()) {
+    <p role="status" class="estado-pagina">Carregando marcas…</p>
+  } @else if (erro()) {
+    <div class="estado-pagina" role="alert">
+      <p>{{ erro() }}</p>
+      <button mat-button (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (registros().length === 0) {
+    <div class="estado-pagina">
+      <mat-icon>sell</mat-icon>
+      <h2>Nenhuma marca cadastrada</h2>
+      <p>Use “Novo Cadastro” para adicionar a primeira marca.</p>
+    </div>
+  } @else {
+    <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de marcas">
+      <table mat-table [dataSource]="registros()">
+        <ng-container matColumnDef="nome">
+          <th mat-header-cell *matHeaderCellDef>Nome</th>
+          <td mat-cell *matCellDef="let registro">
+            <strong>{{ registro.nome }}</strong>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="ativo">
+          <th mat-header-cell *matHeaderCellDef>Situação</th>
+          <td mat-cell *matCellDef="let registro">
+            <span class="situacao" [class.inativo]="!registro.ativo">{{
+              registro.ativo ? 'Ativa' : 'Inativa'
+            }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let registro">
+            <a
+              mat-icon-button
+              [routerLink]="['/marcas/editar', registro.id]"
+              [attr.aria-label]="'Editar ' + registro.nome"
+              [disabled]="excluindo() !== null"
+            >
+              <mat-icon>edit</mat-icon>
+            </a>
+            <button
+              mat-icon-button
+              (click)="excluir(registro)"
+              [disabled]="excluindo() !== null"
+              [attr.aria-label]="'Excluir ' + registro.nome"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+      </table>
+    </div>
+  }
+</section>

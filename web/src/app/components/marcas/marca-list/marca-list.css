@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+table {
+  width: 100%;
+}
+.mat-column-acoes {
+  width: 120px;
+  white-space: nowrap;
+}

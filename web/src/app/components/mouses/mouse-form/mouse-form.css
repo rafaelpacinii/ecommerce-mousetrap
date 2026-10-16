@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+.linha-inteira {
+  grid-column: 1 / -1;
+}
+@media (max-width: 640px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
+}

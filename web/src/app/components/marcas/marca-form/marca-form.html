@@ -1,0 +1,32 @@
+<section aria-labelledby="titulo-form">
+  <div class="cabecalho-pagina">
+    <div>
+      <p class="sobretitulo">Catálogo / Marcas</p>
+      <h1 id="titulo-form">{{ marca ? 'Editar marca' : 'Cadastrar marca' }}</h1>
+      <p class="descricao-pagina">Os campos abaixo são obrigatórios.</p>
+    </div>
+  </div>
+  <form class="formulario" [formGroup]="form" (ngSubmit)="salvar()">
+    <fieldset [disabled]="salvando()">
+      <mat-form-field appearance="outline">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="nome" maxlength="100" autocomplete="off" />
+        <mat-error>Informe um nome com 2 a 100 caracteres.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Situação</mat-label>
+        <mat-select formControlName="ativo">
+          <mat-option [value]="true">Ativa</mat-option>
+          <mat-option [value]="false">Inativa</mat-option>
+        </mat-select>
+        <mat-error>Selecione a situação.</mat-error>
+      </mat-form-field>
+    </fieldset>
+    <div class="acoes-formulario">
+      <button mat-raised-button color="primary" type="submit" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando…' : marca ? 'Salvar Alterações' : 'Cadastrar' }}
+      </button>
+      <a mat-button routerLink="/marcas" [disabled]="salvando()">Cancelar</a>
+    </div>
+  </form>
+</section>
