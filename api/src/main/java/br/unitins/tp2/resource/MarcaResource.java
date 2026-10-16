@@ -3,7 +3,6 @@ package br.unitins.tp2.resource;
 import br.unitins.tp2.dto.MarcaDTO;
 import br.unitins.tp2.dto.MarcaResponseDTO;
 import br.unitins.tp2.dto.PageResponse;
-import br.unitins.tp2.model.Marca;
 import br.unitins.tp2.service.MarcaService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -24,7 +23,8 @@ public class MarcaResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
         validarPagina(page, pageSize);
-        return PageResponse.of(service.findAll(page, pageSize), page, pageSize, service.count(), MarcaResponseDTO::valueOf);
+        return PageResponse.of(service.findAll(page, pageSize), page, pageSize, service.count(),
+                MarcaResponseDTO::valueOf);
     }
 
     @GET
