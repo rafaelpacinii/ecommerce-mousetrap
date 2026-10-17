@@ -13,7 +13,7 @@ Although developed in an academic setting, this project follows enterprise softw
 
 ## 1. Specialist Agent Directory & Roles
 
-In accordance with GitHub's analysis of over 2,500 top-performing agent configurations (*specialists over general helpers*), the repository defines five dedicated agent personas located under `.github/agents/` and `.agents/rules/`:
+In accordance with GitHub's analysis of over 2,500 top-performing agent configurations (*specialists over general helpers*), the repository defines six dedicated agent personas located under `.github/agents/` and `.agents/rules/`:
 
 | Agent | Config File | Primary Responsibility | Standard / Reference |
 | :--- | :--- | :--- | :--- |
@@ -22,6 +22,7 @@ In accordance with GitHub's analysis of over 2,500 top-performing agent configur
 | **Release Packager Agent** | [`.github/agents/packager-agent.md`](.github/agents/packager-agent.md) | Generates clean, minimized ZIP submission archives for evaluation | Educational Delivery Standard |
 | **Principal Architect Agent** | [`.github/agents/architect-agent.md`](.github/agents/architect-agent.md) | Guides commercial e-commerce roadmap, Keycloak RBAC, and fullstack consistency | Enterprise Clean Architecture |
 | **UI/UX, Design System & SEO Agent** | [`.github/agents/ui-ux-agent.md`](.github/agents/ui-ux-agent.md) | Enforces unified color palette, Angular Material M3 theming, SVG wireframes, and SEO | Material Design 3 & WCAG 2.1 AA |
+| **Environment Setup Agent** | [`.github/agents/setup-agent.md`](.github/agents/setup-agent.md) | Sets up new workstations and completes missing services while preserving existing data and secrets | Incremental Local Provisioning |
 
 ---
 

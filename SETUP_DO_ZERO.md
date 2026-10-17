@@ -1,5 +1,19 @@
 # Setup from scratch
 
+## Agent-assisted setup
+
+Ask your coding assistant to follow [.github/agents/setup-agent.md](.github/agents/setup-agent.md):
+
+> Use the setup agent to inspect this computer and complete the missing MouseTrap
+> prerequisites. Preserve existing containers, volumes and private configuration,
+> and verify application, identity and local email readiness.
+
+The agent supports both the complete Docker stack and source development. It
+also checks recently added integrations such as R2. Private credentials and
+existing databases must be restored separately when migrating an installation.
+
+## Requirements
+
 Use Docker Engine/Desktop with Compose v2 and Python 3.10+. Local source builds
 also require JDK 17, Node.js 24, npm 11, curl and unzip. Commands below work in fish.
 Run them from the repository root unless another directory is specified.

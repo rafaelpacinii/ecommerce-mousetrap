@@ -17,10 +17,15 @@ identity theme, SVG wireframes, automated verification and source packaging.
 
 Payments use a local demonstration engine, disabled outside dev/test unless explicitly
 enabled. Card credentials stay in the browser and are neither sent nor stored.
-Live payment providers, real settlement, refunds, carrier integration, binary image
-uploads, categories and sales-based merchandising remain future work.
+Live payment providers, real settlement, refunds, carrier integration, categories
+and sales-based merchandising remain future work. Catalog images support Cloudflare R2 uploads.
 
 ## Start here
+
+For agent-assisted setup on a new computer or to add missing services, use the
+[Environment Setup Agent](.github/agents/setup-agent.md). It checks existing
+infrastructure and completes PostgreSQL, Keycloak, local email, application and
+R2 configuration without resetting an existing installation.
 
 Read [setup from scratch](SETUP_DO_ZERO.md) for the complete local stack or
 [developer authentication setup](docs/authentication.md) for independently running
