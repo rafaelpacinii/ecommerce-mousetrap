@@ -5,6 +5,7 @@ import br.unitins.tp2.dto.MarcaResponseDTO;
 import br.unitins.tp2.dto.PageResponse;
 import br.unitins.tp2.service.MarcaService;
 import jakarta.inject.Inject;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -14,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/marcas")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RolesAllowed("admin")
 public class MarcaResource {
     @Inject
     MarcaService service;

@@ -21,7 +21,7 @@
   } @else if (!marcas().length) {
     <div class="aviso">
       <p>Cadastre uma marca antes de cadastrar um mouse.</p>
-      <a mat-button routerLink="/marcas/novo"
+      <a mat-button routerLink="/admin/marcas/novo"
         ><mat-icon aria-hidden="true">add</mat-icon>Cadastrar marca</a
       >
     </div>
@@ -265,7 +265,7 @@
         <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
         >{{ salvando() ? 'Salvando…' : mouse ? 'Salvar Alterações' : 'Cadastrar' }}
       </button>
-      <a mat-button routerLink="/mouses" [disabled]="salvando()"
+      <a mat-button routerLink="/admin/mouses" [disabled]="salvando()"
         ><mat-icon aria-hidden="true">close</mat-icon>Cancelar</a
       >
     </div>

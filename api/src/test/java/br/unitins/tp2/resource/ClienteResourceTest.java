@@ -11,6 +11,7 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.common.QuarkusTestResource;
 
 @QuarkusTest
+@io.quarkus.test.security.TestSecurity(user = "catalog-admin", roles = "admin")
 @TestProfile(CatalogoTestProfile.class)
 @QuarkusTestResource(value = ViaCepTestResource.class, restrictToAnnotatedClass = true)
 class ClienteResourceTest {

@@ -7,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../../services/auth.service';
 import { finalize, Subscription } from 'rxjs';
 import { Cliente } from '../../../models/cliente.model';
 import { ClienteService } from '../../../services/cliente.service';
@@ -35,6 +37,10 @@ export class ClienteFormComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   private consulta?: Subscription;
+  readonly auth = inject(AuthService);
+  readonly selfService = !!inject(ActivatedRoute).snapshot.data['selfService'];
+  readonly carregando = signal(false);
+  readonly erroPerfil = signal('');
   readonly cliente: Cliente | undefined = inject(ActivatedRoute).snapshot.data['cliente'];
   readonly salvando = signal(false);
   readonly consultando = signal(false);
@@ -55,6 +61,7 @@ export class ClienteFormComponent {
     complemento: ['', Validators.maxLength(100)],
   });
   constructor() {
+    if (this.selfService) this.carregarPerfil();
     if (this.cliente) {
       this.form.patchValue(this.cliente);
       this.cepConfirmado.set(this.cliente.cep);
@@ -69,6 +76,29 @@ export class ClienteFormComponent {
       this.erroCep.set('');
       this.form.patchValue({ logradouro: '', bairro: '' });
     });
+  }
+  carregarPerfil(): void {
+    this.carregando.set(true);
+    this.erroPerfil.set('');
+    this.service
+      .findMe()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.carregando.set(false)),
+      )
+      .subscribe({
+        next: (cliente) => {
+          this.form.patchValue({ ...cliente, email: this.auth.email() }, { emitEvent: false });
+          this.cepConfirmado.set(cliente.cep);
+          this.municipio.set(cliente.municipio.nome);
+          this.estado.set(cliente.municipio.estado.sigla);
+        },
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && error.status === 404) {
+            this.form.patchValue({ nome: this.auth.nome(), email: this.auth.email() });
+          } else this.erroPerfil.set(mensagemErro(error));
+        },
+      });
   }
   consultarCep(): void {
     if (this.salvando()) return;
@@ -108,7 +138,7 @@ export class ClienteFormComponent {
     return 'Revise este campo.';
   }
   salvar(): void {
-    if (this.salvando() || this.consultando()) return;
+    if (this.salvando() || this.consultando() || this.carregando() || this.erroPerfil()) return;
     const dados = this.form.getRawValue();
     this.form.patchValue({
       nome: dados.nome.trim(),
@@ -124,8 +154,10 @@ export class ClienteFormComponent {
       return;
     }
     const cliente = { ...this.form.getRawValue(), cep: dados.cep.replace('-', '') };
-    const requisicao =
-      this.cliente?.id != null
+    const { email: _email, ...perfil } = cliente;
+    const requisicao = this.selfService
+      ? this.service.saveMe(perfil)
+      : this.cliente?.id != null
         ? this.service.update(this.cliente.id, cliente)
         : this.service.create(cliente);
     this.salvando.set(true);
@@ -140,8 +172,12 @@ export class ClienteFormComponent {
       )
       .subscribe({
         next: () => {
-          this.snack.open('Cliente salvo com sucesso.', 'Fechar', { duration: 4000 });
-          void this.router.navigate(['/clientes']);
+          this.snack.open(
+            this.selfService ? 'Seus dados foram salvos.' : 'Cliente salvo com sucesso.',
+            'Fechar',
+            { duration: 4000 },
+          );
+          if (!this.selfService) void this.router.navigate(['/admin/clientes']);
         },
         error: (erro: unknown) => this.snack.open(mensagemErro(erro), 'Fechar', { duration: 7000 }),
       });

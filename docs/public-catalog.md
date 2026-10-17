@@ -185,3 +185,10 @@ Use an isolated database as described in the API README when running backend
 tests. Authentication remains the next implementation slice. Cart, checkout,
 freight quotes and payments are subsequent work; this slice does not expose
 nonfunctional purchase controls or promise delivery/payment terms.
+
+## Authentication slice update
+
+Public catalog and CEP reads remain anonymous. Administrative reads/writes now
+require `admin`; old frontend CRUD URLs redirect to `/admin/**`. This supersedes
+any descriptions above of authentication being planned. See
+[authentication and ownership](authentication.md) for the complete access matrix.

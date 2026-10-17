@@ -6,6 +6,10 @@ import jakarta.persistence.*;
 public class Cliente extends DefaultEntity {
     @Column(nullable = false, length = 100)
     private String nome;
+    @Column(name = "identidade_subject", unique = true, length = 255)
+    private String identidadeSubject;
+    public String getIdentidadeSubject() { return identidadeSubject; }
+    public void setIdentidadeSubject(String subject) { this.identidadeSubject = subject; }
     @Column(nullable = false, unique = true, length = 254)
     private String email;
     @Column(nullable = false, length = 8)

@@ -28,7 +28,7 @@
         <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
         >{{ salvando() ? 'Salvando…' : marca ? 'Salvar Alterações' : 'Cadastrar' }}
       </button>
-      <a mat-button routerLink="/marcas" [disabled]="salvando()"
+      <a mat-button routerLink="/admin/marcas" [disabled]="salvando()"
         ><mat-icon aria-hidden="true">close</mat-icon>Cancelar</a
       >
     </div>

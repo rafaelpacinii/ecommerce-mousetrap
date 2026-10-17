@@ -3,6 +3,10 @@
 }
 .formulario {
   max-width: 760px;
+  margin: 32px auto;
+  padding: 24px;
+  background: var(--surface-pure);
+  border-radius: var(--radius-lg);
 }
 form {
   display: flex;
@@ -12,4 +16,5 @@ form {
 .acoes {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }

@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
+import { AuthService } from './services/auth.service';
 import { routes } from './app.routes';
 
 describe('App routing', () => {
@@ -15,6 +16,25 @@ describe('App routing', () => {
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
+
+  it('requires authentication before activating administrative resolvers', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/mouses/editar/9');
+    fixture.detectChanges();
+    expect(TestBed.inject(Router).url).toBe('/login?returnUrl=%2Fadmin%2Fmouses%2Feditar%2F9');
+    http.expectNone((request) => request.url.includes('/mouses/9'));
+  });
+
+  it('blocks customer navigation to administration before loading its data', async () => {
+    const auth = TestBed.inject(AuthService);
+    auth.authenticated.set(true);
+    auth.roles.set(['customer']);
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/admin/clientes');
+    fixture.detectChanges();
+    expect(TestBed.inject(Router).url).toBe('/acesso-negado');
+    http.expectNone((request) => request.url.includes('/clientes'));
+  });
 
   it('opens the storefront at the root instead of redirecting to administration', async () => {
     const fixture = TestBed.createComponent(App);
@@ -33,8 +53,11 @@ describe('App routing', () => {
   });
 
   it.each(['/marcas', '/mouses', '/clientes'])(
-    'preserves the existing %s administration route',
+    'redirects the existing %s route to protected administration',
     async (path) => {
+      const auth = TestBed.inject(AuthService);
+      auth.authenticated.set(true);
+      auth.roles.set(['admin']);
       const fixture = TestBed.createComponent(App);
       await TestBed.inject(Router).navigateByUrl(path);
       fixture.detectChanges();
@@ -47,7 +70,7 @@ describe('App routing', () => {
         );
       fixture.detectChanges();
       const element = fixture.nativeElement as HTMLElement;
-      expect(TestBed.inject(Router).url).toBe(path);
+      expect(TestBed.inject(Router).url).toBe('/admin' + path);
       expect(element.querySelector('app-admin-layout')).not.toBeNull();
       expect(element.querySelector('app-storefront-layout')).toBeNull();
       expect(element.querySelector('nav')?.textContent).toContain('Marcas');

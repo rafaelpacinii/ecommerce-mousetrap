@@ -116,3 +116,11 @@ visibility is enforced by the backend instead of paging through administrative
 records in the browser. Cards use gallery covers and link to details. The old
 preview-contract and placeholder descriptions above document the first slice;
 current behavior is specified in [Public catalog](public-catalog.md).
+
+## Third-slice update
+
+The header now offers account access and logout. Administration links are visible
+only to authorized operators and open `/admin/**`. Legacy administrative URLs
+redirect through guards. The owned profile/address form is at `/minha-conta`.
+See [authentication and account ownership](authentication.md) for runtime
+configuration, local identity/email setup and public versus protected API reads.

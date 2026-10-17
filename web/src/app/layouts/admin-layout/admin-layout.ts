@@ -1,5 +1,6 @@
 import { MatIconModule } from '@angular/material/icon';
-import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { inject, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -9,4 +10,6 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.css',
 })
-export class AdminLayoutComponent {}
+export class AdminLayoutComponent {
+  readonly auth = inject(AuthService);
+}

@@ -20,8 +20,9 @@ The full public catalog is at `/catalogo`; product detail is at `/catalogo/:id`.
 - BRL formatting, semantic navigation and keyboard focus styles.
 
 Public catalog facets, product galleries and gaming specifications are implemented.
-Cart, checkout, authentication and order tracking remain planned. Missing or
-failed product images use an accessible fallback. Administrative routes are not authenticated yet.
+Authentication, owned profiles and role-based administration are implemented.
+Cart, checkout and order tracking remain planned. Missing or
+failed product images use an accessible fallback. Administrative routes require an authorized account.
 
 See [Homepage implementation](../docs/homepage.md) and the
 [implementation backlog](../docs/implementation-backlog.md), and
@@ -39,8 +40,9 @@ npm start
 
 Open `http://localhost:4200`. The homepage works without catalog data and shows
 an empty/error state as appropriate. Create a brand before the first mouse in
-administration. The API base URL is currently defined in frontend services;
-environment configuration remains planned.
+administration after signing in with an admin account. Public runtime settings
+are defined in `public/config.json`; no credentials belong in this file.
+Start the local [identity stack](../docs/authentication.md) before signing in.
 
 | Page | Route |
 | --- | --- |
@@ -48,12 +50,14 @@ environment configuration remains planned.
 | Catalog preview/search | `/#catalogo`, `/#busca` |
 | Public catalog and product detail | `/catalogo`, `/catalogo/:id` |
 | Grip guide | `/#pegadas` |
-| Brand list/create/edit | `/marcas`, `/marcas/novo`, `/marcas/editar/:id` |
-| Mouse list/create/edit | `/mouses`, `/mouses/novo`, `/mouses/editar/:id` |
-| Customer list/create/edit | `/clientes`, `/clientes/novo`, `/clientes/editar/:id` |
+| Brand list/create/edit | `/admin/marcas`, `/admin/marcas/novo`, `/admin/marcas/editar/:id` |
+| Mouse list/create/edit | `/admin/mouses`, `/admin/mouses/novo`, `/admin/mouses/editar/:id` |
+| Customer list/create/edit | `/admin/clientes`, `/admin/clientes/novo`, `/admin/clientes/editar/:id` |
 
-The footer links to administration. The existing CRUD paths remain unchanged;
-`/mouses` still opens the administrative list. The public catalog is `/catalogo`.
+Administration links appear for authorized operators. Legacy CRUD paths redirect
+to `/admin/**`. Login and registration are at `/login` and `/cadastro`; the owned
+profile/address form is at `/minha-conta`. Credentials and recovery are handled by
+the branded identity provider forms.
 
 ## Structure
 
@@ -87,7 +91,7 @@ Tests use Vitest. The production output is in `dist/web/browser`. Font inlining
 is disabled, so builds do not require Google Fonts access. Material interface icons use a local font and do not require Google Fonts
 at runtime; see [Material Icons](../docs/material-icons.md). Configure hosting
 to serve `index.html` for SPA routes, and align the API URL and CORS with the
-hosting environment. Protect administrative operations before public exposure.
+hosting environment. See [authentication and deployment requirements](../docs/authentication.md).
 
 ## Customer addresses
 

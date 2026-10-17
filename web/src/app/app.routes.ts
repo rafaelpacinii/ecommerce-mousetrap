@@ -1,3 +1,4 @@
+import { authGuard, adminGuard } from './guards/auth.guard';
 import { Routes } from '@angular/router';
 import { marcaResolver } from './resolvers/marca.resolver';
 import { mouseResolver } from './resolvers/mouse.resolver';
@@ -30,6 +31,27 @@ export const routes: Routes = [
       },
 
       {
+        path: 'minha-conta',
+        canActivate: [authGuard],
+        data: { selfService: true },
+        loadComponent: () =>
+          import('./components/clientes/cliente-form/cliente-form').then(
+            (m) => m.ClienteFormComponent,
+          ),
+        title: 'Minha conta | MouseTrap',
+      },
+      ...['login', 'cadastro', 'auth/callback', 'acesso-negado'].map((path) => ({
+        path,
+        data: { mode: path },
+        loadComponent: () => import('./components/auth/auth-page').then((m) => m.AuthPageComponent),
+        title:
+          path === 'cadastro'
+            ? 'Criar conta | MouseTrap'
+            : path === 'acesso-negado'
+              ? 'Acesso restrito | MouseTrap'
+              : 'Sua conta | MouseTrap',
+      })),
+      {
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
@@ -39,10 +61,12 @@ export const routes: Routes = [
     ],
   },
   {
-    path: '',
+    path: 'admin',
+    canActivateChild: [adminGuard],
     loadComponent: () =>
       import('./layouts/admin-layout/admin-layout').then((m) => m.AdminLayoutComponent),
     children: [
+      { path: '', pathMatch: 'full', redirectTo: 'mouses' },
       {
         path: 'marcas',
         loadComponent: () =>
@@ -108,5 +132,10 @@ export const routes: Routes = [
       },
     ],
   },
+  ...['mouses', 'marcas', 'clientes'].flatMap((resource) => [
+    { path: resource, pathMatch: 'full' as const, redirectTo: `admin/${resource}` },
+    { path: `${resource}/novo`, redirectTo: `admin/${resource}/novo` },
+    { path: `${resource}/editar/:id`, redirectTo: `admin/${resource}/editar/:id` },
+  ]),
   { path: '**', redirectTo: '' },
 ];

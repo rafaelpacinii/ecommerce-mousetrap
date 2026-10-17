@@ -1,0 +1,26 @@
+:root {
+  --pf-v5-global--primary-color--100: #7d53de;
+  --pf-v5-global--primary-color--200: #6140b5;
+  --pf-v5-global--link--Color: #6140b5;
+}
+body, .login-pf body { background: #f6f9fc; color: #0a122a; }
+.pf-v5-c-login { background: #f6f9fc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 0; }
+.pf-v5-c-login__container { display: flex; flex-direction: column; gap: 0; width: min(480px, calc(100% - 32px)); max-width: 480px; margin: auto; padding: 0; border: 1px solid #dde5f0; border-radius: 22px; background: white; box-shadow: 0 4px 24px #0a122a0a; overflow: hidden; }
+.pf-v5-c-login__main { width: 100%; max-width: none; min-width: 0; margin: 0; padding: 0; background: white; box-shadow: none; }
+.pf-v5-c-login__main-header { display: flex; flex-direction: column; gap: 16px; padding: 24px 32px; }
+.pf-v5-c-login__main-body { padding: 0 32px 24px; }
+.pf-v5-c-login__main-footer { padding: 0 32px 24px; }
+.pf-v5-c-login__header { text-align: center; padding: 32px 24px 0; order: -1; }
+#kc-header-wrapper { color: #0a122a; font-size: 19px; font-weight: 800; }
+.pf-v5-c-login__header::before {
+  content: ''; display: block; width: 56px; height: 56px; margin: 0 auto 20px;
+  background: url('../img/logo.svg') center / contain no-repeat;
+}
+.pf-v5-c-button.pf-m-primary { background: #dacc3e; color: #0a122a; font-weight: 700; border-radius: 10px; }
+.pf-v5-c-form-control { border-radius: 8px; }
+a { color: #6140b5; }
+:focus-visible { outline: 3px solid #7d53de; outline-offset: 3px; }
+@media (max-width: 600px) {
+  .pf-v5-c-login__main-header { display: flex; flex-wrap: wrap; gap: 16px; }
+  .pf-v5-c-login__main-header, .pf-v5-c-login__main-body, .pf-v5-c-login__main-footer { padding: 20px; }
+}

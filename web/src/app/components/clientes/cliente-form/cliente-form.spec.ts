@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { ClienteFormComponent } from './cliente-form';
+import { AuthService } from '../../../services/auth.service';
 
 const cep = {
   cep: '01001000',
@@ -29,6 +30,43 @@ describe('ClienteFormComponent', () => {
   });
   afterEach(() => http.verify());
   const criar = () => TestBed.createComponent(ClienteFormComponent).componentInstance;
+  it('creates the signed-in profile using /me without accepting an email in the payload', () => {
+    TestBed.inject(ActivatedRoute).snapshot.data = { selfService: true };
+    const auth = TestBed.inject(AuthService);
+    auth.nome.set('Meu nome');
+    auth.email.set('conta@example.com');
+    const c = criar();
+    c.salvar();
+    http
+      .expectOne('http://localhost:8080/clientes/me')
+      .flush({}, { status: 404, statusText: 'Not found' });
+    expect(c.form.controls.email.value).toBe('conta@example.com');
+    c.form.patchValue({ cep: '01001000', numero: '10' });
+    c.consultarCep();
+    http.expectOne('http://localhost:8080/ceps/01001000').flush(cep);
+    c.form.controls.email.setValue('forjado@example.com');
+    c.salvar();
+    const request = http.expectOne('http://localhost:8080/clientes/me');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body.email).toBeUndefined();
+    expect(request.request.body.id).toBeUndefined();
+    request.flush({ id: 4 });
+  });
+  it('blocks profile writes when loading fails and offers a retry', () => {
+    TestBed.inject(ActivatedRoute).snapshot.data = { selfService: true };
+    const c = criar();
+    http
+      .expectOne('http://localhost:8080/clientes/me')
+      .flush({}, { status: 503, statusText: 'Unavailable' });
+    expect(c.erroPerfil()).not.toBe('');
+    c.salvar();
+    http.expectNone((request) => request.method === 'PUT');
+    c.carregarPerfil();
+    http
+      .expectOne('http://localhost:8080/clientes/me')
+      .flush({}, { status: 404, statusText: 'Not found' });
+    expect(c.erroPerfil()).toBe('');
+  });
   it('valida campos e impede salvar antes de consultar CEP', () => {
     const c = criar();
     c.form.patchValue({ nome: ' ', email: 'invalido', cep: '123' });

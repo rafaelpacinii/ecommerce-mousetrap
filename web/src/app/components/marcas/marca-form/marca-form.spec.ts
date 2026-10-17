@@ -45,6 +45,6 @@ describe('MarcaFormComponent', () => {
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({ nome: 'Marca editada', ativo: false });
     req.flush({ id: 7, ...req.request.body });
-    expect(navegar).toHaveBeenCalledWith(['/marcas']);
+    expect(navegar).toHaveBeenCalledWith(['/admin/marcas']);
   });
 });

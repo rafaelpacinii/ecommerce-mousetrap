@@ -1,5 +1,6 @@
 import { MatIconModule } from '@angular/material/icon';
-import { Component, signal } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { inject, Component, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -10,5 +11,6 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   styleUrl: './storefront-layout.css',
 })
 export class StorefrontLayoutComponent {
+  readonly auth = inject(AuthService);
   readonly menuAberto = signal(false);
 }

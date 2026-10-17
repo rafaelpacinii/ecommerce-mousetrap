@@ -9,6 +9,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@io.quarkus.test.security.TestSecurity(user = "catalog-admin", roles = "admin")
 @TestProfile(CatalogoTestProfile.class)
 class CatalogoPublicoResourceTest {
     final List<Long> produtos = new ArrayList<>();

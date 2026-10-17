@@ -7,6 +7,7 @@ public class CatalogoTestProfile implements QuarkusTestProfile {
     @Override
     public Map<String, String> getConfigOverrides() {
         return Map.ofEntries(
+                Map.entry("quarkus.oidc.tenant-enabled", "false"),
                 Map.entry("quarkus.datasource.jdbc.url", "jdbc:postgresql://localhost:55439/ecommerce_test"),
                 Map.entry("quarkus.datasource.username", "ecommerce_test"),
                 Map.entry("quarkus.datasource.password", "ecommerce_test"),

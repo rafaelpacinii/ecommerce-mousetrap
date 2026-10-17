@@ -15,11 +15,13 @@ import br.unitins.tp2.repository.MarcaRepository;
 import br.unitins.tp2.repository.MouseRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
+@RolesAllowed("admin")
 public class MouseServiceImpl implements MouseService {
     @Inject MouseRepository repository;
     @Inject MarcaRepository marcaRepository;

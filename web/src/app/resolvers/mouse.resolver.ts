@@ -13,12 +13,12 @@ export const mouseResolver: ResolveFn<Mouse> = (route) => {
   const id = Number(route.paramMap.get('id'));
   if (!Number.isSafeInteger(id) || id <= 0) {
     snack.open('Identificador inválido.', 'Fechar', { duration: 5000 });
-    return new RedirectCommand(router.parseUrl('/mouses'));
+    return new RedirectCommand(router.parseUrl('/admin/mouses'));
   }
   return service.findById(id).pipe(
     catchError((erro: unknown) => {
       snack.open(mensagemErro(erro), 'Fechar', { duration: 6000 });
-      return of(new RedirectCommand(router.parseUrl('/mouses')));
+      return of(new RedirectCommand(router.parseUrl('/admin/mouses')));
     }),
   );
 };
