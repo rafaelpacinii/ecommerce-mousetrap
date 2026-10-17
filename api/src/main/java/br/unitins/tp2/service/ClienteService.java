@@ -6,6 +6,7 @@ import br.unitins.tp2.dto.*;
 public interface ClienteService {
     ClienteResponseDTO findMe();
     ClienteResponseDTO saveMe(PerfilClienteDTO dto);
+    ClienteResponseDTO vincularIdentidade(Long id, VinculoClienteDTO dto);
     List<EnderecoResponseDTO> listarMeusEnderecos();
     EnderecoResponseDTO criarMeuEndereco(EnderecoDTO dto);
     EnderecoResponseDTO atualizarMeuEndereco(Long id, EnderecoDTO dto);
