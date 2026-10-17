@@ -30,59 +30,71 @@ This directory contains the unified visual identity, Angular Material M3 theming
 ## 3. Complete Screen Wireframe Index (12 SVGs)
 
 ### `00-design-system-tokens.svg` — Design System, Color Palette, Typography & Material M3 Kit
+
 ![00 Design System & Tokens](./00-design-system-tokens.svg)
 
 ---
 
 ### `01-storefront-home.svg` — Storefront Landing Page (`/`)
+
 ![01 Storefront Homepage](./01-storefront-home.svg)
 
 ---
 
 ### `02-storefront-catalog.svg` — Storefront Product Catalog & Facet Filters (`/mouses`)
+
 ![02 Storefront Product Catalog](./02-storefront-catalog.svg)
 
 ---
 
 ### `03-storefront-product-detail.svg` — Storefront Product Detail Page (`/mouses/:id`)
+
 ![03 Storefront Product Detail](./03-storefront-product-detail.svg)
 
 ---
 
 ### `04-storefront-cart.svg` — Storefront Shopping Cart (`/carrinho`)
+
 ![04 Storefront Shopping Cart](./04-storefront-cart.svg)
 
 ---
 
 ### `05-storefront-checkout.svg` — Storefront Checkout (`/checkout`)
+
 ![05 Storefront Checkout](./05-storefront-checkout.svg)
 
 ---
 
 ### `06-storefront-customer-portal.svg` — Customer Portal: My Orders & Tracking (`/meus-pedidos`)
+
 ![06 Storefront Customer Portal](./06-storefront-customer-portal.svg)
 
 ---
 
 ### `07-auth-login.svg` — Unified Single Login Screen (`/login`)
+
 ![07 Unified Login](./07-auth-login.svg)
 
 ---
 
 ### `08-auth-register.svg` — Customer Registration Screen (`/cadastro`)
+
 ![08 Customer Registration](./08-auth-register.svg)
 
 ---
 
 ### `09-admin-dashboard-orders.svg` — Admin Executive Dashboard & Orders Management (`/admin/pedidos`)
+
 ![09 Admin Dashboard & Orders](./09-admin-dashboard-orders.svg)
 
 ---
 
 ### `10-admin-catalog-list.svg` — Admin Catalog: Products List (`/admin/mouses`)
+
 ![10 Admin Catalog List](./10-admin-catalog-list.svg)
 
 ---
 
 ### `11-admin-catalog-form.svg` — Admin Catalog: Product Create/Edit Form (`/admin/mouses/novo`)
+
 ![11 Admin Catalog Form](./11-admin-catalog-form.svg)
