@@ -106,6 +106,12 @@ When generating commands:
 
 ## Conventional Commits Reference
 
+Apply the mandatory [MAJOR.MINOR.PATCH policy](../../docs/versioning.md) when
+selecting release numbers. New compatible features increment MINOR, compatible
+bug fixes increment PATCH, and incompatible contracts increment MAJOR. Reset
+lower components, assess the full release diff and never replace published tags.
+Align API/web manifest versions only during release preparation.
+
 | Type | When to Use | Example |
 | :--- | :--- | :--- |
 | `feat` | New user or domain capability | `feat(catalog): add gaming mouse polling rate filter` |

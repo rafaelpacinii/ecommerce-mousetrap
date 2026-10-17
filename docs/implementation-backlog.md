@@ -269,3 +269,13 @@ sales-based merchandising remain future scope. The financial engine remains loca
 - Compose schema, actionlint 1.7.12, shell syntax and `git diff --check` passed. Browser tests also verified runtime JSON contains only public keys, HTML/config caching, private-route HTTP noindex, missing-asset 404 and API readiness.
 - Submission ZIP integrity, mandatory files, exclusions and repeated-build SHA256 are verified by `scripts/package_release.py`; the generated delivery report records the actual archive metrics.
 - No public deployment, remote Actions run, container/JVM vulnerability scan, additional browser-engine audit or complete manual screen-reader certification is claimed.
+
+
+## Post-1.0 compatible improvements
+
+- [x] Replace the homepage hero with four supplied campaign banners, Material
+      icons, responsive WebP assets, manual controls, accessible automatic
+      rotation and existing catalog destinations. See [homepage](homepage.md).
+- [x] Formalize major/minor/patch decisions across future releases. The carousel
+      targets **1.1.0** under the [versioning policy](versioning.md); published
+      1.0.0 remains immutable.

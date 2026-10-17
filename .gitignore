@@ -86,6 +86,7 @@ __pycache__/
 !/scripts/test_release.py
 !/scripts/configure_stack.py
 !/scripts/verify_release.sh
+!/scripts/export_hero_images.py
 /.local/
 web/test-results/
 web/playwright-report/
