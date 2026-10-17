@@ -2,15 +2,17 @@
   <div class="cabecalho">
     <h1>Clientes</h1>
     <a mat-raised-button color="primary" routerLink="/clientes/novo"
-      ><mat-icon>add</mat-icon>Novo Cadastro</a
+      ><mat-icon aria-hidden="true">add</mat-icon>Novo Cadastro</a
     >
   </div>
   @if (carregando()) {
-    <p role="status">Carregando clientes…</p>
+    <p role="status"><mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando clientes…</p>
   }
   @if (erro()) {
-    <p role="alert">{{ erro() }}</p>
-    <button mat-button (click)="carregar()">Tentar novamente</button>
+    <p role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erro() }}</p>
+    <button mat-button (click)="carregar()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+    </button>
   }
   <table mat-table [dataSource]="registros()">
     <ng-container matColumnDef="nome"
@@ -31,21 +33,23 @@
       ><th mat-header-cell *matHeaderCellDef>Ações</th>
       <td mat-cell *matCellDef="let c">
         <a mat-icon-button [routerLink]="['/clientes/editar', c.id]" aria-label="Editar cliente"
-          ><mat-icon>edit</mat-icon></a
+          ><mat-icon aria-hidden="true">edit</mat-icon></a
         ><button
           mat-icon-button
           (click)="excluir(c)"
           [disabled]="excluindo() !== null"
           aria-label="Excluir cliente"
         >
-          <mat-icon>delete</mat-icon>
+          <mat-icon aria-hidden="true">delete</mat-icon>
         </button>
       </td></ng-container
     >
     <tr mat-header-row *matHeaderRowDef="colunas"></tr>
     <tr mat-row *matRowDef="let row; columns: colunas"></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td colspan="4">Nenhum cliente cadastrado.</td>
+      <td colspan="4">
+        <mat-icon aria-hidden="true">people_outline</mat-icon>Nenhum cliente cadastrado.
+      </td>
     </tr>
   </table>
 </section>

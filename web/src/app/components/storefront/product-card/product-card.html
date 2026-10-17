@@ -1,0 +1,50 @@
+<article class="product-card">
+  <div class="product-stage">
+    <div class="spec-pills">
+      <span
+        ><mat-icon aria-hidden="true">fitness_center</mat-icon
+        >{{ produto().pesoGramas | number: '1.0-1' }} g</span
+      ><span
+        ><mat-icon aria-hidden="true">track_changes</mat-icon
+        >{{ produto().dpiMaximo | number }} DPI</span
+      >
+    </div>
+    <mat-icon aria-hidden="true" class="product-placeholder">mouse</mat-icon>
+    <span class="illustration-label">Imagem ilustrativa</span>
+  </div>
+  <div class="product-content">
+    <p class="product-brand">{{ produto().marca.nome }}</p>
+    <h3>{{ produto().nome }}</h3>
+    <p class="product-description">{{ produto().descricao }}</p>
+    <div class="product-bottom">
+      <strong>{{ produto().preco | currency: 'BRL' }}</strong>
+      <span class="availability" [class.unavailable]="produto().quantidadeEstoque <= 0"
+        ><mat-icon aria-hidden="true">{{
+          produto().quantidadeEstoque > 0 ? 'check_circle' : 'remove_circle_outline'
+        }}</mat-icon
+        >{{ produto().quantidadeEstoque > 0 ? 'Em estoque' : 'Indisponível' }}</span
+      >
+    </div>
+    <details>
+      <summary><mat-icon aria-hidden="true">chevron_right</mat-icon>Especificações</summary>
+      <dl>
+        <div>
+          <dt>Cor</dt>
+          <dd>{{ produto().cor }}</dd>
+        </div>
+        <div>
+          <dt>Botões</dt>
+          <dd>{{ produto().quantidadeBotoes }}</dd>
+        </div>
+        <div>
+          <dt>Conexão</dt>
+          <dd>
+            @for (conexao of produto().tiposConexao; track conexao.id) {
+              <span class="connection">{{ conexao.label }}</span>
+            }
+          </dd>
+        </div>
+      </dl>
+    </details>
+  </div>
+</article>

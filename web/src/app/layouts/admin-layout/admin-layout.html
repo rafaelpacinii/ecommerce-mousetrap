@@ -1,0 +1,20 @@
+<header class="topo">
+  <a class="identidade" routerLink="/"
+    ><img src="favicon.svg" width="36" height="36" alt="" /><span
+      >MouseTrap<small>Administração do catálogo</small></span
+    ></a
+  >
+  <nav aria-label="Administração">
+    <a routerLink="/"><mat-icon aria-hidden="true">storefront</mat-icon>Loja</a>
+    <a routerLink="/marcas" routerLinkActive="selecionado" ariaCurrentWhenActive="page"
+      ><mat-icon aria-hidden="true">loyalty</mat-icon>Marcas</a
+    >
+    <a routerLink="/mouses" routerLinkActive="selecionado" ariaCurrentWhenActive="page"
+      ><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a
+    >
+    <a routerLink="/clientes" routerLinkActive="selecionado" ariaCurrentWhenActive="page"
+      ><mat-icon aria-hidden="true">people</mat-icon>Clientes</a
+    >
+  </nav>
+</header>
+<main id="conteudo" tabindex="-1"><router-outlet /></main>

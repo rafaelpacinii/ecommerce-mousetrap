@@ -1,3 +1,4 @@
+import { MatIconModule } from '@angular/material/icon';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,7 +16,14 @@ import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
 @Component({
   selector: 'app-cliente-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    MatIconModule,
+    ReactiveFormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './cliente-form.html',
   styleUrl: './cliente-form.css',
 })

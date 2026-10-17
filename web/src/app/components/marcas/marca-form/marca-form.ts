@@ -1,3 +1,4 @@
+import { MatIconModule } from '@angular/material/icon';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,6 +17,7 @@ import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
   selector: 'app-marca-form',
   standalone: true,
   imports: [
+    MatIconModule,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,

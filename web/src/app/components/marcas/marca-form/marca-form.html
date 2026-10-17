@@ -9,12 +9,13 @@
   <form class="formulario" [formGroup]="form" (ngSubmit)="salvar()">
     <fieldset [disabled]="salvando()">
       <mat-form-field appearance="outline">
-        <mat-label>Nome</mat-label>
+        <mat-label>Nome</mat-label><mat-icon aria-hidden="true" matSuffix>label</mat-icon>
         <input matInput formControlName="nome" maxlength="100" autocomplete="off" />
         <mat-error>Informe um nome com 2 a 100 caracteres.</mat-error>
       </mat-form-field>
       <mat-form-field appearance="outline">
-        <mat-label>Situação</mat-label>
+        <mat-label>Situação</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>check_circle_outline</mat-icon>
         <mat-select formControlName="ativo">
           <mat-option [value]="true">Ativa</mat-option>
           <mat-option [value]="false">Inativa</mat-option>
@@ -24,9 +25,12 @@
     </fieldset>
     <div class="acoes-formulario">
       <button mat-raised-button color="primary" type="submit" [disabled]="salvando()">
-        {{ salvando() ? 'Salvando…' : marca ? 'Salvar Alterações' : 'Cadastrar' }}
+        <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
+        >{{ salvando() ? 'Salvando…' : marca ? 'Salvar Alterações' : 'Cadastrar' }}
       </button>
-      <a mat-button routerLink="/marcas" [disabled]="salvando()">Cancelar</a>
+      <a mat-button routerLink="/marcas" [disabled]="salvando()"
+        ><mat-icon aria-hidden="true">close</mat-icon>Cancelar</a
+      >
     </div>
   </form>
 </section>

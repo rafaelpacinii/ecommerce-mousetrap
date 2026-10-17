@@ -10,11 +10,49 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$magenta-palette,
+        primary: mat.$violet-palette,
         tertiary: mat.$violet-palette,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: (
+          system-ui,
+          sans-serif,
+        ),
+        brand-family: (
+          Inter,
+          system-ui,
+          sans-serif,
+        ),
+      ),
       density: 0,
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      primary: var(--slate-blue),
+      on-primary: var(--surface-pure),
+      primary-container: var(--neutral-100),
+      on-primary-container: var(--prussian-blue),
+      secondary: var(--neutral-700),
+      on-secondary: var(--surface-pure),
+      secondary-container: var(--light-cyan),
+      on-secondary-container: var(--prussian-blue),
+      tertiary: var(--prussian-blue),
+      on-tertiary: var(--surface-pure),
+      tertiary-container: var(--golden-glow),
+      on-tertiary-container: var(--prussian-blue),
+      surface: var(--surface-canvas),
+      surface-container: var(--neutral-100),
+      surface-container-low: var(--alice-blue),
+      surface-container-lowest: var(--surface-pure),
+      surface-container-high: var(--neutral-100),
+      surface-container-highest: var(--neutral-200),
+      on-surface: var(--neutral-900),
+      on-surface-variant: var(--neutral-700),
+      outline: var(--neutral-500),
+      outline-variant: var(--neutral-200),
+      background: var(--surface-canvas),
+      on-background: var(--neutral-900),
     )
   );
 }
