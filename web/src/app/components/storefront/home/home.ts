@@ -14,7 +14,7 @@ import { ProductCardComponent } from '../product-card/product-card';
   standalone: true,
   imports: [MatIconModule, FormsModule, ProductCardComponent, RouterLink],
   templateUrl: './home.html',
-  styleUrl: './home.css',
+  styleUrls: ['./home.css', './home-hero.css'],
 })
 export class HomeComponent implements OnInit {
   private readonly service = inject(CatalogoService);

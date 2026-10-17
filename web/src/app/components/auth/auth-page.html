@@ -4,7 +4,7 @@
     @if (mode === 'acesso-negado') {
       <h1 id="auth-title">Acesso restrito</h1>
       <p>Esta área está disponível apenas para a equipe da loja.</p>
-      <a class="store-button store-button-primary" routerLink="/catalogo"
+      <a class="store-button store-button-gold" routerLink="/catalogo"
         ><mat-icon aria-hidden="true">storefront</mat-icon>Voltar à loja</a
       >
     } @else {
@@ -28,7 +28,7 @@
         <p class="auth-error" role="alert">{{ auth.error() }}</p>
       }
       <button
-        class="store-button store-button-primary"
+        class="store-button store-button-gold"
         type="button"
         (click)="auth.login(returnUrl, mode === 'cadastro')"
       >

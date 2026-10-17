@@ -1,11 +1,19 @@
 <div class="store-container catalog-page">
-  <a class="breadcrumb" routerLink="/"><mat-icon aria-hidden="true">home</mat-icon>Início</a>
   <div class="section-heading">
     <div>
-      <p class="section-label">DO SEU JEITO</p>
       <h1>Catálogo de mouses</h1>
+      <p class="catalog-count" role="status">
+        {{ total() }} {{ total() === 1 ? 'produto encontrado' : 'produtos encontrados' }}
+      </p>
     </div>
-    <p>Encontre a combinação para a sua mão e seu jogo.</p>
+    <mat-form-field appearance="outline" class="catalog-sort"
+      ><mat-label>Ordenar por</mat-label
+      ><mat-select [value]="filtro().ordenar" (selectionChange)="ordenar($event.value)">
+        @for (o of ordenacoes; track o.valor) {
+          <mat-option [value]="o.valor">{{ o.label }}</mat-option>
+        }
+      </mat-select></mat-form-field
+    >
   </div>
   <button
     class="filter-toggle"
@@ -45,57 +53,43 @@
             >search</mat-icon
           ></mat-form-field
         >
-        <mat-form-field appearance="outline"
-          ><mat-label>Marca</mat-label
-          ><mat-select formControlName="marca" multiple>
-            @for (m of facetas()?.marcas ?? []; track m.id) {
-              <mat-option [value]="m.id">{{ m.nome }}</mat-option>
+        <fieldset class="facet-group">
+          <legend>Marca</legend>
+          @for (m of facetas()?.marcas ?? []; track m.id) {
+            @if (m.id; as id) {
+              <mat-checkbox
+                [checked]="form.controls.marca.value.includes(id)"
+                (change)="alternarFaceta('marca', id, $event.checked)"
+                >{{ m.nome }}</mat-checkbox
+              >
             }
-          </mat-select></mat-form-field
-        >
-        <mat-form-field appearance="outline"
-          ><mat-label>Sensor</mat-label
-          ><mat-select formControlName="sensor"
-            ><mat-option value="">Todos</mat-option>
-            @for (s of facetas()?.sensores ?? []; track s) {
-              <mat-option [value]="s">{{ s }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-        <mat-form-field appearance="outline"
-          ><mat-label>Pegada</mat-label
-          ><mat-select formControlName="pegada" multiple>
-            @for (p of facetas()?.pegadas ?? []; track p.id) {
-              <mat-option [value]="p.id">{{ p.label }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-        <mat-form-field appearance="outline"
-          ><mat-label>Conexão</mat-label
-          ><mat-select formControlName="conexao" multiple>
-            @for (c of facetas()?.conexoes ?? []; track c.id) {
-              <mat-option [value]="c.id">{{ c.label }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-        <mat-form-field appearance="outline"
-          ><mat-label>Polling rate mínimo</mat-label
-          ><mat-select formControlName="pollingRateMin"
-            ><mat-option [value]="null">Qualquer</mat-option>
-            @for (p of pollingRates; track p) {
-              <mat-option [value]="p">{{ p }} Hz</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-        <mat-form-field appearance="outline"
-          ><mat-label>Tipo de switch</mat-label
-          ><mat-select formControlName="tipoSwitch"
-            ><mat-option [value]="null">Todos</mat-option>
-            @for (s of facetas()?.tiposSwitch ?? []; track s.id) {
-              <mat-option [value]="s.id">{{ s.label }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
+          }
+        </fieldset>
+
+        <fieldset class="facet-group grip-options">
+          <legend>Pegada</legend>
+          @for (p of facetas()?.pegadas ?? []; track p.id) {
+            <button
+              type="button"
+              class="grip-filter"
+              [attr.aria-pressed]="form.controls.pegada.value.includes(p.id)"
+              (click)="alternarFaceta('pegada', p.id, !form.controls.pegada.value.includes(p.id))"
+            >
+              {{ p.label }}
+            </button>
+          }
+        </fieldset>
+        <fieldset class="facet-group">
+          <legend>Conexão</legend>
+          @for (c of facetas()?.conexoes ?? []; track c.id) {
+            <mat-checkbox
+              [checked]="form.controls.conexao.value.includes(c.id)"
+              (change)="alternarFaceta('conexao', c.id, $event.checked)"
+              >{{ c.label }}</mat-checkbox
+            >
+          }
+        </fieldset>
+
         <mat-form-field appearance="outline"
           ><mat-label>Peso máximo (g)</mat-label
           ><input
@@ -106,22 +100,52 @@
             step="0.01"
           /><mat-error>Informe um peso positivo.</mat-error></mat-form-field
         >
-        <div class="price-range">
+        <details class="advanced-filters">
+          <summary><mat-icon aria-hidden="true">tune</mat-icon>Mais filtros</summary>
           <mat-form-field appearance="outline"
-            ><mat-label>Preço mínimo (R$)</mat-label
-            ><input matInput type="number" formControlName="precoMin" min="0" /><mat-error
-              >Valor inválido.</mat-error
-            ></mat-form-field
-          ><mat-form-field appearance="outline"
-            ><mat-label>Preço máximo (R$)</mat-label
-            ><input matInput type="number" formControlName="precoMax" min="0" /><mat-error
-              >Valor inválido.</mat-error
-            ></mat-form-field
+            ><mat-label>Sensor</mat-label
+            ><mat-select formControlName="sensor"
+              ><mat-option value="">Todos</mat-option>
+              @for (s of facetas()?.sensores ?? []; track s) {
+                <mat-option [value]="s">{{ s }}</mat-option>
+              }
+            </mat-select></mat-form-field
           >
-        </div>
-        @if (form.hasError('faixaPreco')) {
-          <p role="alert">O preço máximo deve ser maior ou igual ao mínimo.</p>
-        }
+          <mat-form-field appearance="outline"
+            ><mat-label>Polling rate mínimo</mat-label
+            ><mat-select formControlName="pollingRateMin"
+              ><mat-option [value]="null">Qualquer</mat-option>
+              @for (p of pollingRates; track p) {
+                <mat-option [value]="p">{{ p }} Hz</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Tipo de switch</mat-label
+            ><mat-select formControlName="tipoSwitch"
+              ><mat-option [value]="null">Todos</mat-option>
+              @for (s of facetas()?.tiposSwitch ?? []; track s.id) {
+                <mat-option [value]="s.id">{{ s.label }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <div class="price-range">
+            <mat-form-field appearance="outline"
+              ><mat-label>Preço mínimo (R$)</mat-label
+              ><input matInput type="number" formControlName="precoMin" min="0" /><mat-error
+                >Valor inválido.</mat-error
+              ></mat-form-field
+            ><mat-form-field appearance="outline"
+              ><mat-label>Preço máximo (R$)</mat-label
+              ><input matInput type="number" formControlName="precoMax" min="0" /><mat-error
+                >Valor inválido.</mat-error
+              ></mat-form-field
+            >
+          </div>
+          @if (form.hasError('faixaPreco')) {
+            <p role="alert">O preço máximo deve ser maior ou igual ao mínimo.</p>
+          }
+        </details>
         <mat-checkbox formControlName="emEstoque">Somente em estoque</mat-checkbox>
         <button class="store-button store-button-dark apply" type="submit">
           <mat-icon aria-hidden="true">filter_list</mat-icon>Aplicar filtros
@@ -129,19 +153,6 @@
       </form>
     </aside>
     <section class="results" aria-label="Produtos encontrados" [attr.aria-busy]="carregando()">
-      <div class="result-toolbar">
-        <p role="status">
-          {{ total() }} {{ total() === 1 ? 'produto encontrado' : 'produtos encontrados' }}
-        </p>
-        <mat-form-field appearance="outline"
-          ><mat-label>Ordenar por</mat-label
-          ><mat-select [value]="filtro().ordenar" (selectionChange)="ordenar($event.value)">
-            @for (o of ordenacoes; track o.valor) {
-              <mat-option [value]="o.valor">{{ o.label }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-      </div>
       @if (carregando()) {
         <div class="estado-pagina" role="status">
           <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Buscando mouses…
