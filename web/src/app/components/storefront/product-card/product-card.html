@@ -1,0 +1,43 @@
+<article class="product-card">
+  <div class="product-stage">
+    <app-favorite-button class="favorite-control" [id]="produto().id" />
+    <div class="spec-pills">
+      <span>{{ produto().pesoGramas | number: '1.0-1' }} g</span>
+      <span>{{
+        produto().especificacoes?.pollingRate
+          ? (produto().especificacoes?.pollingRate | number) + ' Hz'
+          : (produto().dpiMaximo | number) + ' DPI'
+      }}</span>
+    </div>
+    <a
+      class="product-photo"
+      [routerLink]="['/catalogo', produto().id]"
+      [attr.aria-label]="'Ver ' + produto().nome"
+    >
+      <app-product-image [imagem]="capa()" [nome]="produto().nome" />
+    </a>
+  </div>
+  <div class="product-content">
+    <p class="product-brand">{{ produto().marca.nome }}</p>
+    <h3>
+      <a [routerLink]="['/catalogo', produto().id]">{{ produto().nome }}</a>
+    </h3>
+    <div class="product-bottom">
+      <strong>{{ produto().preco | currency: 'BRL' }}</strong>
+      @if (produto().quantidadeEstoque > 0) {
+        <button
+          class="add-cart-btn"
+          type="button"
+          (click)="adicionarAoCarrinho()"
+          [attr.aria-label]="'Adicionar ' + produto().nome + ' ao carrinho'"
+        >
+          Adicionar
+        </button>
+      } @else {
+        <span class="unavailable"
+          ><mat-icon aria-hidden="true">remove_circle_outline</mat-icon>Indisponível</span
+        >
+      }
+    </div>
+  </div>
+</article>

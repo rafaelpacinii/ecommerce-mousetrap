@@ -1,0 +1,96 @@
+# Local release rehearsal. See docs/release-readiness.md for public deployment.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: mousetrap
+      POSTGRES_USER: mousetrap
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Generate the stack environment first}
+    volumes:
+      - app-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U mousetrap -d mousetrap']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  identity-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${IDENTITY_DATABASE_PASSWORD:?Generate the stack environment first}
+    volumes:
+      - identity-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U keycloak -d keycloak']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: [start-dev, --import-realm]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://identity-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${IDENTITY_DATABASE_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${IDENTITY_ADMIN_PASSWORD:?Generate the stack environment first}
+      KC_HOSTNAME: ${PUBLIC_IDENTITY_URL:?Required public identity URL}
+      KC_HEALTH_ENABLED: 'true'
+    ports:
+      - '127.0.0.1:${IDENTITY_PORT:-8180}:8080'
+    volumes:
+      - ${REALM_DIRECTORY:?Generate the stack realm first}:/opt/keycloak/data/import:ro
+      - ./infra/identity/themes/mousetrap:/opt/keycloak/themes/mousetrap:ro
+    depends_on:
+      identity-db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD-SHELL, "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9000; printf \"GET /health/ready HTTP/1.0\\r\\n\\r\\n\" >&3; cat <&3' | grep -q '\"status\": \"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  mailpit:
+    image: axllent/mailpit:v1.27.10
+    ports:
+      - '127.0.0.1:${MAIL_PORT:-8025}:8025'
+
+  api:
+    build: ./api
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/mousetrap
+      QUARKUS_DATASOURCE_USERNAME: mousetrap
+      QUARKUS_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+      OIDC_AUTH_SERVER_URL: http://keycloak:8080/realms/mousetrap
+      QUARKUS_OIDC_DISCOVERY_ENABLED: 'false'
+      QUARKUS_OIDC_JWKS_PATH: /protocol/openid-connect/certs
+      QUARKUS_OIDC_TOKEN_ISSUER: ${PUBLIC_IDENTITY_URL}/realms/mousetrap
+      WEB_ORIGIN: ${PUBLIC_WEB_URL:?Required public web URL}
+      PAGAMENTOS_SIMULACAO_HABILITADA: ${PAYMENT_DEMO_ENABLED:-false}
+      VIACEP_URL: ${VIACEP_URL:-https://viacep.com.br/ws/}
+    ports:
+      - '127.0.0.1:${API_PORT:-8080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    environment:
+      PUBLIC_API_URL: ${PUBLIC_API_URL:?Required public API URL}
+      PUBLIC_IDENTITY_URL: ${PUBLIC_IDENTITY_URL}
+    ports:
+      - '127.0.0.1:${WEB_PORT:-4200}:80'
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  app-data:
+  identity-data:

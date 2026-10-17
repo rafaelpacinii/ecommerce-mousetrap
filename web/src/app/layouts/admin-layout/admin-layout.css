@@ -1,0 +1,148 @@
+:host {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--surface-canvas);
+}
+.topo {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: var(--prussian-blue);
+  color: white;
+}
+.identidade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 750;
+}
+small {
+  display: block;
+  margin-top: 5px;
+  color: var(--light-cyan);
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+nav a,
+nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #d1dbf1;
+  text-decoration: none;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+}
+nav a:hover,
+nav button:hover {
+  background: #162246;
+  color: white;
+}
+nav a.selecionado {
+  background: var(--slate-blue);
+  position: relative;
+  color: white;
+}
+main {
+  width: 100%;
+  max-width: 1260px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 40px 44px 64px;
+  outline: none;
+}
+@media (max-width: 900px) {
+  :host {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .topo {
+    position: static;
+    height: auto;
+    gap: 20px;
+    padding: 20px;
+  }
+  nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  nav a,
+  nav button {
+    padding: 10px 12px;
+  }
+  main {
+    padding: 28px 16px 48px;
+  }
+}
+
+.identidade {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #1a2645;
+}
+nav a.selecionado::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--golden-glow);
+}
+.admin-account {
+  margin-top: auto;
+}
+.account-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  margin-bottom: 8px;
+  background: #182447;
+  border-radius: 12px;
+}
+.account-identity > mat-icon {
+  color: var(--golden-glow);
+}
+.account-identity span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 900px) {
+  .topo {
+    gap: 16px;
+  }
+  .identidade {
+    padding-bottom: 16px;
+  }
+  .admin-account {
+    margin-top: 0;
+  }
+  .account-identity {
+    display: none;
+  }
+  main {
+    padding: 28px 16px 48px;
+  }
+}

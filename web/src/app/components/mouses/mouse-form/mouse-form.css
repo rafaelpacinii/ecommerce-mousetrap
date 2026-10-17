@@ -1,0 +1,134 @@
+:host {
+  display: block;
+}
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 20px;
+}
+.linha-inteira {
+  grid-column: 1 / -1;
+}
+@media (max-width: 640px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gallery-editor > p {
+  color: var(--neutral-700);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.image-editor {
+  display: block;
+  padding: 16px;
+  margin-block: 16px;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+}
+.image-preview {
+  height: 220px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px dashed var(--slate-blue);
+  background: var(--alice-blue);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.image-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+.image-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 0 40px;
+  padding: 36px 40px;
+}
+fieldset.campos > legend,
+.gallery-editor > h2 {
+  margin: 0 0 24px;
+  padding: 0;
+  color: var(--slate-blue);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.gallery-editor {
+  margin: 0;
+  min-width: 0;
+}
+.gallery-editor > p {
+  margin-bottom: 24px;
+}
+.acoes-formulario {
+  grid-column: 1 / -1;
+}
+.linha-inteira h2 {
+  margin: 12px 0;
+  font-size: 16px;
+}
+.linha-inteira .descricao-pagina {
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+@media (max-width: 1250px) {
+  .formulario {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 28px;
+  }
+  .gallery-editor {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--neutral-200);
+  }
+  .image-editor {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .formulario {
+    padding: 24px 16px;
+  }
+  .image-editor {
+    display: block;
+  }
+}
+
+.empty-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-height: 260px;
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px dashed var(--slate-blue);
+  border-radius: 16px;
+  background: var(--alice-blue);
+  color: var(--prussian-blue);
+  cursor: pointer;
+}
+.empty-photo mat-icon {
+  width: 56px;
+  height: 56px;
+  font-size: 56px;
+  color: var(--slate-blue);
+}
+.empty-photo span {
+  color: var(--neutral-500);
+  font-size: 12px;
+}

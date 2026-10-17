@@ -80,3 +80,14 @@ Thumbs.db
 *.log
 __pycache__/
 *.pyc
+
+/scripts/*
+!/scripts/package_release.py
+!/scripts/test_release.py
+!/scripts/configure_stack.py
+!/scripts/verify_release.sh
+/.local/
+web/test-results/
+web/playwright-report/
+
+/.vscode

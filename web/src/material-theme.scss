@@ -1,0 +1,111 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      typography: (
+        plain-family: (
+          system-ui,
+          sans-serif,
+        ),
+        brand-family: (
+          Inter,
+          system-ui,
+          sans-serif,
+        ),
+      ),
+      density: 0,
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      primary: var(--slate-blue),
+      on-primary: var(--surface-pure),
+      primary-container: var(--neutral-100),
+      on-primary-container: var(--prussian-blue),
+      secondary: var(--neutral-700),
+      on-secondary: var(--surface-pure),
+      secondary-container: var(--light-cyan),
+      on-secondary-container: var(--prussian-blue),
+      tertiary: var(--prussian-blue),
+      on-tertiary: var(--surface-pure),
+      tertiary-container: var(--golden-glow),
+      on-tertiary-container: var(--prussian-blue),
+      surface: var(--surface-canvas),
+      surface-container: var(--neutral-100),
+      surface-container-low: var(--alice-blue),
+      surface-container-lowest: var(--surface-pure),
+      surface-container-high: var(--neutral-100),
+      surface-container-highest: var(--neutral-200),
+      on-surface: var(--neutral-900),
+      on-surface-variant: var(--neutral-700),
+      outline: var(--neutral-500),
+      outline-variant: var(--neutral-200),
+      background: var(--surface-canvas),
+      on-background: var(--neutral-900),
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+html {
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 10px,
+      outlined-container-shape: 10px,
+      protected-container-shape: 10px,
+      text-container-shape: 10px,
+      protected-container-color: var(--golden-glow),
+      protected-label-text-color: var(--prussian-blue),
+      protected-container-elevation-shadow: none,
+      protected-container-height: 46px,
+      outlined-container-height: 44px,
+      protected-label-text-weight: 750,
+    )
+  );
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 10px,
+      outlined-outline-color: var(--neutral-300),
+      outlined-label-text-color: var(--neutral-700),
+      container-height: 48px,
+      container-vertical-padding: 12px,
+      container-text-size: 14px,
+      outlined-label-text-size: 14px,
+    )
+  );
+  @include mat.table-overrides(
+    (
+      background-color: var(--surface-pure),
+      header-container-height: 48px,
+      row-item-container-height: 68px,
+    )
+  );
+}

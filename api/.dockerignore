@@ -1,0 +1,9 @@
+target
+.git
+.idea
+.certs
+*.env
+.env*
+*.log
+src/main/resources/application.properties
+src/main/resources/application.properties.example

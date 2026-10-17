@@ -1,0 +1,80 @@
+<section>
+  <div class="cabecalho-pagina">
+    <div>
+      <p class="sobretitulo">Atendimento</p>
+      <h1>Clientes</h1>
+      <p class="descricao-pagina">Consulte os dados e endereços dos clientes da loja.</p>
+    </div>
+    <a mat-raised-button color="primary" routerLink="/admin/clientes/novo"
+      ><mat-icon aria-hidden="true">add</mat-icon>Novo Cadastro</a
+    >
+  </div>
+  @if (carregando()) {
+    <p role="status"><mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando clientes…</p>
+  }
+  @if (erro()) {
+    <p role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erro() }}</p>
+    <button mat-button (click)="carregar()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+    </button>
+  }
+  <div class="admin-data-panel">
+    <div class="filtro-lista">
+      <mat-form-field appearance="outline"
+        ><mat-label>Buscar nome ou e-mail</mat-label
+        ><input matInput maxlength="150" (input)="applyFilter($event)"
+      /></mat-form-field>
+    </div>
+    <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de clientes">
+      <table mat-table [dataSource]="registros()" matSort (matSortChange)="ordenarPor($event)">
+        <ng-container matColumnDef="nome"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
+          <td mat-cell *matCellDef="let c">{{ c.nome }}</td></ng-container
+        >
+        <ng-container matColumnDef="email"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>E-mail</th>
+          <td mat-cell *matCellDef="let c">{{ c.email }}</td></ng-container
+        >
+        <ng-container matColumnDef="municipio"
+          ><th mat-header-cell *matHeaderCellDef>Município / UF</th>
+          <td mat-cell *matCellDef="let c">
+            {{ c.municipio.nome }} / {{ c.municipio.estado.sigla }}
+          </td></ng-container
+        >
+        <ng-container matColumnDef="acoes"
+          ><th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let c">
+            <a
+              mat-icon-button
+              [routerLink]="['/admin/clientes/editar', c.id]"
+              aria-label="Editar cliente"
+              ><mat-icon aria-hidden="true">edit</mat-icon></a
+            ><button
+              mat-icon-button
+              (click)="excluir(c)"
+              [disabled]="excluindo() !== null"
+              aria-label="Excluir cliente"
+            >
+              <mat-icon aria-hidden="true">delete</mat-icon>
+            </button>
+          </td></ng-container
+        >
+        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td colspan="4">
+            <mat-icon aria-hidden="true">people_outline</mat-icon>Nenhum cliente cadastrado.
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator
+      [length]="totalItems()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+      aria-label="Páginas de clientes"
+    />
+  </div>
+</section>

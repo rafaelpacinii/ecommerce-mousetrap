@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+table {
+  width: 100%;
+}
+.campo-filtro {
+  width: min(100%, 400px);
+  margin-bottom: 1rem;
+}
+.mat-column-acoes {
+  width: 120px;
+  white-space: nowrap;
+}

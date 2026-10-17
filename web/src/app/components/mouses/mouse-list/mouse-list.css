@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+.campo-filtro {
+  width: min(100%, 400px);
+  margin-bottom: 1rem;
+}
+table {
+  width: 100%;
+}
+.mat-column-acoes {
+  width: 120px;
+  white-space: nowrap;
+}
+.sku {
+  display: block;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.product-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 10px;
+}
+.product-thumbnail {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  background: var(--alice-blue);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table {
+  min-width: 940px;
+}
+.product-row strong {
+  font-size: 13px;
+}
+.sku {
+  color: var(--neutral-500);
+  font-size: 11px;
+}

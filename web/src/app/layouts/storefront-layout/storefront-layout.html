@@ -1,0 +1,135 @@
+<header
+  class="store-header"
+  [class.auth-header]="paginaAuth()"
+  (keydown.escape)="menuAberto.set(false)"
+>
+  <div class="store-container header-content">
+    <a class="brand" routerLink="/" aria-label="MouseTrap — Início" (click)="menuAberto.set(false)">
+      <img src="favicon.svg" width="36" height="36" alt="" />
+      <span>MOUSETRAP</span>
+    </a>
+    @if (paginaAuth()) {
+      <a class="back-store" routerLink="/catalogo"
+        ><mat-icon aria-hidden="true">arrow_back</mat-icon>Voltar à loja</a
+      >
+    } @else {
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Menu da loja"
+        aria-controls="store-navigation"
+        [attr.aria-expanded]="menuAberto()"
+        (click)="menuAberto.set(!menuAberto())"
+      >
+        <mat-icon aria-hidden="true">{{ menuAberto() ? 'close' : 'menu' }}</mat-icon>
+      </button>
+      <nav id="store-navigation" aria-label="Navegação da loja" [class.is-open]="menuAberto()">
+        <a
+          routerLink="/"
+          [routerLinkActiveOptions]="{ exact: true }"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="menuAberto.set(false)"
+          >Início</a
+        >
+        <a
+          routerLink="/catalogo"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="menuAberto.set(false)"
+          >Mouses</a
+        >
+        <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)">Guia de pegadas</a>
+      </nav>
+      <form
+        class="header-search"
+        role="search"
+        [class.is-open]="menuAberto()"
+        (submit)="buscar($event)"
+      >
+        <input
+          type="search"
+          name="nome"
+          aria-label="Buscar mouse"
+          placeholder="Buscar mouse…"
+          maxlength="150"
+          [value]="busca()"
+          (input)="busca.set($any($event.target).value)"
+        />
+        <button type="submit" aria-label="Buscar">
+          <mat-icon aria-hidden="true">search</mat-icon>
+        </button>
+      </form>
+      <div class="header-actions">
+        <a
+          class="cart-nav-link"
+          routerLink="/carrinho"
+          [attr.aria-label]="'Carrinho de compras com ' + carrinho.quantidadeTotal() + ' itens'"
+        >
+          <mat-icon aria-hidden="true">shopping_cart</mat-icon
+          ><span class="cart-label">Carrinho</span
+          ><span class="cart-badge">{{ carrinho.quantidadeTotal() }}</span>
+        </a>
+        @if (auth.authenticated()) {
+          <details class="account-menu" #accountMenu>
+            <summary>
+              <mat-icon aria-hidden="true">account_circle</mat-icon><span>Minha conta</span
+              ><mat-icon aria-hidden="true">expand_more</mat-icon>
+            </summary>
+            <div class="account-links">
+              <a routerLink="/meus-pedidos" (click)="accountMenu.open = false"
+                ><mat-icon aria-hidden="true">receipt_long</mat-icon>Meus pedidos</a
+              >
+              <a routerLink="/lista-de-desejos" (click)="accountMenu.open = false"
+                ><mat-icon aria-hidden="true">favorite_border</mat-icon>Lista de desejos</a
+              >
+              <a routerLink="/minha-conta" (click)="accountMenu.open = false"
+                ><mat-icon aria-hidden="true">person</mat-icon>Minha conta</a
+              >
+              @if (auth.admin()) {
+                <a routerLink="/admin/pedidos" (click)="accountMenu.open = false"
+                  ><mat-icon aria-hidden="true">settings</mat-icon>Administrar</a
+                >
+              }
+              <button type="button" (click)="auth.logout()">
+                <mat-icon aria-hidden="true">logout</mat-icon>Sair
+              </button>
+            </div>
+          </details>
+        } @else {
+          <a class="sign-in" routerLink="/login"
+            ><mat-icon aria-hidden="true">login</mat-icon>Entrar</a
+          >
+        }
+      </div>
+    }
+  </div>
+</header>
+<main id="conteudo" tabindex="-1"><router-outlet /></main>
+@if (!paginaAuth()) {
+  <footer class="store-footer">
+    <div class="store-container footer-content">
+      <div>
+        <a class="brand" routerLink="/" aria-label="MouseTrap — Início"
+          ><img src="favicon.svg" width="36" height="36" alt="" /><span>MOUSETRAP</span></a
+        >
+        <p>O próximo movimento é seu.</p>
+      </div>
+      <nav aria-label="Navegação do rodapé">
+        <a routerLink="/catalogo"><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a>
+        <a routerLink="/" fragment="pegadas"
+          ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
+        >
+        @if (auth.admin()) {
+          <a routerLink="/admin/pedidos"
+            ><mat-icon aria-hidden="true">settings</mat-icon>Administração</a
+          >
+        }
+        <a routerLink="/minha-conta"
+          ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
+        >
+      </nav>
+    </div>
+    <div class="store-container footer-bottom">MouseTrap · Mouses para o seu jeito de jogar.</div>
+  </footer>
+}

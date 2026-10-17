@@ -1,0 +1,188 @@
+<div class="store-container detail-page">
+  <nav class="breadcrumb" aria-label="Caminho da página">
+    <a routerLink="/"><mat-icon aria-hidden="true">home</mat-icon>Início</a
+    ><mat-icon aria-hidden="true">chevron_right</mat-icon><a routerLink="/catalogo">Mouses</a>
+    @if (produto(); as p) {
+      <mat-icon aria-hidden="true">chevron_right</mat-icon><span>{{ p.nome }}</span>
+    }
+  </nav>
+  @if (produto(); as p) {
+    <div class="detail-grid">
+      <section class="gallery" aria-label="Galeria do produto">
+        <div class="main-image">
+          <app-product-image
+            [imagem]="imagens()[selecionada()]"
+            [nome]="p.nome"
+            [prioritaria]="true"
+          />
+        </div>
+        @if (imagens().length > 1) {
+          <div class="thumbnails">
+            @for (imagem of imagens(); track imagem.id ?? imagem.url; let indice = $index) {
+              <button
+                type="button"
+                [class.selected]="selecionada() === indice"
+                [attr.aria-pressed]="selecionada() === indice"
+                [attr.aria-label]="'Ver imagem: ' + imagem.textoAlternativo"
+                (click)="selecionada.set(indice)"
+              >
+                <app-product-image [imagem]="imagem" [nome]="p.nome" [compacta]="true" />
+              </button>
+            }
+          </div>
+        }
+      </section>
+      <section class="product-info" aria-labelledby="product-title">
+        <div class="brand-stock">
+          <p class="section-label">{{ p.marca.nome }}</p>
+          <span class="stock" [class.unavailable]="p.quantidadeEstoque <= 0"
+            ><mat-icon aria-hidden="true">{{
+              p.quantidadeEstoque > 0 ? 'check_circle' : 'remove_circle_outline'
+            }}</mat-icon
+            >{{ p.quantidadeEstoque > 0 ? 'Em estoque' : 'Indisponível' }}</span
+          >
+        </div>
+        <h1 id="product-title">{{ p.nome }}</h1>
+        <app-favorite-button [id]="p.id" />
+        <p class="description">{{ p.descricao }}</p>
+        <p class="price">{{ p.preco | currency: 'BRL' }}</p>
+        <p class="sku">SKU: {{ p.sku }} · Cor: {{ p.cor }}</p>
+        <h2>Especificações</h2>
+        <dl class="spec-grid">
+          <div>
+            <dt><mat-icon aria-hidden="true">track_changes</mat-icon>Sensor e DPI</dt>
+            <dd>
+              {{ p.especificacoes?.sensor || 'Sensor não informado'
+              }}<small>{{ p.dpiMaximo | number }} DPI</small>
+            </dd>
+          </div>
+          <div>
+            <dt><mat-icon aria-hidden="true">fitness_center</mat-icon>Peso</dt>
+            <dd>{{ p.pesoGramas | number: '1.0-2' }} g</dd>
+          </div>
+          <div>
+            <dt><mat-icon aria-hidden="true">speed</mat-icon>Polling rate</dt>
+            <dd>
+              {{
+                p.especificacoes?.pollingRate
+                  ? (p.especificacoes?.pollingRate | number) + ' Hz'
+                  : 'Não informado'
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt><mat-icon aria-hidden="true">usb</mat-icon>Conexão</dt>
+            <dd>
+              @for (c of p.tiposConexao; track c.id) {
+                <span>{{ c.label }}</span>
+              }
+            </dd>
+          </div>
+        </dl>
+        <div class="buy-actions">
+          <button
+            type="button"
+            class="store-button store-button-gold buy-cta"
+            [disabled]="p.quantidadeEstoque <= 0"
+            (click)="adicionarAoCarrinho()"
+          >
+            <mat-icon aria-hidden="true">add_shopping_cart</mat-icon>
+            {{ p.quantidadeEstoque > 0 ? 'Adicionar ao Carrinho' : 'Produto Indisponível' }}
+          </button>
+          <a class="continue-link" routerLink="/catalogo"
+            ><mat-icon aria-hidden="true">arrow_back</mat-icon>Continuar explorando</a
+          >
+        </div>
+        <div class="frete-box" aria-label="Cálculo de frete e prazo">
+          <h3>Calcular frete e prazo</h3>
+          <form class="frete-form" (ngSubmit)="calcularFrete()">
+            <input
+              type="text"
+              name="cep"
+              inputmode="numeric"
+              maxlength="9"
+              placeholder="00000-000"
+              aria-label="CEP para entrega"
+              [ngModel]="cepInput()"
+              (ngModelChange)="cepInput.set($event)"
+            />
+            <button
+              type="submit"
+              class="store-button store-button-dark"
+              [disabled]="calculandoFrete()"
+            >
+              {{ calculandoFrete() ? 'Calculando…' : 'Calcular' }}
+            </button>
+          </form>
+          @if (erroFrete()) {
+            <p class="frete-erro" role="alert">{{ erroFrete() }}</p>
+          } @else if (carrinho.frete(); as frete) {
+            <p class="frete-resultado" role="status">
+              <mat-icon aria-hidden="true">local_shipping</mat-icon>
+              <span>
+                Frete para {{ frete.localidade }}/{{ frete.uf }}:
+                <strong>{{ frete.valorFrete | currency: 'BRL' }}</strong>
+                (até {{ frete.prazoDiasUteis }} dias úteis)
+              </span>
+            </p>
+          }
+        </div>
+        <details class="extra-specs">
+          <summary>Mais especificações <mat-icon aria-hidden="true">expand_more</mat-icon></summary>
+          <dl class="spec-grid">
+            <div>
+              <dt><mat-icon aria-hidden="true">touch_app</mat-icon>Switch e botões</dt>
+              <dd>
+                {{ p.especificacoes?.tipoSwitch?.label || 'Switch não informado'
+                }}<small>
+                  @if (p.especificacoes?.modeloSwitch) {
+                    {{ p.especificacoes?.modeloSwitch }} ·
+                  }
+                  {{ p.quantidadeBotoes }} botões</small
+                >
+              </dd>
+            </div>
+            <div>
+              <dt><mat-icon aria-hidden="true">pan_tool</mat-icon>Pegada</dt>
+              <dd>
+                @for (pegada of p.especificacoes?.pegadas ?? []; track pegada.id) {
+                  <span>{{ pegada.label }}</span>
+                } @empty {
+                  Não informada
+                }
+              </dd>
+            </div>
+          </dl>
+        </details>
+      </section>
+    </div>
+  } @else {
+    <section class="estado-pagina" role="status">
+      <mat-icon aria-hidden="true">{{
+        resultado().status === 404 ? 'search_off' : 'error_outline'
+      }}</mat-icon>
+      <h1>
+        {{
+          resultado().status === 404
+            ? 'Produto não encontrado.'
+            : 'Não foi possível carregar este produto.'
+        }}
+      </h1>
+      <p>
+        {{
+          resultado().status === 404
+            ? 'Este mouse não está disponível no catálogo.'
+            : 'Tente novamente em instantes.'
+        }}
+      </p>
+      <a mat-button routerLink="/catalogo"
+        ><mat-icon aria-hidden="true">arrow_back</mat-icon>Ver catálogo</a
+      >
+      @if (resultado().status !== 404) {
+        <button mat-button (click)="repetir()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+        </button>
+      }
+    </section>
+  }
+</div>

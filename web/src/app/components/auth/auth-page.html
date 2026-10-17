@@ -1,0 +1,53 @@
+<section class="auth-wrap" aria-labelledby="auth-title">
+  <article class="auth-card">
+    <img src="favicon.svg" alt="" width="56" height="56" />
+    @if (mode === 'acesso-negado') {
+      <h1 id="auth-title">Acesso restrito</h1>
+      <p>Esta área está disponível apenas para a equipe da loja.</p>
+      <a class="store-button store-button-gold" routerLink="/catalogo"
+        ><mat-icon aria-hidden="true">storefront</mat-icon>Voltar à loja</a
+      >
+    } @else {
+      <p class="eyebrow">SUA PRÓXIMA JOGADA COMEÇA AQUI</p>
+      <h1 id="auth-title">{{ mode === 'cadastro' ? 'Criar sua conta' : 'Entrar na sua conta' }}</h1>
+      <p>
+        {{
+          mode === 'cadastro'
+            ? 'Cadastre seu e-mail e senha. Depois, complete seu endereço para deixar tudo pronto para
+      suas compras.'
+            : 'Acesse seus dados e prepare-se para o próximo movimento.'
+        }}
+      </p>
+      @if (expired) {
+        <p role="status">Sua sessão terminou. Entre novamente para continuar.</p>
+      }
+      @if (mode === 'auth/callback' && !auth.authenticated() && !auth.error()) {
+        <p role="alert">O acesso não foi concluído. Você pode tentar novamente.</p>
+      }
+      @if (auth.error()) {
+        <p class="auth-error" role="alert">{{ auth.error() }}</p>
+      }
+      <button
+        class="store-button store-button-gold"
+        type="button"
+        (click)="auth.login(returnUrl, mode === 'cadastro')"
+      >
+        <mat-icon aria-hidden="true">{{ mode === 'cadastro' ? 'person_add' : 'login' }}</mat-icon>
+        {{ mode === 'cadastro' ? 'Continuar cadastro' : 'Entrar com e-mail e senha' }}
+      </button>
+      <p class="help">Na próxima tela, você também pode recuperar sua senha.</p>
+      <div class="auth-footer">
+        @if (mode === 'cadastro') {
+          <span>Já possui conta?</span>
+          <a routerLink="/login" [queryParams]="{ returnUrl }">Entrar</a>
+        } @else {
+          <span>Ainda não tem conta?</span>
+          <a routerLink="/cadastro" [queryParams]="{ returnUrl }">Criar conta</a>
+        }
+      </div>
+    }
+    <a class="back-link" routerLink="/"
+      ><mat-icon aria-hidden="true">arrow_back</mat-icon>Voltar para a loja</a
+    >
+  </article>
+</section>

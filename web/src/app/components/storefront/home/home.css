@@ -1,0 +1,214 @@
+.home {
+  padding-top: 28px;
+}
+.grip-section,
+.catalog-section {
+  margin-top: 48px;
+  scroll-margin-top: 24px;
+}
+h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.3;
+}
+.grip-grid,
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.grip-card {
+  align-self: start;
+  background: var(--surface-pure);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+.grip-card summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  padding: 28px 24px;
+  list-style: none;
+}
+.grip-card summary::-webkit-details-marker {
+  display: none;
+}
+.grip-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--alice-blue);
+  color: var(--slate-blue);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.grip-card strong {
+  display: block;
+  font-size: 15px;
+}
+.grip-card small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--neutral-500);
+}
+.grip-plus {
+  margin-left: auto;
+  color: var(--slate-blue);
+  font-size: 20px;
+}
+.grip-card[open] .grip-plus {
+  transform: rotate(45deg);
+}
+.grip-card > p {
+  margin: 0;
+  padding: 0 20px 22px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--neutral-700);
+}
+.catalog-search {
+  margin-bottom: 20px;
+  scroll-margin-top: 24px;
+}
+.catalog-search label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.search-controls {
+  display: flex;
+  gap: 10px;
+}
+.search-controls input {
+  min-width: 0;
+  width: 360px;
+  padding: 12px 16px;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface-pure);
+  color: var(--prussian-blue);
+  font: inherit;
+  font-size: 14px;
+}
+.clear-search {
+  border: 0;
+  background: transparent;
+  color: var(--slate-blue);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.catalog-caption {
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: var(--neutral-500);
+}
+.catalog-state {
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  background: var(--surface-pure);
+  color: var(--neutral-700);
+}
+.catalog-state h3 {
+  margin: 0 0 8px;
+}
+.catalog-state p {
+  margin: 0 0 24px;
+}
+@media (max-width: 1000px) {
+  .grip-grid,
+  .product-grid {
+    gap: 16px;
+  }
+  .grip-card summary {
+    padding: 18px 14px;
+    gap: 10px;
+  }
+  .grip-icon {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .home {
+    padding-top: 16px;
+  }
+  .section-heading {
+    display: block;
+  }
+  .section-heading > p {
+    margin-top: 8px;
+  }
+  .grip-grid,
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+  .grip-icon {
+    display: grid;
+  }
+  .grip-card summary {
+    padding: 18px 20px;
+  }
+  .grip-section,
+  .catalog-section {
+    margin-top: 36px;
+  }
+  .search-controls {
+    flex-wrap: wrap;
+  }
+  .search-controls input {
+    width: auto;
+    flex: 1 1 180px;
+  }
+}
+
+.grip-section {
+  margin-top: 32px;
+}
+.catalog-section {
+  margin-top: 28px;
+}
+.catalog-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--slate-blue);
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.catalog-link mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+.home-search {
+  margin: -8px 0 16px;
+}
+.home-search summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--neutral-500);
+  cursor: pointer;
+  font-size: 12px;
+}
+.home-search summary mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+.home-search[open] summary {
+  margin-bottom: 16px;
+}

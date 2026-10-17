@@ -1,0 +1,281 @@
+<section aria-labelledby="titulo-form">
+  <div class="cabecalho-pagina">
+    <div>
+      <p class="sobretitulo">Catálogo / Mouses</p>
+      <h1 id="titulo-form">{{ mouse ? 'Editar mouse' : 'Cadastrar mouse' }}</h1>
+      <p class="descricao-pagina">
+        Preencha as informações técnicas e adicione as fotos do produto.
+      </p>
+    </div>
+  </div>
+  @if (carregandoMarcas()) {
+    <p role="status"><mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando marcas…</p>
+  } @else if (erroMarcas()) {
+    <div role="alert" class="aviso">
+      <p><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erroMarcas() }}</p>
+      <button mat-button (click)="carregarMarcas()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+      </button>
+    </div>
+  } @else if (!marcas().length) {
+    <div class="aviso">
+      <p>Cadastre uma marca antes de cadastrar um mouse.</p>
+      <a mat-button routerLink="/admin/marcas/novo"
+        ><mat-icon aria-hidden="true">add</mat-icon>Cadastrar marca</a
+      >
+    </div>
+  }
+  <form class="formulario" [formGroup]="form" (ngSubmit)="salvar()">
+    <fieldset class="campos" [disabled]="salvando() || carregandoMarcas()">
+      <legend>Informações do produto</legend>
+      <mat-form-field appearance="outline">
+        <mat-label>Nome</mat-label><mat-icon aria-hidden="true" matSuffix>mouse</mat-icon>
+        <input matInput formControlName="nome" maxlength="150" />
+        <mat-error>Informe um nome com 2 a 150 caracteres.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>SKU</mat-label><mat-icon aria-hidden="true" matSuffix>label</mat-icon>
+        <input matInput formControlName="sku" maxlength="50" autocomplete="off" />
+        <mat-hint>Identificador único, por exemplo: MX-PRETO.</mat-hint>
+        <mat-error>Use letras, números, ponto, hífen ou sublinhado (até 50 caracteres).</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Marca</mat-label><mat-icon aria-hidden="true" matSuffix>loyalty</mat-icon>
+        <mat-select formControlName="idMarca">
+          @for (marca of marcas(); track marca.id) {
+            <mat-option [value]="marca.id"
+              >{{ marca.nome }}{{ marca.ativo ? '' : ' (inativa)' }}</mat-option
+            >
+          }
+        </mat-select>
+        <mat-error>Selecione uma marca.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Cor</mat-label><mat-icon aria-hidden="true" matSuffix>palette</mat-icon>
+        <input matInput formControlName="cor" maxlength="50" />
+        <mat-error>Informe a cor, com até 50 caracteres.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="linha-inteira">
+        <mat-label>Descrição</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>description</mat-icon>
+        <textarea matInput formControlName="descricao" rows="3" maxlength="5000"></textarea>
+        <mat-error>Informe uma descrição com até 5.000 caracteres.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Preço (R$)</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>attach_money</mat-icon>
+        <input
+          matInput
+          type="number"
+          formControlName="preco"
+          min="0.01"
+          max="9999999999.99"
+          step="0.01"
+        />
+        <mat-error>Informe um preço positivo com até duas casas decimais.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Quantidade em estoque</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>inventory</mat-icon>
+        <input matInput type="number" formControlName="quantidadeEstoque" min="0" step="1" />
+        <mat-error>Informe uma quantidade inteira a partir de zero.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>DPI máximo</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>track_changes</mat-icon>
+        <input matInput type="number" formControlName="dpiMaximo" min="1" step="1" />
+        <mat-error>Informe um DPI inteiro maior que zero.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Quantidade de botões</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>touch_app</mat-icon>
+        <input matInput type="number" formControlName="quantidadeBotoes" min="1" step="1" />
+        <mat-error>Informe uma quantidade inteira maior que zero.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Peso (g)</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>fitness_center</mat-icon>
+        <input
+          matInput
+          type="number"
+          formControlName="pesoGramas"
+          min="0.01"
+          max="999999.99"
+          step="0.01"
+        />
+        <mat-error>Informe um peso positivo com até duas casas decimais.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Conexões</mat-label><mat-icon aria-hidden="true" matSuffix>usb</mat-icon>
+        <mat-select formControlName="tiposConexao" multiple>
+          @for (tipo of tiposConexao; track tipo.id) {
+            <mat-option [value]="tipo.id">{{ tipo.label }}</mat-option>
+          }
+        </mat-select>
+        <mat-error>Selecione ao menos uma conexão.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Situação</mat-label
+        ><mat-icon aria-hidden="true" matSuffix>check_circle_outline</mat-icon>
+        <mat-select formControlName="ativo">
+          <mat-option [value]="true">Ativo</mat-option>
+          <mat-option [value]="false">Inativo</mat-option>
+        </mat-select>
+        <mat-error>Selecione a situação.</mat-error>
+      </mat-form-field>
+      <div class="linha-inteira" formGroupName="especificacoes">
+        <h2>Especificações para jogos</h2>
+        <p class="descricao-pagina">
+          Complete as informações disponíveis para ajudar na escolha do produto.
+        </p>
+        <div class="campos">
+          <mat-form-field appearance="outline"
+            ><mat-label>Sensor</mat-label
+            ><input matInput formControlName="sensor" maxlength="100" /><mat-icon
+              matSuffix
+              aria-hidden="true"
+              >track_changes</mat-icon
+            ><mat-error>Use até 100 caracteres.</mat-error></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Polling rate</mat-label
+            ><mat-select formControlName="pollingRate"
+              ><mat-option [value]="null">Não informado</mat-option>
+              @for (p of pollingRates; track p) {
+                <mat-option [value]="p">{{ p }} Hz</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Tipo de switch</mat-label
+            ><mat-select formControlName="tipoSwitch"
+              ><mat-option [value]="null">Não informado</mat-option>
+              @for (s of tiposSwitch; track s.id) {
+                <mat-option [value]="s.id">{{ s.label }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Modelo do switch</mat-label
+            ><input matInput formControlName="modeloSwitch" maxlength="100" /><mat-icon
+              matSuffix
+              aria-hidden="true"
+              >touch_app</mat-icon
+            ><mat-error>Use até 100 caracteres.</mat-error></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Pegadas recomendadas</mat-label
+            ><mat-select formControlName="pegadas" multiple>
+              @for (p of pegadas; track p.id) {
+                <mat-option [value]="p.id">{{ p.label }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+        </div>
+      </div>
+    </fieldset>
+    <section class="gallery-editor" aria-labelledby="gallery-title">
+      <h2 id="gallery-title">Fotos do produto</h2>
+      <p>
+        Adicione até 12 imagens por endereço. A primeira será a capa. Use fotos do produto e
+        descreva cada vista.
+      </p>
+      <div formArrayName="imagens">
+        @for (imagem of imagens.controls; track imagem; let indice = $index) {
+          <div class="image-editor" [formGroupName]="indice">
+            <div class="image-preview">
+              <app-product-image
+                [imagem]="imagem.valid ? imagem.getRawValue() : undefined"
+                [nome]="form.controls.nome.value"
+                [compacta]="true"
+              />
+            </div>
+            <div>
+              <p class="image-label">
+                {{ indice === 0 ? 'Capa do produto' : 'Imagem ' + (indice + 1) }}
+              </p>
+              <mat-form-field appearance="outline"
+                ><mat-label>Endereço da imagem</mat-label
+                ><input
+                  matInput
+                  formControlName="url"
+                  placeholder="https://exemplo.com/mouse.webp"
+                  maxlength="2048"
+                /><mat-icon matSuffix aria-hidden="true">image</mat-icon
+                ><mat-error
+                  >Informe um endereço HTTP(S) ou um caminho iniciado por /.</mat-error
+                ></mat-form-field
+              >
+              <mat-form-field appearance="outline"
+                ><mat-label>Descrição da imagem</mat-label
+                ><input matInput formControlName="textoAlternativo" maxlength="200" /><mat-error
+                  >Descreva a imagem em até 200 caracteres.</mat-error
+                ></mat-form-field
+              >
+              <div class="image-actions">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [disabled]="indice === 0 || salvando() || carregandoMarcas()"
+                  [attr.aria-label]="'Mover imagem ' + (indice + 1) + ' para antes'"
+                  (click)="moverImagem(indice, -1)"
+                >
+                  <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [disabled]="indice === imagens.length - 1 || salvando() || carregandoMarcas()"
+                  [attr.aria-label]="'Mover imagem ' + (indice + 1) + ' para depois'"
+                  (click)="moverImagem(indice, 1)"
+                >
+                  <mat-icon aria-hidden="true">arrow_downward</mat-icon>
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="salvando() || carregandoMarcas()"
+                  (click)="removerImagem(indice)"
+                >
+                  <mat-icon aria-hidden="true">delete</mat-icon>Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <button
+            class="empty-photo"
+            type="button"
+            (click)="adicionarImagem()"
+            [disabled]="salvando() || carregandoMarcas()"
+          >
+            <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>
+            <strong>Adicionar foto do produto</strong><span>Informe o endereço da imagem</span>
+          </button>
+        }
+      </div>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="imagens.length >= 12 || salvando() || carregandoMarcas()"
+        (click)="adicionarImagem()"
+      >
+        <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>Adicionar imagem
+      </button>
+    </section>
+    <div class="acoes-formulario">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="salvando() || carregandoMarcas() || !!erroMarcas() || !marcas().length"
+      >
+        <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
+        >{{ salvando() ? 'Salvando…' : mouse ? 'Salvar Alterações' : 'Cadastrar' }}
+      </button>
+      <a mat-button routerLink="/admin/mouses" [disabled]="salvando()"
+        ><mat-icon aria-hidden="true">close</mat-icon>Cancelar</a
+      >
+    </div>
+  </form>
+</section>

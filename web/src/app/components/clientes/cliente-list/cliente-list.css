@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+table {
+  width: 100%;
+}
+.mat-column-acoes {
+  width: 120px;
+  white-space: nowrap;
+}
+.mat-row td {
+  padding: 32px;
+  text-align: center;
+  color: var(--neutral-500);
+}
+
+.filtro-lista {
+  padding: 24px 24px 0;
+}
+mat-form-field {
+  width: 320px;
+  max-width: 100%;
+}

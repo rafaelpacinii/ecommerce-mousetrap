@@ -1,0 +1,128 @@
+import { ConfirmacaoService } from '../../shared/confirm-dialog';
+import { MatSortModule, Sort } from '@angular/material/sort';
+import { paginacaoPortugues } from '../../../services/paginator-intl';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ProductImageComponent } from '../../storefront/product-image/product-image';
+import { CurrencyPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { filter, finalize, switchMap, Subscription } from 'rxjs';
+import { Mouse } from '../../../models/mouse.model';
+import { MouseService } from '../../../services/mouse.service';
+import { mensagemErro } from '../../../services/erro-api';
+
+@Component({
+  selector: 'app-mouse-list',
+  standalone: true,
+  providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
+  imports: [
+    MatSortModule,
+    RouterLink,
+    ProductImageComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    CurrencyPipe,
+  ],
+  templateUrl: './mouse-list.html',
+  styleUrl: './mouse-list.css',
+})
+export class MouseListComponent implements OnInit {
+  private readonly confirmacao = inject(ConfirmacaoService);
+  private request?: Subscription;
+  readonly ordenar = signal('');
+  private readonly service = inject(MouseService);
+  private readonly snack = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly registros = signal<Mouse[]>([]);
+  readonly carregando = signal(true);
+  readonly erro = signal('');
+  readonly excluindo = signal<number | null>(null);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly totalItems = signal(0);
+  readonly filtro = signal('');
+  readonly colunas = ['nome', 'marca', 'especificacoes', 'preco', 'estoque', 'ativo', 'acoes'];
+
+  ngOnInit(): void {
+    this.carregar();
+  }
+
+  carregar(): void {
+    this.request?.unsubscribe();
+    this.carregando.set(true);
+    this.erro.set('');
+    const filtro = this.filtro().trim();
+    const consulta = this.ordenar()
+      ? this.service.pesquisar(filtro, this.ordenar(), this.pageIndex(), this.pageSize())
+      : filtro
+        ? this.service.findByNome(filtro, this.pageIndex(), this.pageSize())
+        : this.service.findAll(this.pageIndex(), this.pageSize());
+    this.request = consulta
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.carregando.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          this.registros.set(response.items);
+          this.totalItems.set(response.totalItems);
+        },
+        error: (erro: unknown) => this.erro.set(mensagemErro(erro)),
+      });
+  }
+
+  applyFilter(event: Event): void {
+    this.filtro.set((event.target as HTMLInputElement).value);
+    this.pageIndex.set(0);
+    this.carregar();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.carregar();
+  }
+
+  ordenarPor(e: Sort) {
+    const campo = e.active === 'estoque' ? 'quantidadeEstoque' : e.active;
+    this.ordenar.set(e.direction ? campo + (e.direction === 'desc' ? '-desc' : '') : '');
+    this.pageIndex.set(0);
+    this.carregar();
+  }
+  excluir(registro: Mouse): void {
+    if (registro.id == null || this.excluindo() !== null) return;
+    const id = registro.id;
+    this.excluindo.set(id);
+    this.confirmacao
+      .abrir(
+        'Excluir mouse?',
+        `Excluir "${registro.nome}"? Esta ação não pode ser desfeita.`,
+        'Excluir',
+      )
+      .pipe(
+        filter(Boolean),
+        switchMap(() => this.service.delete(id)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.excluindo.set(null)),
+      )
+      .subscribe({
+        next: () => {
+          this.registros.update((registros) => registros.filter((item) => item.id !== id));
+          this.totalItems.update((total) => Math.max(0, total - 1));
+          this.snack.open('Mouse excluído com sucesso.', 'Fechar', { duration: 4000 });
+        },
+        error: (erro: unknown) => this.snack.open(mensagemErro(erro), 'Fechar', { duration: 7000 }),
+      });
+  }
+}

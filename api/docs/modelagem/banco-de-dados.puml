@@ -1,0 +1,196 @@
+@startuml banco-de-dados
+title E-commerce de mouses — modelo relacional proposto (MVP)
+top to bottom direction
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam entityBackgroundColor #F5F9FF
+skinparam entityBorderColor #355473
+
+entity marca {
+  * id : bigint <<PK, identity>>
+  --
+  * nome : varchar(100) <<UK>>
+  * ativo : boolean
+}
+
+entity mouse {
+  * id : bigint <<PK, identity>>
+  --
+  * marca_id : bigint <<FK>>
+  * sku : varchar(50) <<UK>>
+  * nome : varchar(150)
+  * descricao : text
+  * cor : varchar(50)
+  * preco : numeric(12,2)
+  * quantidade_estoque : integer
+  * dpi_maximo : integer
+  * quantidade_botoes : integer
+  * peso_gramas : numeric(8,2)
+  * ativo : boolean
+  * versao : bigint
+}
+
+entity mouse_conexao <<tabela de coleção>> {
+  * mouse_id : bigint <<PK, FK>>
+  * tipo_conexao : integer <<PK, enum>>
+}
+
+entity imagem_mouse {
+  * id : bigint <<PK, identity>>
+  --
+  * mouse_id : bigint <<FK>>
+  * url : varchar(2048)
+  * texto_alternativo : varchar(150)
+  * ordem : integer
+  --
+  UNIQUE (mouse_id, ordem)
+}
+
+entity usuario {
+  * id : bigint <<PK, identity>>
+  --
+  * nome : varchar(150)
+  * email : varchar(254) <<UK>>
+  * senha_hash : varchar(255)
+  telefone : varchar(20)
+  * perfil : integer <<enum>>
+  * ativo : boolean
+}
+
+entity endereco {
+  * id : bigint <<PK, identity>>
+  --
+  * usuario_id : bigint <<FK>>
+  * apelido : varchar(50)
+  * destinatario : varchar(150)
+  * cep : varchar(8)
+  * logradouro : varchar(150)
+  * numero : varchar(20)
+  complemento : varchar(100)
+  * bairro : varchar(100)
+  * cidade : varchar(100)
+  * uf : char(2)
+}
+
+entity lista_desejos {
+  * id : bigint <<PK, identity>>
+  --
+  * usuario_id : bigint <<FK, UK>>
+}
+
+entity item_lista_desejos {
+  * id : bigint <<PK, identity>>
+  --
+  * lista_desejos_id : bigint <<FK>>
+  * mouse_id : bigint <<FK>>
+  --
+  UNIQUE (lista_desejos_id, mouse_id)
+}
+
+entity pedido {
+  * id : bigint <<PK, identity>>
+  --
+  * usuario_id : bigint <<FK>>
+  * chave_checkout : uuid <<UK>>
+  * status : integer <<enum>>
+  * expira_em : timestamp
+  * valor_frete : numeric(12,2)
+  * versao : bigint
+  codigo_rastreio : varchar(100)
+  --
+  * entrega_destinatario : varchar(150)
+  * entrega_cep : varchar(8)
+  * entrega_logradouro : varchar(150)
+  * entrega_numero : varchar(20)
+  entrega_complemento : varchar(100)
+  * entrega_bairro : varchar(100)
+  * entrega_cidade : varchar(100)
+  * entrega_uf : char(2)
+}
+
+entity item_pedido {
+  * id : bigint <<PK, identity>>
+  --
+  * pedido_id : bigint <<FK>>
+  * mouse_id : bigint <<FK>>
+  * sku_mouse : varchar(50)
+  * nome_mouse : varchar(150)
+  * cor_mouse : varchar(50)
+  * quantidade : integer
+  * preco_unitario : numeric(12,2)
+  --
+  UNIQUE (pedido_id, mouse_id)
+}
+
+entity pagamento {
+  * id : bigint <<PK, identity>>
+  --
+  * pedido_id : bigint <<FK>>
+  * chave_idempotencia : uuid <<UK>>
+  * forma : integer <<enum>>
+  * status : integer <<enum>>
+  * valor : numeric(12,2)
+  * versao : bigint
+  processado_em : timestamp
+}
+
+marca ||--o{ mouse : identifica
+mouse ||--|{ mouse_conexao : suporta
+mouse ||--o{ imagem_mouse : apresenta
+usuario ||--o{ endereco : cadastra
+usuario ||--o| lista_desejos : possui
+lista_desejos ||--o{ item_lista_desejos : contém
+mouse ||--o{ item_lista_desejos : desejado
+usuario ||--o{ pedido : realiza
+pedido ||--|{ item_pedido : contém
+mouse ||--o{ item_pedido : referencia
+pedido ||--o{ pagamento : tentativas
+
+note bottom of mouse
+  CHECK preco > 0; quantidade_estoque >= 0
+  CHECK dpi_maximo > 0; quantidade_botoes > 0
+  CHECK peso_gramas > 0; versao >= 0
+  SKU normalizado em maiúsculas.
+  Cada cor vendável possui seu próprio SKU.
+end note
+
+note bottom of usuario
+  E-mail armazenado em minúsculas e sem espaços externos.
+  CHECK email = lower(trim(email))
+  Perfil: 1 CLIENTE; 2 ADMINISTRADOR.
+end note
+
+note bottom of pedido
+  Endereço copiado: não há FK para endereco.
+  Total calculado: soma dos itens + frete.
+  CHECK valor_frete >= 0; versao >= 0
+  CHECK expira_em > data_cadastro
+  Pedido criado com ao menos um item (serviço).
+end note
+
+note bottom of pagamento
+  CHECK valor > 0; versao >= 0
+  UNIQUE parcial (pedido_id)
+  WHERE status IN (1, 2)
+  No máximo uma tentativa pendente ou aprovada.
+  Simulação: não armazena dados de cartão.
+end note
+
+legend left
+  * = NOT NULL; sem * = aceita NULL.
+  PK = chave primária; FK = chave estrangeira; UK = UNIQUE.
+  Todas as tabelas com id também possuem:
+    data_cadastro timestamp NOT NULL
+    data_alteracao timestamp NULL
+  São atributos herdados de DefaultEntity; não há tabela default_entity.
+  mouse_conexao é uma coleção de valores e não possui auditoria própria.
+  Enums são inteiros com CHECK dos IDs permitidos (ver README).
+  CHECK quantidade > 0 e preco_unitario > 0 em item_pedido.
+  CHECK ordem >= 0 em imagem_mouse.
+  Carrinho existe apenas no frontend; não possui tabelas ou endpoints de persistência.
+  Lista de desejos não guarda quantidades, preços ou reservas de estoque.
+  Cardinalidades mínimas de coleções exigem validação transacional no serviço.
+  Demais índices, exclusões e invariantes estão documentados no README.
+endlegend
+@enduml

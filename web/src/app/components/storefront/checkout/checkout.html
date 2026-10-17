@@ -1,0 +1,286 @@
+<div class="store-container checkout-page">
+  <header class="page-heading">
+    <h1>{{ pedido() ? 'Seu pedido' : 'Finalizar compra' }}</h1>
+    <p>Confirme o endereço de entrega e escolha a forma de pagamento.</p>
+  </header>
+  @if (erro()) {
+    <div class="feedback error" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon><span>{{ erro() }}</span>
+    </div>
+  }
+  @if (aviso() && !pedido()) {
+    <p class="feedback" role="status">{{ aviso() }}</p>
+  }
+  @if (carregando()) {
+    <section class="estado-pagina" role="status">Preparando sua compra…</section>
+  } @else if (pedido(); as p) {
+    <div class="checkout-grid">
+      <div class="checkout-main">
+        <section class="panel result-panel" aria-labelledby="result-title">
+          <div class="result-title">
+            <mat-icon aria-hidden="true">{{
+              p.status.id >= 2 && p.status.id <= 4
+                ? 'check_circle'
+                : p.status.id >= 5
+                  ? 'info'
+                  : 'schedule'
+            }}</mat-icon>
+            <h2 id="result-title">Pedido #{{ p.id }}</h2>
+            <span class="status" [class.success]="p.status.id === 2">{{ p.status.label }}</span>
+          </div>
+          @if (p.status.id >= 2 && p.status.id <= 4) {
+            <p role="status">Pagamento aprovado. Seu pedido foi confirmado.</p>
+          } @else if (p.status.id === 1) {
+            <p>
+              Aguardamos o pagamento até {{ vencimento() }}. Seu pedido está aguardando confirmação.
+            </p>
+          } @else {
+            <p role="status">Este pedido foi encerrado e o estoque reservado foi liberado.</p>
+          }
+          @if (p.codigoRastreio) {
+            <p>
+              Transportadora: {{ p.transportadora }}<br />Código de rastreio: {{ p.codigoRastreio }}
+            </p>
+          }
+          <a class="text-button" [routerLink]="['/meus-pedidos', p.id]">Acompanhar pedido</a>
+          <h3>Endereço de entrega</h3>
+          <p>
+            {{ p.endereco.destinatario }}<br />{{ p.endereco.logradouro }}, {{ p.endereco.numero }}
+            {{ p.endereco.complemento }}<br />{{ p.endereco.bairro }} ·
+            {{ p.endereco.municipio }}/{{ p.endereco.uf }} · CEP {{ p.endereco.cep }}
+          </p>
+          <div class="result-actions">
+            <button class="text-button" type="button" (click)="recuperar()" [disabled]="ocupado()">
+              <mat-icon aria-hidden="true">refresh</mat-icon>Atualizar pedido
+            </button>
+            @if (p.status.id === 1) {
+              <button
+                class="text-button danger"
+                type="button"
+                (click)="cancelar()"
+                [disabled]="ocupado()"
+              >
+                Cancelar pedido
+              </button>
+            }
+          </div>
+        </section>
+        @if (p.status.id === 1 && checkoutDisponivel()) {
+          <section class="panel" aria-labelledby="payment-result-title">
+            <h2 id="payment-result-title">Pagamento</h2>
+            @if (pagamentoPendente(); as pagamento) {
+              @if (pagamento.forma.id === 1) {
+                <app-pix-payment [total]="p.total" [pedidoId]="p.id" />
+                <p class="shipping-hint">Após o pagamento, aguarde a confirmação do seu pedido.</p>
+              } @else {
+                <p role="status">
+                  Pagamento em processamento. Aguarde a confirmação do seu pedido.
+                </p>
+              }
+            } @else {
+              <p>Escolha a forma de pagamento para continuar.</p>
+              <fieldset
+                [formGroup]="form"
+                [disabled]="!!checkout.tentativa()?.pagamento || ocupado()"
+              >
+                <label class="field-label" for="retry-method">Forma de pagamento</label>
+                <select id="retry-method" formControlName="forma">
+                  <option [ngValue]="1">PIX</option>
+                  <option [ngValue]="2">Cartão de crédito</option>
+                </select>
+              </fieldset>
+              @if (form.controls.forma.value === 2 && !checkout.tentativa()?.pagamento) {
+                <app-card-fields [form]="cartao" />
+              }
+              <button
+                class="store-button store-button-gold"
+                type="button"
+                (click)="pagar()"
+                [disabled]="ocupado() || dadosCartaoInvalidos()"
+              >
+                {{
+                  checkout.tentativa()?.pagamento
+                    ? 'Consultar pagamento'
+                    : 'Continuar com o pagamento'
+                }}
+              </button>
+            }
+            @for (pagamento of p.pagamentos; track pagamento.id) {
+              <p class="attempt">
+                Tentativa #{{ pagamento.id }} · {{ pagamento.forma.label }} ·
+                {{ pagamento.status.label }}
+              </p>
+            }
+          </section>
+        }
+      </div>
+      <aside class="panel summary" aria-label="Resumo do pedido">
+        <h2>Resumo da compra</h2>
+        @for (item of p.itens; track item.idMouse) {
+          <div class="summary-item">
+            <span
+              >{{ item.quantidade }}× {{ item.nome
+              }}<small>{{ item.cor }} · {{ item.sku }}</small></span
+            ><strong>{{ item.subtotal | currency: 'BRL' }}</strong>
+          </div>
+        }
+        <dl>
+          <div>
+            <dt>Subtotal</dt>
+            <dd>{{ p.subtotal | currency: 'BRL' }}</dd>
+          </div>
+          <div>
+            <dt>Frete</dt>
+            <dd>{{ p.frete | currency: 'BRL' }}</dd>
+          </div>
+          <div class="total">
+            <dt>Total</dt>
+            <dd>{{ p.total | currency: 'BRL' }}</dd>
+          </div>
+        </dl>
+        <a class="back-link" routerLink="/catalogo">Continuar comprando</a>
+      </aside>
+    </div>
+  } @else if (checkout.tentativa()) {
+    <section class="estado-pagina" aria-labelledby="recover-title">
+      <h2 id="recover-title">Vamos confirmar sua tentativa</h2>
+      <p>
+        O retorno da compra ainda não foi confirmado. Repita a mesma tentativa para consultar o
+        resultado com segurança.
+      </p>
+      <button
+        class="store-button store-button-gold"
+        type="button"
+        (click)="recuperar()"
+        [disabled]="ocupado()"
+      >
+        {{ ocupado() ? 'Consultando…' : 'Recuperar minha compra' }}
+      </button>
+    </section>
+  } @else if (!checkoutDisponivel()) {
+    <section class="estado-pagina">
+      <h2>Checkout indisponível neste ambiente</h2>
+      <p>Tente novamente em instantes.</p>
+      <button type="button" class="store-button store-button-dark" (click)="preparar()">
+        Tentar novamente
+      </button>
+    </section>
+  } @else if (!carrinho.itens().length) {
+    <section class="estado-pagina">
+      <h2>Seu carrinho está vazio</h2>
+      <a class="store-button store-button-gold" routerLink="/catalogo">Explorar mouses</a>
+    </section>
+  } @else {
+    <form class="checkout-grid" [formGroup]="form" (ngSubmit)="confirmar()">
+      <div class="checkout-main">
+        <section class="panel" aria-labelledby="delivery-title">
+          <div class="panel-heading">
+            <h2 id="delivery-title">1. Endereço de entrega</h2>
+            <a routerLink="/minha-conta" [queryParams]="{ returnUrl: '/checkout' }"
+              ><mat-icon aria-hidden="true">add</mat-icon>Novo endereço</a
+            >
+          </div>
+          @for (e of enderecos(); track e.id) {
+            <label class="address-option" [class.selected]="form.controls.idEndereco.value === e.id"
+              ><input
+                type="radio"
+                formControlName="idEndereco"
+                [value]="e.id"
+                (change)="atualizarRevisao()"
+              /><span
+                ><strong
+                  >{{ e.apelido
+                  }}{{
+                    e.principal && e.apelido.toLowerCase() !== 'principal' ? ' · Principal' : ''
+                  }}</strong
+                ><span
+                  >{{ e.destinatario }} · {{ e.logradouro }}, {{ e.numero }}
+                  {{ e.complemento }}</span
+                ><small
+                  >{{ e.bairro }} · {{ e.municipio.nome }}/{{ e.municipio.estado.sigla }} · CEP
+                  {{ e.cep }}</small
+                ></span
+              ></label
+            >
+          } @empty {
+            <p>Cadastre um endereço para receber sua compra.</p>
+          }
+        </section>
+        <section class="panel" aria-labelledby="payment-title">
+          <h2 id="payment-title">2. Forma de pagamento</h2>
+          <div class="payment-options">
+            <label class="payment-option" [class.selected]="form.controls.forma.value === 1"
+              ><input type="radio" formControlName="forma" [value]="1" /><span
+                ><strong><mat-icon aria-hidden="true">qr_code_2</mat-icon>PIX</strong
+                ><small
+                  >Use o QR Code ou o código Copia e Cola após confirmar o pedido.</small
+                ></span
+              ></label
+            >
+            <label class="payment-option" [class.selected]="form.controls.forma.value === 2"
+              ><input type="radio" formControlName="forma" [value]="2" /><span
+                ><strong
+                  ><mat-icon aria-hidden="true">credit_card</mat-icon>Cartão de crédito</strong
+                ><small>Preencha os dados do cartão para continuar.</small></span
+              ></label
+            >
+          </div>
+          @if (form.controls.forma.value === 2) {
+            <app-card-fields [form]="cartao" />
+          }
+        </section>
+      </div>
+      <aside class="panel summary" aria-label="Revisão da compra">
+        <h2>Resumo da compra</h2>
+        @if (revisao(); as r) {
+          @for (item of r.itens; track item.idMouse) {
+            <div class="summary-item">
+              <span>{{ item.quantidade }}× {{ item.nome }}</span
+              ><strong>{{ item.subtotal | currency: 'BRL' }}</strong>
+            </div>
+          }
+          <dl>
+            <div>
+              <dt>Subtotal</dt>
+              <dd>{{ r.subtotal | currency: 'BRL' }}</dd>
+            </div>
+            <div>
+              <dt>Frete</dt>
+              <dd>{{ r.frete.valorFrete | currency: 'BRL' }}</dd>
+            </div>
+            <div class="total">
+              <dt>Total a pagar</dt>
+              <dd>{{ r.total | currency: 'BRL' }}</dd>
+            </div>
+          </dl>
+          <p class="shipping-hint">
+            Prazo estimado de {{ r.frete.prazoDiasUteis }} dias úteis após o pagamento.
+          </p>
+        } @else {
+          <p role="status">
+            {{
+              ocupado()
+                ? 'Conferindo preços, estoque e entrega…'
+                : 'Selecione um endereço e atualize a revisão.'
+            }}
+          </p>
+        }
+        <button
+          class="store-button store-button-gold confirm-button"
+          type="submit"
+          [disabled]="ocupado() || !revisao() || form.invalid || dadosCartaoInvalidos()"
+        >
+          {{ ocupado() ? 'Aguarde…' : 'Confirmar pedido' }}
+        </button>
+        <button
+          class="text-button"
+          type="button"
+          (click)="atualizarRevisao()"
+          [disabled]="ocupado()"
+        >
+          Atualizar revisão</button
+        ><a class="back-link" routerLink="/carrinho">Voltar ao carrinho</a>
+      </aside>
+    </form>
+  }
+</div>

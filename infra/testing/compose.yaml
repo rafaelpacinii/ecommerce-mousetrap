@@ -1,0 +1,13 @@
+# Add only to disposable test stacks. Never include in public deployments.
+services:
+  viacep:
+    image: python:3.13-alpine
+    command: [python, /fixture/viacep.py]
+    volumes:
+      - ./infra/testing/viacep.py:/fixture/viacep.py:ro
+  api:
+    environment:
+      VIACEP_URL: http://viacep:8090/ws/
+    depends_on:
+      viacep:
+        condition: service_started
