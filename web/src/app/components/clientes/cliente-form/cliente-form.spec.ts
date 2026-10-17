@@ -164,4 +164,82 @@ describe('ClienteFormComponent', () => {
     expect(req.request.body.municipio).toBeUndefined();
     req.flush({ id: 7 });
   });
+  it('gerencia endereços salvos do cliente autenticado (/clientes/me/enderecos)', () => {
+    TestBed.inject(ActivatedRoute).snapshot.data = { selfService: true };
+    const c = criar();
+    http.expectOne('http://localhost:8080/clientes/me').flush({
+      id: 4,
+      nome: 'Cliente',
+      email: 'conta@example.com',
+      cep: '01001000',
+      logradouro: 'Praça da Sé',
+      bairro: 'Sé',
+      numero: '10',
+      complemento: '',
+      municipio: {
+        id: 1,
+        nome: 'São Paulo',
+        codigoIbge: '3550308',
+        estado: { id: 1, nome: 'São Paulo', sigla: 'SP' },
+      },
+    });
+    const enderecoInicial = {
+      id: 11,
+      apelido: 'Principal',
+      destinatario: 'Cliente',
+      cep: '01001000',
+      logradouro: 'Praça da Sé',
+      bairro: 'Sé',
+      numero: '10',
+      complemento: '',
+      principal: true,
+      municipio: {
+        id: 1,
+        nome: 'São Paulo',
+        codigoIbge: '3550308',
+        estado: { id: 1, nome: 'São Paulo', sigla: 'SP' },
+      },
+    };
+    http.expectOne('http://localhost:8080/clientes/me/enderecos').flush([enderecoInicial]);
+    expect(c.enderecos().length).toBe(1);
+
+    c.iniciarNovoEndereco();
+    c.formEndereco.patchValue({
+      apelido: 'Trabalho',
+      destinatario: 'Cliente',
+      cep: '01001-000',
+      numero: '200',
+      principal: false,
+    });
+    c.consultarCepEndereco();
+    http.expectOne('http://localhost:8080/ceps/01001000').flush(cep);
+    c.salvarEndereco();
+    const postReq = http.expectOne('http://localhost:8080/clientes/me/enderecos');
+    expect(postReq.request.method).toBe('POST');
+    expect(postReq.request.body.apelido).toBe('Trabalho');
+    postReq.flush({ ...enderecoInicial, id: 12, apelido: 'Trabalho', principal: false });
+
+    const segundo = { ...enderecoInicial, id: 12, apelido: 'Trabalho', principal: false };
+    http
+      .expectOne('http://localhost:8080/clientes/me/enderecos')
+      .flush([enderecoInicial, segundo]);
+
+    c.definirPrincipal(segundo);
+    const putPrincipal = http.expectOne(
+      'http://localhost:8080/clientes/me/enderecos/12/principal',
+    );
+    expect(putPrincipal.request.method).toBe('PUT');
+    putPrincipal.flush({ ...segundo, principal: true });
+    http
+      .expectOne('http://localhost:8080/clientes/me/enderecos')
+      .flush([{ ...segundo, principal: true }, { ...enderecoInicial, principal: false }]);
+
+    c.removerEndereco(enderecoInicial);
+    const delReq = http.expectOne('http://localhost:8080/clientes/me/enderecos/11');
+    expect(delReq.request.method).toBe('DELETE');
+    delReq.flush(null, { status: 204, statusText: 'No Content' });
+    http
+      .expectOne('http://localhost:8080/clientes/me/enderecos')
+      .flush([{ ...segundo, principal: true }]);
+  });
 });

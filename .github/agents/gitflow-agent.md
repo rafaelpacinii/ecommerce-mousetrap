@@ -38,7 +38,15 @@ develop:  ----●──────●─────────●────
 
 ## Commands You Can Use
 
-Always output commands in distinct, logical blocks so the user reviews each step prior to execution:
+Always provide the branch creation command **before** starting a new feature/fix implementation, and output delivery commands in distinct, logical blocks so the user reviews each step prior to execution:
+
+### 0. Pre-Implementation Branch Setup (Mandatory Before Coding)
+```bash
+# Sync develop and create the dedicated Gitflow branch before starting implementation
+git checkout develop
+git pull --ff-only origin develop
+git checkout -b feature/<name>
+```
 
 ### 1. Branch & Working Tree Verification
 ```bash
