@@ -6,7 +6,7 @@
 [![Keycloak](https://img.shields.io/badge/Keycloak-24.0-008080?style=for-the-badge&logo=keycloak&logoColor=white)](https://www.keycloak.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Flyway](https://img.shields.io/badge/Flyway-Migrations-CC0200?style=for-the-badge&logo=flyway&logoColor=white)](https://flywaydb.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE.md)
 
 > **MouseTrap** is an enterprise-grade commercial e-commerce platform dedicated exclusively to high-performance gaming mice and competitive esports peripherals. Engineered with a reactive **Quarkus 3** backend, a responsive **Angular 22** standalone frontend, and **Keycloak** OpenID Connect authentication.
 
