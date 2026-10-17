@@ -14,14 +14,14 @@ proposals, not changes to existing HTTP contracts.
 | Customer API | [Customer service](../api/src/main/java/br/unitins/tp2/service/ClienteServiceImpl.java), [CEP service](../api/src/main/java/br/unitins/tp2/service/CepServiceImpl.java) | Customer CRUD, one address stored on each customer, shared municipalities/states, ViaCEP lookup and server-side address validation. |
 | Database | [Migrations](../api/src/main/resources/db/migration/) | V1: catalog; V2: customers, municipalities, states. No orders, payments, identity links, image gallery, or wishlists. |
 | Administrative UI | [Routes](../web/src/app/app.routes.ts), [components](../web/src/app/components/) | Nine CRUD routes for brands, mice, and customers; standalone Material components, reactive forms and edit resolvers. Brand/mouse lists have paging and name filters; customer list is unpaged. |
-| Branding | [Public assets](../web/public/), [global styles](../web/src/styles.css) | SVG/PNG/ICO icons, manifest, brand color variables. `Hero.jpg` is present locally but is not referenced by the application. |
-| Theme and layout | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html) | Material still uses a stock magenta primary palette. One administrative header wraps all routes; no storefront shell or admin sidebar. |
-| Tests | [Backend tests](../api/src/test/), frontend `*.spec.ts` files | Existing catalog/customer/CEP tests and frontend form/list/resolver tests. No purchase-flow or end-to-end suite found. |
+| Branding | [Public assets](../web/public/), [global styles](../web/src/styles.css) | SVG/PNG/ICO icons, manifest, brand color variables. `Hero.jpg` is retained as source; the homepage uses responsive WebP exports. |
+| Theme and layout | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html) | Brand colors are mapped to Material M3. Storefront and legacy administrative layouts are separate; the future admin sidebar remains pending. |
+| Tests | [Backend tests](../api/src/test/), frontend `*.spec.ts` files | Existing catalog/customer/CEP tests, frontend form/list/resolver tests, and homepage/legacy-route regression coverage. No purchase-flow suite exists yet. |
 
-The current `/` and unknown frontend routes redirect to `/marcas`. The
-“Precisão absoluta em cada clique” homepage currently exists in the wireframe,
-not as an implemented application page. Existing icons are linked from the HTML
-head; the visible header still uses the Material mouse icon.
+The `/` route now renders the storefront homepage; unknown routes redirect to it.
+Legacy CRUD routes remain unchanged under their own layout. The visible storefront
+header/footer and administrative header use the SVG brand mark. See
+[Homepage implementation](homepage.md) for the completed first slice and its limits.
 
 ## Screen coverage
 
@@ -30,9 +30,9 @@ There are **12 SVGs: one design-system sheet and 11 screen wireframes**.
 
 | Reference | Status | Remaining work |
 | --- | --- | --- |
-| 00 — Design system | Partial | Map brand colors to Material M3, harmonize typography/spacing/statuses and numerical alignment. |
-| 01 — Homepage `/` | Missing | Storefront header/footer, search, account/cart navigation, responsive hero, grip shortcuts, featured products. |
-| 02 — Catalog `/mouses` | Missing as storefront | Product cards, combined facets, sorting, paging, URL filter state and mobile filters. Current `/mouses` is an administrative table. |
+| 00 — Design system | Foundation implemented | Brand colors mapped to Material M3, reusable surface/radius/button tokens, typography and numerical alignment. Continue applying them to future screens. |
+| 01 — Homepage `/` | Foundation implemented | Responsive hero/header/footer, grip guide and searchable real-product preview are implemented. Curated weekly highlights, product photos and account/cart navigation depend on subsequent slices. |
+| 02 — Catalog `/mouses` | Homepage preview only | Reusable cards and name search exist on the homepage. Full catalog facets, sorting, paging, URL filter state and mobile filters remain pending. Current `/mouses` stays an administrative table. |
 | 03 — Product `/mouses/:id` | Missing | Gallery, specs, price, availability, quantity/add-to-cart, delivery estimate and unavailable-product states. |
 | 04 — Cart `/carrinho` | Missing | Local persistence, quantities, removal, totals, delivery estimate, empty and stale-product states. |
 | 05 — Checkout `/checkout` | Missing | Authenticated address selection, purchase review, payment selection, transactional order placement and result handling. |
@@ -70,18 +70,19 @@ they do not block starting the theme, shared layout, and homepage structure.
 
 ### 1. Visual foundation and homepage
 
-- [ ] Map the approved brand palette to Material M3; keep existing CRUD usable.
-- [ ] Create reusable storefront layout, brand link, responsive navigation,
+- [x] Map the approved brand palette to Material M3; keep existing CRUD usable.
+- [x] Create reusable storefront layout, brand link, responsive navigation,
   footer, content containers, product card and loading/empty/error states.
-- [ ] Introduce a homepage at `/`; keep the existing CRUD paths reachable during
+- [x] Introduce a homepage at `/`; keep the existing CRUD paths reachable during
   the route transition.
-- [ ] Integrate `Hero.jpg` with the “Precisão absoluta…” copy in HTML,
+- [x] Integrate `Hero.jpg` with the “Precisão absoluta…” copy in HTML,
   readable text overlay, mobile crop rules and optimized image exports.
-- [ ] Use the new SVG mark in the visible header/footer.
-- [ ] Connect catalog links/search to implemented behavior; do not ship purchase,
+- [x] Use the new SVG mark in the visible header/footer.
+- [x] Connect catalog links/search to implemented behavior; do not ship purchase,
   account, stock or promotional claims as nonfunctional controls.
-- [ ] Define real featured products and image fallbacks. Start with available
-  API fields; do not invent stock, polling rates or sales badges.
+- [x] Show a documented selection of real active products and a labeled image
+  fallback using available API fields. Curated weekly highlights remain a
+  future merchandising capability; no stock, polling-rate or sales claims are invented.
 
 Acceptance: homepage loads directly and on refresh, works on mobile/desktop,
 supports keyboard navigation, and provides a functional route into product browsing.
@@ -185,15 +186,15 @@ without leaking customer data or allowing invalid transitions.
   stale packaging references and distinguish planned capabilities clearly.
 - [ ] Validate submission exclusions when generating an academic release package.
 
-## First proposed implementation slice
+## First implementation slice — completed
 
-Start with **Material brand theming + storefront layout + homepage hero** using
+Delivered **Material brand theming + storefront layout + homepage hero** using
 [01-storefront-home.svg](ui-wireframes/01-storefront-home.svg) and the existing
 local `Hero.jpg`. Follow with product images and the public catalog contract so
 homepage cards and product detail can use real data.
 
-This first slice can proceed without choosing payment behavior, modifying V1/V2,
-or replacing existing REST endpoints. Authentication and owned customer data must
+This first slice did not choose payment behavior, modify V1/V2,
+or replace existing REST endpoints. Authentication and owned customer data must
 be ready before checkout; the administrative APIs must be protected before public
 exposure. New migrations should use the next available version at implementation
 time, rather than assuming V3 will remain available throughout the roadmap.
@@ -207,3 +208,13 @@ time, rather than assuming V3 will remain available throughout the roadmap.
 - Backend tests, database migrations, browser interaction and production build
   were not executed for this documentation audit. Their current runtime status
   is not established by the inventory above.
+
+## Visual foundation validation
+
+- `cd web && npm test -- --watch=false`: **21 tests passed across 7 files**.
+- `cd web && npm run build`: production build passed within all configured budgets.
+- Chromium checks passed at 1440, 768, 375 and 320 px with no horizontal
+  overflow: image loading, grip expansion, search/clear, mobile menu, error/retry
+  and navigation to the existing administrative layout. Browser catalog responses
+  were intercepted fixtures; this was not a live backend/database integration test.
+- The database schema, REST contracts and dependencies were not changed.

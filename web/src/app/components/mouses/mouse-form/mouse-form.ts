@@ -1,3 +1,4 @@
+import { MatIconModule } from '@angular/material/icon';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,6 +19,7 @@ import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
   selector: 'app-mouse-form',
   standalone: true,
   imports: [
+    MatIconModule,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,

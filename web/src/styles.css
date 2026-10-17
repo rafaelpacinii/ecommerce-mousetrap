@@ -1,3 +1,27 @@
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('./assets/fonts/MaterialIcons-Regular.woff2') format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
 :root {
   /* Core Brand Palette */
   --prussian-blue: #0a122aff;
@@ -25,10 +49,104 @@
   --status-info-bg: #e0f2fe;
   --status-danger: #ef4444;
   --status-danger-bg: #fee2e2;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --font-heading: Inter, system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+html {
+  scroll-padding-top: 24px;
+}
+a,
+button,
+input,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 3px solid var(--slate-blue);
+  outline-offset: 4px;
+}
+button,
+input {
+  font-family: inherit;
+}
+.store-container {
+  width: min(1280px, calc(100% - 64px));
+  margin-inline: auto;
+}
+.store-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 12px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.store-button-gold {
+  background: var(--golden-glow);
+  color: var(--prussian-blue);
+}
+.store-button-dark {
+  background: var(--prussian-blue);
+  color: var(--surface-pure);
+}
+.store-button:hover {
+  filter: brightness(0.94);
+}
+mat-icon {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.store-button mat-icon,
+.clear-search mat-icon,
+nav a mat-icon,
+.availability mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+nav a,
+.clear-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+p[role='status'] mat-icon,
+p[role='alert'] mat-icon {
+  margin-right: 8px;
+}
+.situacao mat-icon {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  margin-right: 4px;
+}
+.catalog-state .state-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+table,
+.situacao {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 700px) {
+  .store-container {
+    width: calc(100% - 32px);
+  }
 }
 h1 {
   font-size: clamp(1.8rem, 4vw, 2.4rem);
@@ -120,4 +238,24 @@ mat-form-field {
   .formulario {
     padding: 20px 16px;
   }
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.section-label {
+  margin: 0 0 8px;
+  color: var(--slate-blue);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+.section-heading > p {
+  margin: 0 0 3px;
+  font-size: 13px;
+  color: var(--neutral-500);
 }

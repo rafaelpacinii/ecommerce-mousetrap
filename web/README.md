@@ -1,78 +1,103 @@
 # MouseTrap — Web
 
-Interface administrativa do MouseTrap para gerenciar o catálogo de marcas e mouses. A aplicação permite cadastrar produtos, editar especificações e preços, acompanhar o estoque e controlar a disponibilidade dos registros.
+Angular frontend for the MouseTrap gaming mouse store. The homepage includes a
+responsive hero, grip guide and searchable preview of real catalog products.
+Separate administrative screens manage brands, mice and customers.
 
-## Funcionalidades
+## Features
 
-- Listagens com ações de edição e exclusão.
-- Formulários de criação e edição com validações.
-- Paginação e filtro por nome nas listagens administrativas de marcas e mouses.
-- Seleção da marca e de múltiplos tipos de conexão de cada mouse.
-- Carregamento dos registros antes da edição por route resolvers.
-- Confirmação de exclusão, mensagens de erro e notificações de sucesso.
-- Layout responsivo e formatação monetária em reais.
+- Storefront at `/`, with SVG branding, responsive navigation and footer.
+- Brand colors mapped to Angular Material M3 and shared interface styles.
+- Optimized responsive WebP hero with the “Precisão absoluta…” heading.
+- Expandable grip guides and up to three active products per name search.
+- Catalog preview loading, empty, error and retry states.
+- Administrative CRUD with validated reactive forms, edit resolvers, deletion
+  confirmation, success notifications and API error handling.
+- Server-side pagination/name search for administrative brand and mouse lists.
+- Mouse brand, multiple connection types, stock, price and version handling.
+- Customer registration/address editing with ViaCEP lookup and validation.
+- BRL formatting, semantic navigation and keyboard focus styles.
 
-O carrinho está previsto como estado local do frontend. Lista de desejos, checkout e autenticação fazem parte da evolução do produto e ainda não estão disponíveis.
+Product galleries, full catalog facets, cart, checkout, authentication and order
+tracking remain planned. Preview cards use a labeled illustration until product
+images are implemented. Administrative routes are not authenticated yet.
 
-## Tecnologias
+See [Homepage implementation](../docs/homepage.md) and the
+[implementation backlog](../docs/implementation-backlog.md).
 
-Angular 22 com componentes standalone, Angular Material, Reactive Forms, HttpClient e Vitest. As versões e o gerenciador de pacotes estão definidos em [package.json](package.json); [package-lock.json](package-lock.json) registra as dependências resolvidas.
+## Development
 
-## Desenvolvimento local
+Use a Node.js version compatible with the Angular version in `package.json`,
+npm, and the API running at `http://localhost:8080`. From `web`:
 
-Requisitos: Node.js compatível com a versão Angular do projeto, npm e a API em execução em `http://localhost:8080`. Execute os comandos na pasta `web`:
-
-```bash
+```sh
 npm ci
 npm start
 ```
 
-Abra `http://localhost:4200`. Cadastre uma marca antes de cadastrar o primeiro mouse.
+Open `http://localhost:4200`. The homepage works without catalog data and shows
+an empty/error state as appropriate. Create a brand before the first mouse in
+administration. The API base URL is currently defined in frontend services;
+environment configuration remains planned.
 
-| Página | Rota |
+| Page | Route |
 | --- | --- |
-| Marcas | `/marcas` |
-| Nova marca | `/marcas/novo` |
-| Editar marca | `/marcas/editar/:id` |
-| Mouses | `/mouses` |
-| Novo mouse | `/mouses/novo` |
-| Editar mouse | `/mouses/editar/:id` |
+| Homepage | `/` |
+| Catalog preview/search | `/#catalogo`, `/#busca` |
+| Grip guide | `/#pegadas` |
+| Brand list/create/edit | `/marcas`, `/marcas/novo`, `/marcas/editar/:id` |
+| Mouse list/create/edit | `/mouses`, `/mouses/novo`, `/mouses/editar/:id` |
+| Customer list/create/edit | `/clientes`, `/clientes/novo`, `/clientes/editar/:id` |
 
-As telas são carregadas por rota. Os serviços em `src/app/services` definem a URL local da API.
+The footer links to administration. The existing CRUD paths remain unchanged;
+`/mouses` still opens the administrative list, not the future public catalog.
 
-## Organização do código
+## Structure
 
 ```text
 src/app/
 ├── components/
-│   ├── marcas/    Listagem e formulário de marcas
-│   └── mouses/    Listagem e formulário de mouses
-├── models/       Interfaces de entidades, DTOs e tipos de conexão
-├── services/     Comunicação HTTP e tratamento de erros
-├── resolvers/    Carregamento dos registros para edição
+│   ├── storefront/  Homepage and reusable product card
+│   ├── marcas/      Brand list and form
+│   ├── mouses/      Mouse list and form
+│   └── clientes/    Customer list and form
+├── layouts/         Storefront and legacy administration layouts
+├── models/          Typed contracts
+├── services/        HTTP communication and error mapping
+├── resolvers/       Edit data loading
 ├── app.routes.ts
 └── app.config.ts
 ```
 
-## Testes e build
+Components are standalone and use Angular Material, Reactive Forms and HttpClient;
+the homepage's simple search uses FormsModule. Versions and package manager are
+defined in `package.json`, with resolved dependencies in `package-lock.json`.
 
-```bash
+## Validation and deployment
+
+```sh
 npm test -- --watch=false
 npm run build
 ```
 
-Os testes usam Vitest e cobrem navegação, formulários, exclusão, paginação, filtro e tratamento de falhas. O build gera os arquivos em `dist/web`, com o conteúdo estático em `dist/web/browser`. A otimização das fontes referenciadas em `src/index.html` requer acesso aos serviços de fontes do Google.
+Tests use Vitest. The production output is in `dist/web/browser`. Font inlining
+is disabled, so builds do not require Google Fonts access. Material interface icons use a local font and do not require Google Fonts
+at runtime; see [Material Icons](../docs/material-icons.md). Configure hosting
+to serve `index.html` for SPA routes, and align the API URL and CORS with the
+hosting environment. Protect administrative operations before public exposure.
 
-Ao hospedar a SPA, configure o servidor para servir `index.html` nas rotas da aplicação. A URL da API e sua política de CORS devem corresponder ao ambiente de hospedagem. O acesso administrativo ainda não possui autenticação.
+## Customer addresses
 
-## Documentação
+The customer form accepts CEP with or without punctuation. A successful lookup
+fills city/state and permits completing street, neighborhood, number and optional
+complement. Changing the CEP cancels the previous lookup and invalidates its
+address result. Backend validation determines municipality/state from ViaCEP;
+create/edit operations depend on that service's availability.
 
-Na estrutura com `api` e `web` lado a lado:
+## Related documentation
 
-- [API: execução e testes](../api/README.md).
-- [Catálogo: contratos e regras de negócio](../api/docs/catalogo.md).
-- [Modelagem em PlantUML](../api/docs/modelagem/README.md).
-
-## Clientes e consulta por CEP
-
-Cadastro, edição, listagem e exclusão de clientes com endereço estruturado em Município e Estado, preenchimento por ViaCEP e validações nos dois lados. Acesse `/clientes` pelo menu. Consulte o CEP, complete o endereço e informe os dados do cliente. Na edição, o resolver pré-carrega o cadastro; alterar o CEP exige nova consulta. CEP inexistente ou indisponibilidade são exibidos no formulário. O backend determina Município e Estado pelo código IBGE e UF retornados pelo ViaCEP.
+- [API execution and tests](../api/README.md).
+- [Catalog contracts and rules](../api/docs/catalogo.md).
+- [Customer and CEP contracts](../api/docs/clientes-cep.md).
+- [Domain planning](../api/docs/modelagem/README.md).
+- [Website icon assets](public/icons/README.md).
