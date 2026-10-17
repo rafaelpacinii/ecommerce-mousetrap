@@ -38,9 +38,8 @@ export const routes: Routes = [
       {
         path: 'checkout',
         canActivate: [authGuard],
-        data: { checkoutMode: true },
         loadComponent: () =>
-          import('./components/storefront/cart/cart').then((m) => m.CartComponent),
+          import('./components/storefront/checkout/checkout').then((m) => m.CheckoutComponent),
         title: 'Checkout | MouseTrap',
       },
       {

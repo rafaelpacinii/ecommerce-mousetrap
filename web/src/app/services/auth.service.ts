@@ -35,6 +35,7 @@ export class AuthService {
   readonly authenticated = signal(false);
   readonly roles = signal<string[]>([]);
   readonly admin = computed(() => this.authenticated() && this.roles().includes('admin'));
+  readonly subject = signal('');
   readonly nome = signal('');
   readonly email = signal('');
   readonly error = signal('');
@@ -85,6 +86,7 @@ export class AuthService {
   }
 
   private sync(): void {
+    this.subject.set(this.client?.tokenParsed?.sub ?? '');
     this.authenticated.set(!!this.client?.authenticated);
     this.roles.set(this.client?.realmAccess?.roles ?? []);
     this.nome.set(
@@ -97,6 +99,7 @@ export class AuthService {
     this.client?.clearToken();
     this.authenticated.set(false);
     this.roles.set([]);
+    this.subject.set('');
     this.nome.set('');
     this.email.set('');
   }

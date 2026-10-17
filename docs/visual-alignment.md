@@ -2,6 +2,8 @@
 
 This hotfix aligns the existing Angular screens with the canonical [SVG wireframes](ui-wireframes/README.md). It changes presentation and navigation controls while preserving the current catalog, authentication, cart, address, and administrative contracts.
 
+The checkout review described here was subsequently extended by [slice 5](transactional-checkout.md), which adds transactional orders, payment simulation, and result/retry states using the same visual system.
+
 ## Screen coverage
 
 | Existing screen                                                   | Reference | Delivered alignment                                                                                                                                                                                                                    |

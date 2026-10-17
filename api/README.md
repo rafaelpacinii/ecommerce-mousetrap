@@ -1,5 +1,7 @@
 # MouseTrap — API
 
+The authenticated transactional checkout, orders, and local PIX/card payment simulation are implemented. See [checkout contracts and configuration](../docs/transactional-checkout.md). Customer order history and administrative fulfillment remain planned.
+
 API REST do MouseTrap, um e-commerce especializado em mouses. O catálogo permite gerenciar marcas e produtos, com especificações técnicas, múltiplos tipos de conexão, preço e estoque.
 
 ## Funcionalidades
@@ -11,7 +13,7 @@ API REST do MouseTrap, um e-commerce especializado em mouses. O catálogo permit
 - Controle de versão na edição de mouses para detectar alterações concorrentes.
 - Respostas de erro padronizadas e documentação OpenAPI.
 
-A versão atual contempla a administração do catálogo. Autenticação, lista de desejos, pedidos e pagamentos estão no [planejamento do domínio](docs/modelagem/README.md). O carrinho está previsto como estado local do frontend.
+Catalog administration, authentication, owned addresses, cart integration, transactional orders and simulated payments are implemented. Wishlist and fulfillment views remain in the [domain roadmap](docs/modelagem/README.md).
 
 ## Tecnologias e arquitetura
 

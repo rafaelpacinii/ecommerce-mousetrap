@@ -312,7 +312,7 @@ The storefront homepage, public catalog at `/catalogo`, product detail pages,
 URL-managed galleries and gaming specifications are implemented. Existing
 administrative routes are preserved. The public API enforces active-product and
 active-brand visibility. Authentication is implemented in the third slice;
-cart, checkout, orders and payments remain later implementation slices. See [public catalog contracts and validation](docs/public-catalog.md)
+cart, transactional checkout, orders and simulated payments are now implemented. See [public catalog contracts and validation](docs/public-catalog.md)
 and the [implementation backlog](docs/implementation-backlog.md).
 
 ## Authentication and owned accounts
@@ -322,3 +322,7 @@ role enforcement, an owned customer profile and `/admin/**` navigation. Migratio
 V4 preserves existing customers and adds a unique identity subject. Public reads
 use `/catalogo/**`; legacy administrative reads now require `admin`.
 See [setup, contracts, recovery and deployment](docs/authentication.md).
+
+### Transactional checkout
+
+The authenticated checkout now creates historical orders, commits stock atomically, and supports local PIX/card simulation, retries, cancellation and scheduled expiry. See [checkout contracts, configuration and validation](docs/transactional-checkout.md). Customer order history and administrative fulfillment remain the next backlog slice.

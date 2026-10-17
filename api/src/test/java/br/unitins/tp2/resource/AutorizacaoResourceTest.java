@@ -56,7 +56,7 @@ class AutorizacaoResourceTest {
         given().get("/catalogo/filtros").then().statusCode(200);
         given().get("/ceps/01001000").then().statusCode(200);
         given().get("/ceps/01001000/frete").then().statusCode(200);
-        for (String path : List.of("/clientes", "/clientes/me", "/clientes/me/enderecos", "/mouses", "/marcas")) {
+        for (String path : List.of("/pedidos/configuracao", "/pedidos/1", "/clientes", "/clientes/me", "/clientes/me/enderecos", "/mouses", "/marcas")) {
             given().get(path).then().statusCode(401);
         }
         given().contentType("application/json").body(perfil()).put("/clientes/me").then().statusCode(401);

@@ -18,6 +18,8 @@ function formatarMoeda(valor: number): string {
 export class CarrinhoService {
   private readonly catalogoService = inject(CatalogoService);
 
+  private comprasConfirmadas: string[] = [];
+
   readonly avisos = signal<string[]>([]);
   readonly revalidando = signal(false);
   readonly erroRevalidacao = signal('');
@@ -37,10 +39,7 @@ export class CarrinhoService {
   );
 
   readonly subtotal = computed(() =>
-    this.itensDisponiveis().reduce(
-      (soma, item) => soma + item.precoUnitario * item.quantidade,
-      0,
-    ),
+    this.itensDisponiveis().reduce((soma, item) => soma + item.precoUnitario * item.quantidade, 0),
   );
 
   readonly valorFrete = computed(() =>
@@ -54,17 +53,13 @@ export class CarrinhoService {
     if (!produto?.id || produto.quantidadeEstoque <= 0 || qtdAdicionar < 1) {
       return false;
     }
-    const capa =
-      [...(produto.imagens ?? [])].sort((a, b) => a.ordem - b.ordem)[0] ?? null;
+    const capa = [...(produto.imagens ?? [])].sort((a, b) => a.ordem - b.ordem)[0] ?? null;
     const lista = [...this.itens()];
     const indice = lista.findIndex((i) => i.idMouse === produto.id);
 
     if (indice >= 0) {
       const atual = lista[indice];
-      const novaQuantidade = Math.min(
-        atual.quantidade + qtdAdicionar,
-        produto.quantidadeEstoque,
-      );
+      const novaQuantidade = Math.min(atual.quantidade + qtdAdicionar, produto.quantidadeEstoque);
       lista[indice] = {
         idMouse: produto.id,
         nome: produto.nome,
@@ -149,8 +144,7 @@ export class CarrinhoService {
     const consultas = atuais.map((item) =>
       this.catalogoService.findById(item.idMouse).pipe(
         map((produto): ItemCarrinho => {
-          const capa =
-            [...(produto.imagens ?? [])].sort((a, b) => a.ordem - b.ordem)[0] ?? null;
+          const capa = [...(produto.imagens ?? [])].sort((a, b) => a.ordem - b.ordem)[0] ?? null;
           if (Math.abs(produto.preco - item.precoUnitario) >= 0.005) {
             novosAvisos.push(
               `O preço de ${produto.nome} foi atualizado de ${formatarMoeda(item.precoUnitario)} para ${formatarMoeda(produto.preco)}.`,
@@ -217,24 +211,69 @@ export class CarrinhoService {
     );
   }
 
+  confirmarCompra(
+    chave: string,
+    itens: ReadonlyArray<{ idMouse: number; quantidade: number }>,
+  ): void {
+    const atuais = this.carregarItens();
+    if (this.comprasConfirmadas.includes(chave)) {
+      this.itens.set(atuais);
+      return;
+    }
+    const comprados = new Map(itens.map((item) => [item.idMouse, item.quantidade]));
+    const restantes = atuais
+      .map((item) => ({
+        ...item,
+        quantidade: Math.max(0, item.quantidade - (comprados.get(item.idMouse) ?? 0)),
+      }))
+      .filter((item) => item.quantidade > 0);
+    const confirmacoes = [...this.comprasConfirmadas, chave].slice(-100);
+    // One storage write records the cart and its receipt together, so a repeated response cannot subtract twice.
+    localStorage.setItem(
+      STORAGE_CARRINHO,
+      JSON.stringify({ itens: restantes, comprasConfirmadas: confirmacoes }),
+    );
+    this.comprasConfirmadas = confirmacoes;
+    this.itens.set(restantes);
+  }
+
+  private salvarEstado(itens: ItemCarrinho[]): void {
+    if (this.comprasConfirmadas.length) {
+      localStorage.setItem(
+        STORAGE_CARRINHO,
+        JSON.stringify({ itens, comprasConfirmadas: this.comprasConfirmadas }),
+      );
+    } else if (itens.length) {
+      localStorage.setItem(STORAGE_CARRINHO, JSON.stringify(itens));
+    } else {
+      localStorage.removeItem(STORAGE_CARRINHO);
+    }
+  }
+
   private atualizarItens(lista: ItemCarrinho[]): void {
     this.itens.set(lista);
     try {
-      if (lista.length === 0) {
-        localStorage.removeItem(STORAGE_CARRINHO);
-      } else {
-        localStorage.setItem(STORAGE_CARRINHO, JSON.stringify(lista));
-      }
+      this.salvarEstado(lista);
     } catch {
       // Storage indisponível
     }
   }
 
   private carregarItens(): ItemCarrinho[] {
+    this.comprasConfirmadas = [];
     try {
       const bruto = localStorage.getItem(STORAGE_CARRINHO);
       if (!bruto) return [];
-      const parseado: unknown = JSON.parse(bruto);
+      let parseado: unknown = JSON.parse(bruto);
+      if (parseado && typeof parseado === 'object' && !Array.isArray(parseado)) {
+        const estado = parseado as Record<string, unknown>;
+        if (Array.isArray(estado['itens']) && Array.isArray(estado['comprasConfirmadas'])) {
+          this.comprasConfirmadas = estado['comprasConfirmadas']
+            .filter((v): v is string => typeof v === 'string' && /^[0-9a-f-]{36}$/i.test(v))
+            .slice(-100);
+          parseado = estado['itens'];
+        }
+      }
       if (!Array.isArray(parseado)) {
         localStorage.removeItem(STORAGE_CARRINHO);
         this.avisos.set(['Os dados salvos do carrinho eram inválidos e foram reiniciados.']);
@@ -302,11 +341,7 @@ export class CarrinhoService {
         this.avisos.set([
           'Alguns itens inválidos salvos anteriormente foram removidos do carrinho.',
         ]);
-        if (resultado.length === 0) {
-          localStorage.removeItem(STORAGE_CARRINHO);
-        } else {
-          localStorage.setItem(STORAGE_CARRINHO, JSON.stringify(resultado));
-        }
+        this.salvarEstado(resultado);
       }
       return resultado;
     } catch {
@@ -344,4 +379,3 @@ export class CarrinhoService {
     }
   }
 }
-
