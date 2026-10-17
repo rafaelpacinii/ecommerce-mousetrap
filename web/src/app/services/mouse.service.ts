@@ -20,6 +20,11 @@ export class MouseService {
     );
   }
 
+  pesquisar(busca = '', ordenar = 'nome', page = 0, pageSize = 10) {
+    return this.http.get<PagedResponse<Mouse>>(`${this.apiUrl}/pagina`, {
+      params: { busca, ordenar, page, pageSize },
+    });
+  }
   findById(id: number): Observable<Mouse> {
     return this.http.get<Mouse>(`${this.apiUrl}/${id}`);
   }

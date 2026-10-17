@@ -1,3 +1,4 @@
+import { PagedResponse } from '../models/page-response.model';
 import { APP_SETTINGS } from '../config/app-settings';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -41,6 +42,11 @@ export class ClienteService {
     return this.http.get<Cliente[]>(this.apiUrl);
   }
 
+  pesquisar(busca = '', ordenar = 'nome', page = 0, pageSize = 10) {
+    return this.http.get<PagedResponse<Cliente>>(`${this.apiUrl}/pagina`, {
+      params: { busca, ordenar, page, pageSize },
+    });
+  }
   findById(id: number): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.apiUrl}/${id}`);
   }
@@ -57,4 +63,3 @@ export class ClienteService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
-

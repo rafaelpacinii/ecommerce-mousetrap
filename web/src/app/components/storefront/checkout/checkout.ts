@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { forkJoin, finalize, Subscription, switchMap, tap } from 'rxjs';
@@ -35,7 +35,7 @@ export class CheckoutComponent implements OnInit {
   readonly carrinho = inject(CarrinhoService);
   private readonly clientes = inject(ClienteService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private revisaoSub?: Subscription;
   readonly carregando = signal(true);
@@ -70,6 +70,32 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.destroyRef.onDestroy(() => this.cartao.reset());
+    const pedidoId = Number(this.route.snapshot.queryParamMap.get('pedido'));
+    if (Number.isSafeInteger(pedidoId) && pedidoId > 0) {
+      this.checkout
+        .configuracao()
+        .pipe(
+          tap((config) => this.checkoutDisponivel.set(config.simulacaoHabilitada)),
+          switchMap(() => this.checkout.retomarPedido(pedidoId)),
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => this.carregando.set(false)),
+        )
+        .subscribe({
+          next: (p) => {
+            this.pedido.set(p);
+            this.form.controls.forma.setValue(this.checkout.tentativa()?.forma ?? 1);
+          },
+          error: (e) => this.falha(e),
+        });
+      return;
+    }
+    try {
+      this.checkout.prepararCompra();
+    } catch (erro) {
+      this.carregando.set(false);
+      this.falha(erro);
+      return;
+    }
     if (this.checkout.tentativa()) {
       this.form.controls.forma.setValue(this.checkout.tentativa()!.forma);
       this.checkout
@@ -183,10 +209,6 @@ export class CheckoutComponent implements OnInit {
   cancelar(): void {
     const p = this.pedido();
     if (p) this.executar(() => this.checkout.cancelar(p.id));
-  }
-  novaCompra(): void {
-    this.checkout.novaCompra();
-    void this.router.navigate(['/catalogo']);
   }
   private executar(request: () => import('rxjs').Observable<Pedido>): void {
     if (this.ocupado()) return;

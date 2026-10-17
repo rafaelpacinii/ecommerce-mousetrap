@@ -1,3 +1,4 @@
+import { CheckoutService } from '../../../services/checkout.service';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -46,6 +47,20 @@ const endereco = {
   principal: true,
   municipio: { id: 1, nome: 'São Paulo', estado: { id: 1, nome: 'São Paulo', sigla: 'SP' } },
 };
+const produto = {
+  id: 10,
+  sku: 'M-10',
+  nome: 'Mouse de teste',
+  marca: { id: 1, nome: 'Marca', ativo: true },
+  descricao: 'Teste',
+  cor: 'Preto',
+  preco: 99,
+  quantidadeEstoque: 5,
+  dpiMaximo: 16000,
+  quantidadeBotoes: 6,
+  pesoGramas: 54,
+  tiposConexao: [],
+};
 describe('Transactional checkout screen', () => {
   let http: HttpTestingController;
   beforeEach(() => {
@@ -56,20 +71,7 @@ describe('Transactional checkout screen', () => {
     });
     http = TestBed.inject(HttpTestingController);
     TestBed.inject(AuthService).subject.set('checkout-ui');
-    TestBed.inject(CarrinhoService).adicionar({
-      id: 10,
-      sku: 'M-10',
-      nome: 'Mouse de teste',
-      marca: { id: 1, nome: 'Marca', ativo: true },
-      descricao: 'Teste',
-      cor: 'Preto',
-      preco: 99,
-      quantidadeEstoque: 5,
-      dpiMaximo: 16000,
-      quantidadeBotoes: 6,
-      pesoGramas: 54,
-      tiposConexao: [],
-    });
+    TestBed.inject(CarrinhoService).adicionar(produto);
   });
   afterEach(() => {
     http.verify();
@@ -235,5 +237,31 @@ describe('Transactional checkout screen', () => {
     fixture.componentInstance.atualizarRevisao();
     http.expectOne('http://localhost:8080/pedidos/revisao').flush({ ...revisao, total: 139.9 });
     expect(fixture.componentInstance.revisao()?.total).toBe(139.9);
+  });
+  it('opens the current cart as a new checkout instead of reopening the previous order', () => {
+    const checkout = TestBed.inject(CheckoutService);
+    checkout.confirmar(revisao, 7, 1).subscribe();
+    const first = http.expectOne('http://localhost:8080/pedidos');
+    const p: Pedido = {
+      id: 50,
+      chaveCheckout: first.request.body.chaveCheckout,
+      status: { id: 2, label: 'Pago' },
+      criadoEm: '2026-10-17T00:00:00Z',
+      expiraEm: '2026-10-17T00:30:00Z',
+      endereco: revisao.endereco,
+      itens: revisao.itens,
+      subtotal: 100,
+      frete: 29.9,
+      total: 129.9,
+      prazoDiasUteis: 5,
+      pagamentos: [],
+    };
+    first.flush(p);
+    TestBed.inject(CarrinhoService).adicionar(produto);
+    const fixture = abrir();
+    expect(fixture.nativeElement.textContent).toContain('Finalizar compra');
+    expect(fixture.nativeElement.textContent).not.toContain('Iniciar outra compra');
+    expect(checkout.tentativa()).toBeNull();
+    http.expectNone('http://localhost:8080/pedidos/50');
   });
 });

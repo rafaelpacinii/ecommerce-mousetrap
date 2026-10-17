@@ -20,6 +20,11 @@ export class MarcaService {
     );
   }
 
+  pesquisar(busca = '', ordenar = 'nome', page = 0, pageSize = 10) {
+    return this.http.get<PagedResponse<Marca>>(`${this.apiUrl}/pagina`, {
+      params: { busca, ordenar, page, pageSize },
+    });
+  }
   findById(id: number): Observable<Marca> {
     return this.http.get<Marca>(`${this.apiUrl}/${id}`);
   }

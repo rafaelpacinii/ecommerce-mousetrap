@@ -1,0 +1,134 @@
+<section>
+  <div class="cabecalho-pagina">
+    <div>
+      <h1>Gestão de pedidos</h1>
+      <p class="descricao-pagina">Acompanhe as vendas e o andamento das entregas.</p>
+    </div>
+    <button mat-button (click)="carregar()" [disabled]="carregando()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>Atualizar
+    </button>
+  </div>
+  @if (indicadores(); as i) {
+    <div class="kpis" aria-label="Indicadores da loja">
+      <article class="revenue">
+        <p>FATURAMENTO DO MÊS</p>
+        <strong>{{ i.faturamentoMes | currency: 'BRL' }}</strong>
+      </article>
+      <article>
+        <p>PEDIDOS PENDENTES</p>
+        <strong>{{ i.pedidosPendentes }}</strong>
+      </article>
+      <article>
+        <p>MOUSES EM CATÁLOGO</p>
+        <strong>{{ i.mousesAtivos }}</strong>
+      </article>
+      <article>
+        <p>CLIENTES CADASTRADOS</p>
+        <strong>{{ i.clientesCadastrados }}</strong>
+      </article>
+    </div>
+  }
+  @if (erro()) {
+    <p class="error" role="alert">{{ erro() }}</p>
+  }
+  @if (carregando()) {
+    <p role="status">Carregando pedidos…</p>
+  }
+  <div class="admin-data-panel">
+    <div class="filters">
+      <div class="status-tabs" aria-label="Filtrar por situação">
+        <button
+          type="button"
+          [class.selected]="status() === null"
+          [attr.aria-pressed]="status() === null"
+          (click)="filtrar(null)"
+        >
+          Todos
+        </button>
+        @for (e of estados; track e.id) {
+          <button
+            type="button"
+            [class.selected]="status() === e.id"
+            [attr.aria-pressed]="status() === e.id"
+            (click)="filtrar(e.id)"
+          >
+            {{ e.label }}
+          </button>
+        }
+      </div>
+      <form (ngSubmit)="pesquisar()">
+        <mat-form-field appearance="outline"
+          ><mat-label>Pedido, cliente ou e-mail</mat-label
+          ><input matInput [formControl]="busca" maxlength="150" /><button
+            mat-icon-button
+            matSuffix
+            type="submit"
+            aria-label="Buscar pedidos"
+          >
+            <mat-icon aria-hidden="true">search</mat-icon>
+          </button></mat-form-field
+        >
+      </form>
+    </div>
+    <div class="tabela-container" tabindex="0" role="region" aria-label="Pedidos da loja">
+      <table
+        mat-table
+        [dataSource]="registros()"
+        matSort
+        matSortActive="criadoEm"
+        matSortDirection="desc"
+        (matSortChange)="ordenarPor($event)"
+      >
+        <ng-container matColumnDef="id"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>Pedido</th>
+          <td mat-cell *matCellDef="let p">
+            <strong>#{{ p.id }}</strong>
+          </td></ng-container
+        >
+        <ng-container matColumnDef="cliente"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
+          <td mat-cell *matCellDef="let p">
+            {{ p.cliente }}<small>{{ p.email }}</small>
+          </td></ng-container
+        >
+        <ng-container matColumnDef="criadoEm"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>Data</th>
+          <td mat-cell *matCellDef="let p">{{ data(p.criadoEm) }}</td></ng-container
+        >
+        <ng-container matColumnDef="total"
+          ><th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let p">
+            <strong>{{ p.total | currency: 'BRL' }}</strong>
+          </td></ng-container
+        >
+        <ng-container matColumnDef="status"
+          ><th mat-header-cell *matHeaderCellDef mat-sort-header>Situação</th>
+          <td mat-cell *matCellDef="let p">
+            <span class="status" [attr.data-status]="p.status.id">{{ p.status.label }}</span>
+          </td></ng-container
+        >
+        <ng-container matColumnDef="acoes"
+          ><th mat-header-cell *matHeaderCellDef>Ação</th>
+          <td mat-cell *matCellDef="let p">
+            <a mat-stroked-button [routerLink]="['/admin/pedidos', p.id]">{{
+              p.status.id === 2 ? 'Enviar pedido' : 'Ver pedido'
+            }}</a>
+          </td></ng-container
+        >
+        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+        <tr *matNoDataRow>
+          <td colspan="6" class="empty">Nenhum pedido encontrado.</td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="pagina()"
+      [pageSize]="tamanho()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="paginar($event)"
+      aria-label="Páginas de pedidos"
+    />
+  </div>
+</section>

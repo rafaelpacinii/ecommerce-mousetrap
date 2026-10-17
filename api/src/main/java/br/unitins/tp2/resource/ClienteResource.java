@@ -82,6 +82,7 @@ public class ClienteResource {
         return Response.ok(service.findAll()).build();
     }
 
+    @GET @Path("/pagina") public Response pesquisar(@jakarta.ws.rs.QueryParam("busca") String busca,@jakarta.ws.rs.QueryParam("ordenar") @jakarta.ws.rs.DefaultValue("nome") String ordenar,@jakarta.ws.rs.QueryParam("page") @jakarta.ws.rs.DefaultValue("0") int page,@jakarta.ws.rs.QueryParam("pageSize") @jakarta.ws.rs.DefaultValue("10") int size){return Response.ok(service.pesquisar(busca,ordenar,page,size)).build();}
     @GET
     @Path("/{id}")
     public Response findById(@PathParam("id") Long id) {

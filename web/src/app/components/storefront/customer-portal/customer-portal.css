@@ -1,0 +1,146 @@
+:host {
+  display: block;
+}
+.portal-grid {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: 40px;
+  padding-block: 40px 64px;
+  align-items: start;
+}
+.portal-content {
+  min-width: 0;
+}
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  margin: 0 0 10px;
+}
+h2 {
+  font-size: 20px;
+  margin: 28px 0 20px;
+}
+p {
+  color: var(--neutral-500);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+.text-button,
+.order-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--slate-blue);
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.history-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 16px;
+  background: var(--surface-pure);
+  margin-bottom: 20px;
+  text-decoration: none;
+  color: var(--prussian-blue);
+  box-shadow: var(--shadow-card);
+}
+.history-card > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.history-card h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+.history-card strong {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.history-status {
+  font-size: 12px;
+  padding: 8px 12px;
+  background: var(--alice-blue);
+  border-radius: 8px;
+}
+.feedback {
+  padding: 16px;
+  background: var(--status-danger-bg);
+  color: #991b1b;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.empty {
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--surface-pure);
+  border: 1px solid var(--neutral-200);
+  border-radius: 16px;
+}
+.empty > mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--slate-blue);
+}
+.empty p {
+  margin-bottom: 24px;
+}
+.detail-actions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+mat-paginator {
+  border-radius: 12px;
+}
+@media (max-width: 1100px) {
+  .portal-grid {
+    gap: 24px;
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  .history-card {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 900px) {
+  .portal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .portal-grid {
+    padding-block: 24px 40px;
+  }
+  .history-card {
+    padding: 20px;
+    gap: 12px;
+  }
+  .history-card > div {
+    flex-basis: 100%;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+  }
+}

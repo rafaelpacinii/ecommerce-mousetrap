@@ -1,3 +1,5 @@
+import { of } from 'rxjs';
+import { ConfirmacaoService } from '../../shared/confirm-dialog';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -27,10 +29,12 @@ describe('MarcaListComponent', () => {
     http
       .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
       .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
-    const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const confirmar = vi
+      .spyOn(TestBed.inject(ConfirmacaoService), 'abrir')
+      .mockReturnValue(of(false));
     fixture.componentInstance.excluir(marca);
     http.expectNone('http://localhost:8080/marcas/5');
-    confirmar.mockReturnValue(true);
+    confirmar.mockReturnValue(of(true));
     fixture.componentInstance.excluir(marca);
     expect(fixture.componentInstance.registros()).toEqual([marca]);
     const req = http.expectOne('http://localhost:8080/marcas/5');
@@ -46,7 +50,7 @@ describe('MarcaListComponent', () => {
     http
       .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
       .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(TestBed.inject(ConfirmacaoService), 'abrir').mockReturnValue(of(true));
     fixture.componentInstance.excluir(marca);
     http
       .expectOne('http://localhost:8080/marcas/5')

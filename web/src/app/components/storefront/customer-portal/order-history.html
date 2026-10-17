@@ -1,0 +1,59 @@
+<div class="store-container portal-grid">
+  <app-account-nav />
+  <div class="portal-content">
+    <div class="page-heading">
+      <div>
+        <h1>Meus pedidos</h1>
+        <p>Acompanhe suas compras e entregas.</p>
+      </div>
+      <button class="text-button" type="button" (click)="carregar()" [disabled]="carregando()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>Atualizar
+      </button>
+    </div>
+    @if (erro()) {
+      <p class="feedback" role="alert">{{ erro() }}</p>
+    }
+    @if (carregando()) {
+      <p role="status">Carregando pedidos…</p>
+    }
+    @if (ativo(); as p) {
+      <app-order-details [pedido]="p" [compact]="true" /><a
+        class="order-link"
+        [routerLink]="['/meus-pedidos', p.id]"
+        >Ver detalhes do pedido<mat-icon aria-hidden="true">arrow_forward</mat-icon></a
+      >
+    }
+    @if (anteriores().length) {
+      <h2>{{ ativo() ? 'Outras compras' : 'Seus pedidos' }}</h2>
+      @for (p of anteriores(); track p.id) {
+        <a class="history-card" [routerLink]="['/meus-pedidos', p.id]"
+          ><div>
+            <h3>Pedido #{{ p.id }}</h3>
+            <p>{{ data(p.criadoEm) }} · {{ p.itens.length }} produto(s)</p>
+          </div>
+          <span class="history-status">{{ p.status.label }}</span
+          ><strong>{{ p.total | currency: 'BRL' }}</strong
+          ><mat-icon aria-hidden="true">chevron_right</mat-icon></a
+        >
+      }
+    }
+    @if (!carregando() && !erro() && !pedidos().length) {
+      <section class="empty">
+        <mat-icon aria-hidden="true">shopping_bag</mat-icon>
+        <h2>Suas próximas partidas começam aqui</h2>
+        <p>Você ainda não tem pedidos nesta página.</p>
+        <a class="store-button store-button-gold" routerLink="/catalogo">Explorar mouses</a>
+      </section>
+    }
+    @if (total()) {
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pagina()"
+        [pageSize]="tamanho()"
+        [pageSizeOptions]="[5, 10, 20]"
+        (page)="paginar($event)"
+        aria-label="Páginas dos seus pedidos"
+      />
+    }
+  </div>
+</div>

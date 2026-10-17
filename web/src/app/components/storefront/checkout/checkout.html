@@ -19,12 +19,16 @@
         <section class="panel result-panel" aria-labelledby="result-title">
           <div class="result-title">
             <mat-icon aria-hidden="true">{{
-              p.status.id === 2 ? 'check_circle' : p.status.id >= 5 ? 'info' : 'schedule'
+              p.status.id >= 2 && p.status.id <= 4
+                ? 'check_circle'
+                : p.status.id >= 5
+                  ? 'info'
+                  : 'schedule'
             }}</mat-icon>
             <h2 id="result-title">Pedido #{{ p.id }}</h2>
             <span class="status" [class.success]="p.status.id === 2">{{ p.status.label }}</span>
           </div>
-          @if (p.status.id === 2) {
+          @if (p.status.id >= 2 && p.status.id <= 4) {
             <p role="status">Pagamento aprovado. Seu pedido foi confirmado.</p>
           } @else if (p.status.id === 1) {
             <p>
@@ -33,6 +37,12 @@
           } @else {
             <p role="status">Este pedido foi encerrado e o estoque reservado foi liberado.</p>
           }
+          @if (p.codigoRastreio) {
+            <p>
+              Transportadora: {{ p.transportadora }}<br />Código de rastreio: {{ p.codigoRastreio }}
+            </p>
+          }
+          <a class="text-button" [routerLink]="['/meus-pedidos', p.id]">Acompanhar pedido</a>
           <h3>Endereço de entrega</h3>
           <p>
             {{ p.endereco.destinatario }}<br />{{ p.endereco.logradouro }}, {{ p.endereco.numero }}
@@ -51,10 +61,6 @@
                 [disabled]="ocupado()"
               >
                 Cancelar pedido
-              </button>
-            } @else {
-              <button class="text-button" type="button" (click)="novaCompra()">
-                Iniciar outra compra
               </button>
             }
           </div>

@@ -19,6 +19,13 @@ public class MarcaServiceImpl implements MarcaService {
     @Inject MarcaRepository repository;
     @Inject MouseRepository mouseRepository;
 
+    @Override public br.unitins.tp2.dto.PageResponse<MarcaResponseDTO> pesquisar(String busca,String ordenar,int page,int size){
+        if(page<0||size<1||size>100)throw new jakarta.ws.rs.BadRequestException("Paginação inválida.");
+        String termo=busca==null?"":busca.strip();if(termo.length()>150)throw new jakarta.ws.rs.BadRequestException("Busca muito longa.");
+        String ordem=switch(ordenar==null?"nome":ordenar){case "nome"->"nome";case "nome-desc"->"nome desc";case "ativo"->"ativo";case "ativo-desc"->"ativo desc";default->throw new jakarta.ws.rs.BadRequestException("Ordenação inválida.");};
+        var q=repository.find("lower(nome) like ?1 order by "+ordem+",id asc","%"+termo.toLowerCase(java.util.Locale.ROOT)+"%");
+        long total=q.count();return br.unitins.tp2.dto.PageResponse.of(q.page(page,size).list(),page,size,total,MarcaResponseDTO::valueOf);
+    }
     @Override
     public List<Marca> findAll(int page, int pageSize) {
         return repository.findAll().page(page, pageSize).list();

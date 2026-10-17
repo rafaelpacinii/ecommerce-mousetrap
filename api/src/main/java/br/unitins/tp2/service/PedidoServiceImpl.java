@@ -79,6 +79,7 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setEndereco(EnderecoEntrega.valueOf(endereco));
         pedido.setFrete(frete.valorFrete()); pedido.setPrazoDiasUteis(frete.prazoDiasUteis());
         for (ItemPedido item : itens) { item.setPedido(pedido); pedido.getItens().add(item); }
+        registrarEvento(pedido,"Pedido recebido.",subject);
         pedidos.persistAndFlush(pedido);
         return PedidoResponseDTO.valueOf(pedido);
     }
@@ -154,6 +155,73 @@ public class PedidoServiceImpl implements PedidoService {
         });
     }
 
+    @Override public PageResponse<PedidoResponseDTO> meusPedidos(int page,int size) {
+        validarPagina(page,size);
+        var q=pedidos.find("cliente.identidadeSubject = ?1 order by criadoEm desc,id desc",subject());
+        long total=q.count();return PageResponse.of(q.page(page,size).list(),page,size,total,PedidoResponseDTO::valueOf);
+    }
+    @Override @RolesAllowed("admin")
+    public PageResponse<PedidoResumoResponseDTO> listarAdmin(String busca,Integer status,String ordenar,int page,int size) {
+        validarPagina(page,size);
+        Map<String,Object> params=new HashMap<>();String where="1=1";
+        if(status!=null){if(status<1||status>6)throw new BadRequestException("Situação inválida.");where+=" and status = :status";params.put("status",StatusPedido.valueOf(status));}
+        String termo=busca==null?"":busca.strip();
+        if(termo.length()>150)throw new BadRequestException("Busca muito longa.");
+        if(!termo.isBlank()){where+=" and (lower(cliente.nome) like :busca or lower(cliente.email) like :busca or cast(id as String) like :busca)";params.put("busca","%"+termo.replaceFirst("^#","").toLowerCase(Locale.ROOT)+"%");}
+        String ordem=switch(ordenar==null?"recentes":ordenar){case "recentes"->"criadoEm desc,id desc";case "antigos"->"criadoEm asc,id asc";case "cliente"->"cliente.nome asc,id desc";case "cliente-desc"->"cliente.nome desc,id desc";case "status"->"status asc,id desc";case "status-desc"->"status desc,id desc";default->throw new BadRequestException("Ordenação inválida.");};
+        var q=pedidos.find(where+" order by "+ordem,params);long total=q.count();
+        return PageResponse.of(q.page(page,size).list(),page,size,total,PedidoResumoResponseDTO::valueOf);
+    }
+    @Override @Transactional @RolesAllowed("admin") public PedidoAdminResponseDTO detalheAdmin(Long id){
+        Pedido p=administrativo(id);expirarSeVencido(p);return PedidoAdminResponseDTO.valueOf(p);
+    }
+    @Override @RolesAllowed("admin") public IndicadoresPedidoResponseDTO indicadores(){
+        var mes=java.time.LocalDate.now(java.time.ZoneId.of("America/Sao_Paulo")).withDayOfMonth(1);
+        var inicio=mes.atStartOfDay(java.time.ZoneId.of("America/Sao_Paulo")).toInstant();
+        var fim=mes.plusMonths(1).atStartOfDay(java.time.ZoneId.of("America/Sao_Paulo")).toInstant();
+        BigDecimal receita=em.createQuery("select coalesce(sum(valor),0) from Pagamento where status = :status and processadoEm >= :inicio and processadoEm < :fim",BigDecimal.class)
+            .setParameter("status",StatusPagamento.APROVADO).setParameter("inicio",inicio).setParameter("fim",fim).getSingleResult();
+        return new IndicadoresPedidoResponseDTO(receita,pedidos.count("status = ?1 and expiraEm > ?2",StatusPedido.AGUARDANDO_PAGAMENTO,Instant.now()),
+            mouses.count("ativo = true and marca.ativo = true"),clientes.count(),inicio,fim);
+    }
+    @Override @Transactional @RolesAllowed("admin")
+    public PedidoAdminResponseDTO decidirPagamento(Long id,Long pagamentoId,DecisaoPagamentoDTO dto){
+        exigirSimulacao();Pedido p=administrativo(id);
+        if(expirarSeVencido(p)||p.getStatus()==StatusPedido.EXPIRADO)return PedidoAdminResponseDTO.valueOf(p);
+        Pagamento pagamento=p.getPagamentos().stream().filter(v->v.getId().equals(pagamentoId)).findFirst().orElseThrow(NotFoundException::new);
+        em.lock(pagamento,LockModeType.PESSIMISTIC_WRITE);
+        var resultado=ResultadoSimulacao.valueOf(dto.resultado());
+        var esperado=resultado==ResultadoSimulacao.APROVAR?StatusPagamento.APROVADO:StatusPagamento.RECUSADO;
+        if(pagamento.getStatus()==esperado)return PedidoAdminResponseDTO.valueOf(p);
+        exigirVersao(p,dto.versao());exigirAguardando(p);
+        if(pagamento.getStatus()!=StatusPagamento.PENDENTE)throw new ConflitoPedidoException("Este pagamento já foi concluído.");
+        aplicarResultado(p,pagamento,resultado);pedidos.flush();return PedidoAdminResponseDTO.valueOf(p);
+    }
+    @Override @Transactional @RolesAllowed("admin") public PedidoAdminResponseDTO enviar(Long id,EnvioPedidoDTO dto){
+        Pedido p=administrativo(id);
+        String transportadora=dto.transportadora().strip(),codigo=dto.codigoRastreio().strip();
+        if((p.getStatus()==StatusPedido.ENVIADO||p.getStatus()==StatusPedido.ENTREGUE)&&transportadora.equals(p.getTransportadora())&&codigo.equals(p.getCodigoRastreio()))return PedidoAdminResponseDTO.valueOf(p);
+        exigirVersao(p,dto.versao());
+        if(p.getStatus()!=StatusPedido.PAGO)throw new ConflitoPedidoException("Somente pedidos pagos podem ser enviados.");
+        p.setTransportadora(transportadora);p.setCodigoRastreio(codigo);p.setEnviadoEm(Instant.now());p.setStatus(StatusPedido.ENVIADO);
+        registrarEvento(p,"Pedido enviado pela transportadora.",subject());pedidos.flush();return PedidoAdminResponseDTO.valueOf(p);
+    }
+    @Override @Transactional @RolesAllowed("admin") public PedidoAdminResponseDTO entregar(Long id,OperacaoPedidoDTO dto){
+        Pedido p=administrativo(id);if(p.getStatus()==StatusPedido.ENTREGUE)return PedidoAdminResponseDTO.valueOf(p);
+        exigirVersao(p,dto.versao());if(p.getStatus()!=StatusPedido.ENVIADO)throw new ConflitoPedidoException("Somente pedidos enviados podem ser entregues.");
+        p.setEntregueEm(Instant.now());p.setStatus(StatusPedido.ENTREGUE);registrarEvento(p,"Entrega confirmada.",subject());pedidos.flush();return PedidoAdminResponseDTO.valueOf(p);
+    }
+    @Override @Transactional @RolesAllowed("admin") public PedidoAdminResponseDTO cancelarAdmin(Long id,OperacaoPedidoDTO dto){
+        Pedido p=administrativo(id);if(expirarSeVencido(p)||p.getStatus()==StatusPedido.EXPIRADO||p.getStatus()==StatusPedido.CANCELADO)return PedidoAdminResponseDTO.valueOf(p);
+        exigirVersao(p,dto.versao());exigirAguardando(p);encerrar(p,StatusPedido.CANCELADO);return PedidoAdminResponseDTO.valueOf(p);
+    }
+    private Pedido administrativo(Long id){Pedido p=pedidos.findById(id,LockModeType.PESSIMISTIC_WRITE);if(p==null)throw new NotFoundException("Pedido não encontrado.");return p;}
+    private void exigirVersao(Pedido p,Long versao){if(!Objects.equals(p.getVersao(),versao))throw new ConflitoPedidoException("O pedido foi atualizado. Recarregue os dados antes de continuar.");}
+    private void validarPagina(int page,int size){if(page<0||size<1||size>100)throw new BadRequestException("Paginação inválida.");}
+    private void registrarEvento(Pedido p,String descricao,String responsavel){
+        EventoPedido e=new EventoPedido();e.setPedido(p);e.setStatus(p.getStatus());e.setOcorridoEm(Instant.now());e.setDescricao(descricao);e.setResponsavelSubject(responsavel);
+        p.getEventos().add(e);if(p.getId()!=null){p.setDataAlteracao(java.time.LocalDateTime.now());em.persist(e);}
+    }
     private Pedido proprio(Long id) {
         String subject = subject();
         // Ownership is part of the locked query, so another account never obtains this order's data.
@@ -165,6 +233,9 @@ public class PedidoServiceImpl implements PedidoService {
 
     private Endereco enderecoDoCliente(Long id) {
         String subject = subject();
+        // Lock the customer before its address to serialize order creation with historical-safe deletion.
+        var cliente=clientes.find("identidadeSubject",subject).withLock(LockModeType.PESSIMISTIC_READ).firstResult();
+        if(cliente==null)throw new NotFoundException("Cadastre seu endereço de entrega.");
         Endereco e = enderecos.find("id = ?1 and cliente.identidadeSubject = ?2", id, subject)
             .withLock(LockModeType.PESSIMISTIC_READ).firstResult();
         if (e == null) throw new NotFoundException("Endereço de entrega não encontrado. Cadastre ou selecione um endereço da sua conta.");
@@ -214,7 +285,9 @@ public class PedidoServiceImpl implements PedidoService {
             // Item traversal may have initialized a product before acquiring its lock.
             em.refresh(m); m.setQuantidadeEstoque(Math.addExact(m.getQuantidadeEstoque(), i.getQuantidade()));
         });
-        p.setStatus(status); pedidos.flush();
+        p.setStatus(status);
+        registrarEvento(p,status==StatusPedido.EXPIRADO?"Prazo de pagamento encerrado.":"Pedido cancelado.",status==StatusPedido.EXPIRADO?null:subject());
+        pedidos.flush();
     }
 
     private void aplicarResultado(Pedido p, Pagamento pagamento, ResultadoSimulacao resultado) {
@@ -222,6 +295,7 @@ public class PedidoServiceImpl implements PedidoService {
         pagamento.setStatus(resultado == ResultadoSimulacao.APROVAR ? StatusPagamento.APROVADO : StatusPagamento.RECUSADO);
         pagamento.setProcessadoEm(Instant.now());
         if (resultado == ResultadoSimulacao.APROVAR) p.setStatus(StatusPedido.PAGO);
+        registrarEvento(p,resultado==ResultadoSimulacao.APROVAR?"Pagamento confirmado.":"Pagamento não aprovado.",subject());
     }
     private void exigirAguardando(Pedido p) {
         if (p.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO) throw new ConflitoPedidoException("Este pedido não aceita esta operação no estado atual.");

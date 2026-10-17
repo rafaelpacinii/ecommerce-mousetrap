@@ -1,7 +1,7 @@
 import { Mouse } from './mouse.model';
 import { Marca } from './marca.model';
 
-export type Produto = Omit<Mouse, 'ativo' | 'versao'>;
+export type Produto = Omit<Mouse, 'ativo' | 'versao' | 'id'> & { id: number };
 export type ProdutoCatalogo = Produto;
 export interface CatalogoFiltro {
   nome?: string;

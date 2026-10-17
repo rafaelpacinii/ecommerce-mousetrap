@@ -1,6 +1,6 @@
 # Modelagem do e-commerce de mouses
 
-MouseTrap domain planning reference. Catalog/images/specifications, external identity with owned customer profiles/addresses, browser-local cart, orders and simulated payments are implemented. Wishlist and fulfillment operations remain planned. The historical diagrams retain planned abstractions; [transactional checkout](../../../docs/transactional-checkout.md) documents the implemented contracts and Cliente/identity integration.
+MouseTrap domain planning reference. Catalog/images/specifications, external identity with owned customer profiles/addresses, browser-local cart, orders and simulated payments are implemented. Wishlist and fulfillment operations are implemented in [slice 6](../../../docs/customer-portal-admin-orders.md). The historical diagrams retain planned abstractions; [transactional checkout](../../../docs/transactional-checkout.md) documents the implemented contracts and Cliente/identity integration.
 
 ## Diagramas em PlantUML
 
@@ -104,7 +104,7 @@ Quantidade mínima de filhos, propriedade do endereço, preço vigente, total de
 
 Os campos históricos do pedido são imutáveis após sua criação. Somente estado, rastreio, auditoria e versão mudam pelos fluxos permitidos. O carrinho pode ser alterado depois do checkout sem afetar o pedido. Uma repetição da chave com conteúdo diferente deve ser rejeitada; sua implementação precisará comparar a requisição com os dados históricos, incluindo os itens e o endereço.
 
-Customer checkout uses normal payment terminology and has no simulation outcome controls. The local engine remains opt-in outside development/tests. Customer requests stay pending; approval/refusal requires admin authorization. Full administrative order operations remain slice 6. Real integration requires provider identifiers, authenticated and deduplicated webhooks, reconciliation, refunds and late-approval handling.
+Customer checkout uses normal payment terminology and has no simulation outcome controls. The local engine remains opt-in outside development/tests. Customer requests stay pending; approval/refusal requires admin authorization. Full administrative order operations are implemented in slice 6. Real integration requires provider identifiers, authenticated and deduplicated webhooks, reconciliation, refunds and late-approval handling.
 
 ## Organização da implementação
 
@@ -124,4 +124,4 @@ Antes de integrar checkout, testar especialmente concorrência pelo último item
 
 ## Esquema implementado
 
-V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. The domain enum IDs above are used in the implementation. Order deadlines/payment processing use UTC Instant/timestamptz; inherited legacy audit timestamps are unchanged. Wishlist and fulfillment screens remain planned. See [checkout](../../../docs/transactional-checkout.md) for the implemented state transitions, configuration and guarantees.
+V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. The domain enum IDs above are used in the implementation. Order deadlines/payment processing use UTC Instant/timestamptz; inherited legacy audit timestamps are unchanged. V7 adds shipping details, order events and persisted wishlist; customer and administrative fulfillment screens are implemented. See [checkout](../../../docs/transactional-checkout.md) for the implemented state transitions, configuration and guarantees.

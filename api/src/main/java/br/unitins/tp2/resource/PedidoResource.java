@@ -19,6 +19,7 @@ public class PedidoResource {
         var pedido = service.criar(dto);
         return Response.created(java.net.URI.create("/pedidos/" + pedido.id())).entity(pedido).build();
     }
+    @GET @Path("/me") public Response meusPedidos(@QueryParam("page") @DefaultValue("0") int page,@QueryParam("pageSize") @DefaultValue("5") int size){return Response.ok(service.meusPedidos(page,size)).build();}
     @GET @Path("/{id}") public Response findById(@PathParam("id") Long id) { return Response.ok(service.findById(id)).build(); }
     @POST @Path("/{id}/pagamentos") public Response pagar(@PathParam("id") Long id, @NotNull @Valid PagamentoDTO dto) { return Response.ok(service.pagar(id, dto)).build(); }
     @POST @Path("/{id}/pagamentos/{pagamentoId}/simular") @RolesAllowed("admin")

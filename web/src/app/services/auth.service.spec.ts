@@ -67,10 +67,10 @@ describe('authentication session', () => {
     const auth = TestBed.inject(AuthService);
     await auth.initialize();
     auth.roles.set(['admin']);
-    expect(auth.destination()).toBe('/admin/mouses');
+    expect(auth.destination()).toBe('/admin/pedidos');
     await auth.login('/catalogo?nome=mouse');
     expect(auth.destination()).toBe('/catalogo?nome=mouse');
-    expect(auth.destination()).toBe('/admin/mouses');
+    expect(auth.destination()).toBe('/admin/pedidos');
     expect(adapter.login).toHaveBeenCalledWith({
       redirectUri: location.origin + '/auth/callback',
       locale: 'pt-BR',

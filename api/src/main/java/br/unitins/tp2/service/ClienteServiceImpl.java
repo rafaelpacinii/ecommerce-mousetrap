@@ -32,6 +32,7 @@ import jakarta.ws.rs.ServiceUnavailableException;
 public class ClienteServiceImpl implements ClienteService {
     @Inject
     ClienteRepository repository;
+    @Inject br.unitins.tp2.repository.PedidoRepository pedidos;
     @Inject
     EnderecoRepository enderecos;
     @Inject
@@ -235,6 +236,13 @@ public class ClienteServiceImpl implements ClienteService {
         return repository.listAll().stream().map(ClienteResponseDTO::valueOf).toList();
     }
 
+    @Override public br.unitins.tp2.dto.PageResponse<ClienteResponseDTO> pesquisar(String busca,String ordenar,int page,int size){
+        if(page<0||size<1||size>100)throw new jakarta.ws.rs.BadRequestException("Paginação inválida.");
+        String termo=busca==null?"":busca.strip();if(termo.length()>150)throw new jakarta.ws.rs.BadRequestException("Busca muito longa.");
+        String ordem=switch(ordenar==null?"nome":ordenar){case "nome"->"nome asc,id asc";case "nome-desc"->"nome desc,id asc";case "email"->"email asc,id asc";case "email-desc"->"email desc,id asc";default->throw new jakarta.ws.rs.BadRequestException("Ordenação inválida.");};
+        var q=repository.find("(lower(nome) like ?1 or lower(email) like ?1) order by "+ordem,"%"+termo.toLowerCase(java.util.Locale.ROOT)+"%");
+        long total=q.count();return br.unitins.tp2.dto.PageResponse.of(q.page(page,size).list(),page,size,total,ClienteResponseDTO::valueOf);
+    }
     @Override
     public ClienteResponseDTO findById(Long id) {
         return ClienteResponseDTO.valueOf(buscar(id));
@@ -266,7 +274,10 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional
     public void delete(Long id) {
-        repository.delete(buscar(id));
+        Cliente cliente=repository.findById(id,LockModeType.PESSIMISTIC_WRITE);
+        if(cliente==null)throw new NotFoundException();
+        if(pedidos.count("cliente.id",id)>0)throw new ValidationException("cliente","Este cliente possui pedidos. Seu histórico deve ser preservado.");
+        repository.delete(cliente);
         repository.flush();
     }
 

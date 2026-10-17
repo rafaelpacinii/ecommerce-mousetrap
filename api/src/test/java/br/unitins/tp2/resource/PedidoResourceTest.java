@@ -64,7 +64,8 @@ class PedidoResourceTest {
     }
     @AfterEach void limpar() {
         QuarkusTransaction.requiringNew().run(() -> {
-            for (Pedido p : pedidos.find("cliente.id in ?1", List.of(clienteId, outroClienteId)).list()) {
+            for (Pedido p : pedidos.find("cliente.id in ?1", List.of(clienteId, outroClienteId)).withLock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE).list()) {
+                em.createQuery("delete from EventoPedido where pedido.id = :id").setParameter("id",p.getId()).executeUpdate();
                 pagamentos.delete("pedido.id", p.getId()); em.createQuery("delete from ItemPedido where pedido.id = :id").setParameter("id", p.getId()).executeUpdate(); pedidos.deleteById(p.getId());
             }
             mouses.deleteById(mouseId); mouses.deleteById(segundoMouseId); marcas.deleteById(marcaId);
@@ -181,6 +182,94 @@ class PedidoResourceTest {
                 .post("/pedidos/"+id+"/pagamentos/"+pag+"/simular").then().statusCode(200).extract().jsonPath().getInt("status.id");});
             assertTrue(a.get(30,TimeUnit.SECONDS));assertEquals(6,b.get(30,TimeUnit.SECONDS));assertEquals(5,estoque());
         } finally {pool.shutdownNow();}
+    }
+
+    @Test void administracaoDeOutroClienteRespeitaVersaoEPercorreEntregaSemDuplicarEventos() {
+        long id=criar(compra());
+        long pag=given().contentType("application/json").body(pagamento(UUID.randomUUID().toString(),3)).post("/pedidos/"+id+"/pagamentos").then().statusCode(200).extract().jsonPath().getLong("pagamentos[0].id");
+        QuarkusTransaction.requiringNew().run(()->pedidos.findById(id).setCliente(clientes.findById(outroClienteId)));
+        given().get("/pedidos/"+id).then().statusCode(404);
+        var detalhe=given().get("/admin/pedidos/"+id).then().statusCode(200).body("idCliente",is((int)outroClienteId)).extract().jsonPath();
+        long versao=detalhe.getLong("pedido.versao");
+        given().contentType("application/json").body(Map.of("versao",versao+10,"resultado",1)).post("/admin/pedidos/"+id+"/pagamentos/"+pag+"/decisao").then().statusCode(409);
+        var pago=given().contentType("application/json").body(Map.of("versao",versao,"resultado",1)).post("/admin/pedidos/"+id+"/pagamentos/"+pag+"/decisao").then().statusCode(200).body("pedido.status.id",is(2)).body("pedido.eventos.size()",is(2)).extract().jsonPath();
+        given().contentType("application/json").body(Map.of("versao",versao,"resultado",1)).post("/admin/pedidos/"+id+"/pagamentos/"+pag+"/decisao").then().statusCode(200).body("pedido.eventos.size()",is(2));
+        long atual=pago.getLong("pedido.versao");
+        given().contentType("application/json").body(Map.of("versao",versao,"transportadora","Correios","codigoRastreio","BR123456789BR")).post("/admin/pedidos/"+id+"/envio").then().statusCode(409);
+        var envio=Map.of("versao",atual,"transportadora","Correios","codigoRastreio","BR123456789BR");
+        long enviado=given().contentType("application/json").body(envio).post("/admin/pedidos/"+id+"/envio").then().statusCode(200).body("pedido.status.id",is(3)).body("pedido.codigoRastreio",is("BR123456789BR")).body("pedido.eventos.size()",is(3)).extract().jsonPath().getLong("pedido.versao");
+        given().contentType("application/json").body(envio).post("/admin/pedidos/"+id+"/envio").then().statusCode(200).body("pedido.eventos.size()",is(3));
+        for(int n=0;n<2;n++)given().contentType("application/json").body(Map.of("versao",enviado)).post("/admin/pedidos/"+id+"/entrega").then().statusCode(200).body("pedido.status.id",is(4)).body("pedido.eventos.size()",is(4)).body("pedido.entregueEm",notNullValue());
+        assertEquals(4,estoque());
+    }
+    @Test void recusaAdministrativaPermiteNovaTentativaECancelamentoRestauraUmaVez(){
+        long id=criar(compra());
+        var pendente=given().contentType("application/json").body(pagamento(UUID.randomUUID().toString(),3)).post("/pedidos/"+id+"/pagamentos").then().statusCode(200).extract().jsonPath();
+        long versao=pendente.getLong("versao"),pag=pendente.getLong("pagamentos[0].id");
+        var recusado=given().contentType("application/json").body(Map.of("versao",versao,"resultado",2)).post("/admin/pedidos/"+id+"/pagamentos/"+pag+"/decisao").then().statusCode(200).body("pedido.status.id",is(1)).body("pedido.pagamentos[0].status.id",is(3)).extract().jsonPath();
+        assertTrue(recusado.getLong("pedido.versao")>versao);
+        given().contentType("application/json").body(Map.of("versao",recusado.getLong("pedido.versao"),"transportadora","Correios","codigoRastreio","BR123")).post("/admin/pedidos/"+id+"/envio").then().statusCode(409);
+        var novo=given().contentType("application/json").body(pagamento(UUID.randomUUID().toString(),3)).post("/pedidos/"+id+"/pagamentos").then().statusCode(200).body("pagamentos.size()",is(2)).extract().jsonPath();
+        for(int n=0;n<2;n++)given().contentType("application/json").body(Map.of("versao",novo.getLong("versao"))).post("/admin/pedidos/"+id+"/cancelamento").then().statusCode(200).body("pedido.status.id",is(5)).body("pedido.pagamentos[1].status.id",is(4));
+        assertEquals(5,estoque());
+    }
+    @Test @TestSecurity(user="checkout",roles="customer") @OidcSecurity(claims={@Claim(key="sub",value="checkout-a")})
+    void historicoEhPaginadoEExclusivoDaContaEAdministracaoEhProtegida(){
+        long id=criar(compra()),outro=criar(compra());
+        QuarkusTransaction.requiringNew().run(()->pedidos.findById(outro).setCliente(clientes.findById(outroClienteId)));
+        given().get("/pedidos/me?page=0&pageSize=1").then().statusCode(200).body("totalItems",is(1)).body("items[0].id",is((int)id)).body("items[0].eventos[0].descricao",is("Pedido recebido."));
+        given().get("/pedidos/"+outro).then().statusCode(404);
+        given().get("/pedidos/me?pageSize=101").then().statusCode(400);
+        for(String path:List.of("/admin/pedidos","/admin/pedidos/indicadores","/admin/pedidos/"+outro))given().get(path).then().statusCode(403);
+        for(String path:List.of("envio","entrega","cancelamento","pagamentos/1/decisao"))given().contentType("application/json").body(Map.of("versao",0,"resultado",1,"transportadora","Correios","codigoRastreio","BR123" )).post("/admin/pedidos/"+id+"/"+path).then().statusCode(403);
+    }
+    @Test void indicadoresUsamPagamentosAprovadosEFiltrosSaoValidados(){
+        BigDecimal antes=given().get("/admin/pedidos/indicadores").then().statusCode(200).extract().jsonPath().getObject("faturamentoMes",BigDecimal.class);
+        long id=criar(compra());
+        given().contentType("application/json").body(pagamento(UUID.randomUUID().toString(),1)).post("/pedidos/"+id+"/pagamentos").then().statusCode(200);
+        BigDecimal depois=given().get("/admin/pedidos/indicadores").then().statusCode(200).body("mousesAtivos",greaterThanOrEqualTo(2)).body("clientesCadastrados",greaterThanOrEqualTo(2)).extract().jsonPath().getObject("faturamentoMes",BigDecimal.class);
+        assertEquals(0,new BigDecimal("129.90").compareTo(depois.subtract(antes)));
+        given().queryParam("busca","#"+id).queryParam("status",2).queryParam("ordenar","cliente").queryParam("pageSize",1).get("/admin/pedidos").then().statusCode(200).body("totalItems",is(1)).body("items[0].id",is((int)id));
+        given().get("/admin/pedidos?ordenar=invalid").then().statusCode(400);given().get("/admin/pedidos?status=7").then().statusCode(400);
+        given().get("/clientes/pagina?busca=Comprador&ordenar=email-desc&pageSize=1").then().statusCode(200).body("items.size()",is(1)).body("totalItems",greaterThanOrEqualTo(2));
+        given().get("/mouses/pagina?ordenar=preco-desc&pageSize=1").then().statusCode(200).body("items.size()",is(1));
+        given().get("/marcas/pagina?ordenar=nome-desc").then().statusCode(200);
+        given().get("/clientes/pagina?ordenar=invalid").then().statusCode(400);
+    }
+    @Test void historicoImpedeExclusaoMasPermiteDesativarProduto(){
+        long id=criar(compra());
+        given().delete("/mouses/"+mouseId).then().statusCode(400).body("detail",containsString("pedidos"));
+        given().delete("/clientes/"+clienteId).then().statusCode(400).body("detail",containsString("pedidos"));
+        QuarkusTransaction.requiringNew().run(()->{mouses.findById(mouseId).setAtivo(false);marcas.findById(marcaId).setAtivo(false);});
+        given().get("/pedidos/"+id).then().statusCode(200).body("itens[0].nome",is("Mouse checkout")).body("itens[0].marca",startsWith("Checkout "));
+    }
+    @Test void desejosSaoIdempotentesPersistidosEIsoladosPorSubject(){
+        for(int n=0;n<2;n++)given().put("/desejos/"+mouseId).then().statusCode(204);
+        given().get("/desejos/ids").then().statusCode(200).body("size()",is(1));
+        given().get("/desejos?pageSize=1").then().statusCode(200).body("totalItems",is(1)).body("items[0].produto.id",is((int)mouseId)).body("items[0].disponivel",is(true));
+        QuarkusTransaction.requiringNew().run(()->mouses.findById(mouseId).setAtivo(false));
+        given().get("/desejos").then().statusCode(200).body("items[0].disponivel",is(false));
+        QuarkusTransaction.requiringNew().run(()->em.createQuery("update Desejo set identidadeSubject = 'checkout-b' where mouse.id = :id").setParameter("id",mouseId).executeUpdate());
+        given().get("/desejos/ids").then().statusCode(200).body("size()",is(0));
+        given().delete("/desejos/"+mouseId).then().statusCode(204);
+        assertEquals(1,QuarkusTransaction.requiringNew().call(()->em.createQuery("select count(d) from Desejo d where mouse.id = :id",Long.class).setParameter("id",mouseId).getSingleResult()));
+        QuarkusTransaction.requiringNew().run(()->em.createQuery("delete from Desejo where mouse.id = :id").setParameter("id",mouseId).executeUpdate());
+    }
+
+    @Test void decisoesAdministrativasConcorrentesNaoSobrescrevemOResultado() throws Exception {
+        long id=criar(compra());var pendente=given().contentType("application/json").body(pagamento(UUID.randomUUID().toString(),3)).post("/pedidos/"+id+"/pagamentos").then().statusCode(200).extract().jsonPath();
+        long pag=pendente.getLong("pagamentos[0].id"),versao=pendente.getLong("versao");
+        var pool=Executors.newFixedThreadPool(2);var barreira=new CyclicBarrier(2);
+        try {
+            var a=pool.submit(()->{barreira.await();return given().contentType("application/json").body(Map.of("versao",versao,"resultado",1)).post("/admin/pedidos/"+id+"/pagamentos/"+pag+"/decisao").statusCode();});
+            var b=pool.submit(()->{barreira.await();return given().contentType("application/json").body(Map.of("versao",versao,"resultado",2)).post("/admin/pedidos/"+id+"/pagamentos/"+pag+"/decisao").statusCode();});
+            assertEquals(List.of(200,409),java.util.stream.Stream.of(a.get(30,TimeUnit.SECONDS),b.get(30,TimeUnit.SECONDS)).sorted().toList());
+            given().get("/admin/pedidos/"+id).then().statusCode(200).body("pedido.eventos.size()",is(2));assertEquals(4,estoque());
+        }finally{pool.shutdownNow();}
+    }
+    @Test void desejosConcorrentesNaoDuplicamProduto() throws Exception {
+        var pool=Executors.newFixedThreadPool(2);var barreira=new CyclicBarrier(2);
+        try{Callable<Integer> chamada=()->{barreira.await();return given().put("/desejos/"+mouseId).statusCode();};var a=pool.submit(chamada);var b=pool.submit(chamada);assertEquals(204,a.get(30,TimeUnit.SECONDS));assertEquals(204,b.get(30,TimeUnit.SECONDS));given().get("/desejos/ids").then().statusCode(200).body("size()",is(1));}finally{pool.shutdownNow();}
     }
 
 }

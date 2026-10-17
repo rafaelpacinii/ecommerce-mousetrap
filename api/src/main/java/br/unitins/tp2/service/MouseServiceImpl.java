@@ -25,7 +25,15 @@ import jakarta.ws.rs.NotFoundException;
 public class MouseServiceImpl implements MouseService {
     @Inject MouseRepository repository;
     @Inject MarcaRepository marcaRepository;
+    @Inject jakarta.persistence.EntityManager em;
 
+    @Override public br.unitins.tp2.dto.PageResponse<MouseResponseDTO> pesquisar(String busca,String ordenar,int page,int size){
+        if(page<0||size<1||size>100)throw new jakarta.ws.rs.BadRequestException("Paginação inválida.");
+        String termo=busca==null?"":busca.strip();if(termo.length()>150)throw new jakarta.ws.rs.BadRequestException("Busca muito longa.");
+        String ordem=switch(ordenar==null?"nome":ordenar){case "nome"->"nome";case "nome-desc"->"nome desc";case "preco"->"preco";case "preco-desc"->"preco desc";case "quantidadeEstoque"->"quantidadeEstoque";case "quantidadeEstoque-desc"->"quantidadeEstoque desc";case "ativo"->"ativo";case "ativo-desc"->"ativo desc";default->throw new jakarta.ws.rs.BadRequestException("Ordenação inválida.");};
+        var q=repository.find("lower(nome) like ?1 order by "+ordem+",id asc","%"+termo.toLowerCase(java.util.Locale.ROOT)+"%");
+        long total=q.count();return br.unitins.tp2.dto.PageResponse.of(q.page(page,size).list(),page,size,total,MouseResponseDTO::valueOf);
+    }
     @Override
     public List<Mouse> findAll(int page, int pageSize) {
         return repository.findAll().page(page, pageSize).list();
@@ -75,7 +83,11 @@ public class MouseServiceImpl implements MouseService {
     @Override
     @Transactional
     public void delete(Long id) {
-        repository.delete(buscar(id));
+        Mouse mouse=repository.findById(id,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if(mouse==null)throw new NotFoundException("Mouse não encontrado.");
+        if(em.createQuery("select count(i) from ItemPedido i where i.mouse.id = :id",Long.class).setParameter("id",id).getSingleResult()>0)
+            throw new ValidationException("mouse","Este mouse possui pedidos. Desative o produto para preservar o histórico.");
+        repository.delete(mouse);
         repository.flush();
     }
 

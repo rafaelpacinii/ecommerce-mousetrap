@@ -1,0 +1,72 @@
+<section>
+  <div class="cabecalho-pagina">
+    <div>
+      <a mat-button routerLink="/admin/pedidos"
+        ><mat-icon aria-hidden="true">arrow_back</mat-icon>Todos os pedidos</a
+      >
+      <h1>Detalhes do pedido</h1>
+    </div>
+    <button mat-button (click)="atualizar()" [disabled]="ocupado()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>Atualizar
+    </button>
+  </div>
+  @if (erro()) {
+    <p class="error" role="alert">{{ erro() }}</p>
+  }
+  @if (dados(); as d) {
+    <p class="customer">
+      <mat-icon aria-hidden="true">person</mat-icon><span>{{ d.cliente }} · {{ d.email }}</span
+      ><a mat-button [routerLink]="['/admin/clientes/editar', d.idCliente]">Ver cliente</a>
+    </p>
+    <div class="detail-grid">
+      <app-order-details [pedido]="d.pedido" />
+      <aside class="operations" aria-label="Operações do pedido">
+        @if (d.pedido.status.id === 1) {
+          <h2>Pagamento e análise</h2>
+          @for (p of d.pedido.pagamentos; track p.id) {
+            @if (p.status.id === 1) {
+              <p>{{ p.forma.label }} · aguardando confirmação</p>
+              <button mat-flat-button (click)="decidir(p.id, 1)" [disabled]="ocupado()">
+                <mat-icon aria-hidden="true">check_circle</mat-icon>Confirmar pagamento</button
+              ><button mat-stroked-button (click)="decidir(p.id, 2)" [disabled]="ocupado()">
+                <mat-icon aria-hidden="true">block</mat-icon>Recusar pagamento
+              </button>
+            }
+          }
+          @if (!d.pedido.pagamentos.length) {
+            <p>O cliente ainda não iniciou um pagamento.</p>
+          }
+          <button mat-button class="danger" (click)="cancelar()" [disabled]="ocupado()">
+            Cancelar pedido
+          </button>
+        } @else if (d.pedido.status.id === 2) {
+          <h2>Preparar envio</h2>
+          <form [formGroup]="envio" (ngSubmit)="enviar()">
+            <mat-form-field appearance="outline"
+              ><mat-label>Transportadora</mat-label
+              ><input matInput formControlName="transportadora" maxlength="100" /><mat-error
+                >Informe a transportadora.</mat-error
+              ></mat-form-field
+            ><mat-form-field appearance="outline"
+              ><mat-label>Código de rastreio</mat-label
+              ><input matInput formControlName="codigoRastreio" maxlength="80" /><mat-error
+                >Informe um código de rastreio válido.</mat-error
+              ></mat-form-field
+            ><button mat-flat-button type="submit" [disabled]="ocupado()">
+              <mat-icon aria-hidden="true">local_shipping</mat-icon>Confirmar envio
+            </button>
+          </form>
+        } @else if (d.pedido.status.id === 3) {
+          <h2>Acompanhar entrega</h2>
+          <p>{{ d.pedido.transportadora }}<br />{{ d.pedido.codigoRastreio }}</p>
+          <button mat-flat-button (click)="entregar()" [disabled]="ocupado()">
+            <mat-icon aria-hidden="true">task_alt</mat-icon>Confirmar entrega
+          </button>
+        } @else {
+          <h2>Pedido finalizado</h2>
+          <p>{{ d.pedido.status.label }}. O histórico da compra está preservado.</p>
+        }
+      </aside>
+    </div>
+  }
+</section>

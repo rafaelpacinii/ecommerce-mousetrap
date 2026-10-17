@@ -1,3 +1,4 @@
+import { FavoriteButtonComponent } from '../favorite-button/favorite-button';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DecimalPipe, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +19,7 @@ import { mensagemErro } from '../../../services/erro-api';
   selector: 'app-product-detail',
   standalone: true,
   imports: [
+    FavoriteButtonComponent,
     CurrencyPipe,
     DecimalPipe,
     FormsModule,
@@ -95,11 +97,15 @@ export class ProductDetailComponent {
     const p = this.produto();
     if (!p || p.quantidadeEstoque <= 0) return;
     if (this.carrinho.adicionar(p, 1)) {
-      this.snack.open(`${p.nome} adicionado ao carrinho.`, 'Ver carrinho', {
-        duration: 4000,
-      }).onAction().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        void this.router.navigate(['/carrinho']);
-      });
+      this.snack
+        .open(`${p.nome} adicionado ao carrinho.`, 'Ver carrinho', {
+          duration: 4000,
+        })
+        .onAction()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          void this.router.navigate(['/carrinho']);
+        });
     } else {
       this.snack.open('Você já adicionou a quantidade máxima disponível deste mouse.', 'Fechar', {
         duration: 4000,

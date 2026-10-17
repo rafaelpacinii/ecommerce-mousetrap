@@ -1,6 +1,6 @@
 # MouseTrap — API
 
-The authenticated transactional checkout, orders, and local PIX/card payment simulation are implemented. See [checkout contracts and configuration](../docs/transactional-checkout.md). Customer order history and administrative fulfillment remain planned.
+The authenticated transactional checkout, orders, and local PIX/card payment simulation are implemented. See [checkout contracts and configuration](../docs/transactional-checkout.md). Customer history, administrative fulfillment and wishlist are implemented; see [slice 6](../docs/customer-portal-admin-orders.md).
 
 API REST do MouseTrap, um e-commerce especializado em mouses. O catálogo permite gerenciar marcas e produtos, com especificações técnicas, múltiplos tipos de conexão, preço e estoque.
 
@@ -13,7 +13,7 @@ API REST do MouseTrap, um e-commerce especializado em mouses. O catálogo permit
 - Controle de versão na edição de mouses para detectar alterações concorrentes.
 - Respostas de erro padronizadas e documentação OpenAPI.
 
-Catalog administration, authentication, owned addresses, cart integration, transactional orders and simulated payments are implemented. Wishlist and fulfillment views remain in the [domain roadmap](docs/modelagem/README.md).
+Catalog administration, authentication, owned addresses, cart integration, transactional orders and simulated payments are implemented. Wishlist and fulfillment views are implemented in [slice 6](../docs/customer-portal-admin-orders.md).
 
 ## Tecnologias e arquitetura
 
@@ -124,7 +124,7 @@ payloads additionally accept optional `especificacoes` and `imagens` groups.
 Migration V3 adds product images and gaming specifications without modifying V1/V2
 or inventing values for existing products. Images are managed by URL and inherit
 entity audit fields; gallery edits use the mouse's optimistic version check.
-Authentication, orders, wishlist and payments remain future slices. The current
+Authentication, orders, wishlist and local payment simulation are implemented. The current
 image/gallery behavior supersedes older statements describing images as planned.
 
 See [Public catalog contracts, migration and validation](../docs/public-catalog.md).

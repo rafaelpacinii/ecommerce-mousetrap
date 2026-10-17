@@ -101,6 +101,7 @@ describe('Checkout recovery and confirmed-cart behavior', () => {
     first.flush({}, { status: 503, statusText: 'Unavailable' });
     expect(carrinho.quantidadeTotal()).toBe(2);
     carrinho.adicionar(produto, 1);
+    service.prepararCompra();
     service.confirmar({ ...revisao, total: 999 }, 9, 2).subscribe();
     const retry = http.expectOne('http://localhost:8080/pedidos');
     expect(retry.request.body).toEqual(original);
@@ -130,6 +131,7 @@ describe('Checkout recovery and confirmed-cart behavior', () => {
     const first = http.expectOne('http://localhost:8080/pedidos/50/pagamentos');
     const original = first.request.body;
     first.error(new ProgressEvent('error'));
+    service.prepararCompra();
     service.pagar(p, 1).subscribe();
     const retry = http.expectOne('http://localhost:8080/pedidos/50/pagamentos');
     expect(retry.request.body).toEqual(original);
@@ -215,6 +217,37 @@ describe('Checkout recovery and confirmed-cart behavior', () => {
     expect(localStorage.getItem('mousetrap.checkout.checkout-b')).toBeNull();
     expect(carrinho.quantidadeTotal()).toBe(2);
     subject.set('checkout-a');
-    expect(service.tentativa()?.criacao.chaveCheckout).toBe(response.chaveCheckout);
+    expect(service.tentativa()?.criacao?.chaveCheckout).toBe(response.chaveCheckout);
+  });
+  it('resumes an owned historical order without creating a purchase or clearing the current cart', () => {
+    const p = pedido('00000000-0000-4000-8000-000000000050');
+    service.retomarPedido(50).subscribe();
+    http.expectOne('http://localhost:8080/pedidos/50').flush(p);
+    expect(service.tentativa()?.pedidoId).toBe(50);
+    expect(service.tentativa()?.criacao).toBeUndefined();
+    expect(carrinho.quantidadeTotal()).toBe(2);
+    service.recuperar().subscribe();
+    http.expectOne('http://localhost:8080/pedidos/50').flush(p);
+    expect(carrinho.quantidadeTotal()).toBe(2);
+    http.expectNone('http://localhost:8080/pedidos');
+  });
+  it('starts a fresh cart checkout without an explicit reset, even with an earlier order awaiting payment', () => {
+    service.confirmar(revisao, 7, 1).subscribe();
+    const first = http.expectOne('http://localhost:8080/pedidos');
+    const original = first.request.body.chaveCheckout;
+    first.flush(pedido(original));
+    expect(carrinho.quantidadeTotal()).toBe(0);
+    service.prepararCompra();
+    expect(service.tentativa()?.pedidoId).toBe(50);
+    carrinho.adicionar(produto, 2);
+    service.prepararCompra();
+    expect(service.tentativa()).toBeNull();
+    service.confirmar(revisao, 7, 1).subscribe();
+    const next = http.expectOne('http://localhost:8080/pedidos');
+    expect(next.request.body.chaveCheckout).not.toBe(original);
+    next.flush({ ...pedido(next.request.body.chaveCheckout), id: 51 });
+    expect(service.tentativa()?.pedidoId).toBe(51);
+    expect(carrinho.quantidadeTotal()).toBe(0);
+    http.expectNone('http://localhost:8080/pedidos/50');
   });
 });
