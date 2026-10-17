@@ -1,5 +1,6 @@
 <article class="product-card">
   <div class="product-stage">
+    <app-favorite-button class="favorite-control" [id]="produto().id" />
     <div class="spec-pills">
       <span>{{ produto().pesoGramas | number: '1.0-1' }} g</span>
       <span>{{

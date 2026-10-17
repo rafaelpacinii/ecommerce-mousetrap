@@ -13,6 +13,7 @@ public interface ClienteService {
     EnderecoResponseDTO definirMeuEnderecoPrincipal(Long id);
     void removerMeuEndereco(Long id);
     List<ClienteResponseDTO> findAll();
+    PageResponse<ClienteResponseDTO> pesquisar(String busca,String ordenar,int page,int size);
     ClienteResponseDTO findById(Long id);
     ClienteResponseDTO create(ClienteDTO dto);
     ClienteResponseDTO update(Long id, ClienteDTO dto);

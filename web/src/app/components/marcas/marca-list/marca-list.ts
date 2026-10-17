@@ -1,3 +1,5 @@
+import { ConfirmacaoService } from '../../shared/confirm-dialog';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { paginacaoPortugues } from '../../../services/paginator-intl';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { finalize } from 'rxjs';
+import { filter, finalize, switchMap, Subscription } from 'rxjs';
 import { Marca } from '../../../models/marca.model';
 import { MarcaService } from '../../../services/marca.service';
 import { mensagemErro } from '../../../services/erro-api';
@@ -19,6 +21,7 @@ import { mensagemErro } from '../../../services/erro-api';
   standalone: true,
   providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   imports: [
+    MatSortModule,
     RouterLink,
     MatButtonModule,
     MatIconModule,
@@ -31,6 +34,9 @@ import { mensagemErro } from '../../../services/erro-api';
   styleUrl: './marca-list.css',
 })
 export class MarcaListComponent implements OnInit {
+  private readonly confirmacao = inject(ConfirmacaoService);
+  private request?: Subscription;
+  readonly ordenar = signal('');
   private readonly service = inject(MarcaService);
   private readonly snack = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
@@ -49,13 +55,16 @@ export class MarcaListComponent implements OnInit {
   }
 
   carregar(): void {
+    this.request?.unsubscribe();
     this.carregando.set(true);
     this.erro.set('');
     const termo = this.filtro().trim();
-    const requisicao = termo
-      ? this.service.findByNome(termo, this.pageIndex(), this.pageSize())
-      : this.service.findAll(this.pageIndex(), this.pageSize());
-    requisicao
+    const requisicao = this.ordenar()
+      ? this.service.pesquisar(termo, this.ordenar(), this.pageIndex(), this.pageSize())
+      : termo
+        ? this.service.findByNome(termo, this.pageIndex(), this.pageSize())
+        : this.service.findAll(this.pageIndex(), this.pageSize());
+    this.request = requisicao
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.carregando.set(false)),
@@ -81,18 +90,25 @@ export class MarcaListComponent implements OnInit {
     this.carregar();
   }
 
+  ordenarPor(e: Sort) {
+    const campo = e.active === 'estoque' ? 'quantidadeEstoque' : e.active;
+    this.ordenar.set(e.direction ? campo + (e.direction === 'desc' ? '-desc' : '') : '');
+    this.pageIndex.set(0);
+    this.carregar();
+  }
   excluir(registro: Marca): void {
-    if (
-      registro.id == null ||
-      this.excluindo() !== null ||
-      !window.confirm(`Excluir marca "${registro.nome}"? Esta ação não pode ser desfeita.`)
-    )
-      return;
+    if (registro.id == null || this.excluindo() !== null) return;
     const id = registro.id;
     this.excluindo.set(id);
-    this.service
-      .delete(id)
+    this.confirmacao
+      .abrir(
+        'Excluir marca?',
+        `Excluir "${registro.nome}"? Esta ação não pode ser desfeita.`,
+        'Excluir',
+      )
       .pipe(
+        filter(Boolean),
+        switchMap(() => this.service.delete(id)),
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.excluindo.set(null)),
       )

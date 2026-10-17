@@ -2,6 +2,8 @@
 
 This hotfix aligns the existing Angular screens with the canonical [SVG wireframes](ui-wireframes/README.md). It changes presentation and navigation controls while preserving the current catalog, authentication, cart, address, and administrative contracts.
 
+The customer portal and administrative order screens are implemented in [slice 6](customer-portal-admin-orders.md), using wireframes 06 and 09 and the same established visual system. The hero remains unchanged.
+
 The checkout review described here was subsequently extended by [slice 5](transactional-checkout.md), which adds transactional orders, payment simulation, and result/retry states using the same visual system.
 
 ## Screen coverage

@@ -77,11 +77,17 @@
               ><mat-icon aria-hidden="true">expand_more</mat-icon>
             </summary>
             <div class="account-links">
+              <a routerLink="/meus-pedidos" (click)="accountMenu.open = false"
+                ><mat-icon aria-hidden="true">receipt_long</mat-icon>Meus pedidos</a
+              >
+              <a routerLink="/lista-de-desejos" (click)="accountMenu.open = false"
+                ><mat-icon aria-hidden="true">favorite_border</mat-icon>Lista de desejos</a
+              >
               <a routerLink="/minha-conta" (click)="accountMenu.open = false"
                 ><mat-icon aria-hidden="true">person</mat-icon>Minha conta</a
               >
               @if (auth.admin()) {
-                <a routerLink="/admin/mouses" (click)="accountMenu.open = false"
+                <a routerLink="/admin/pedidos" (click)="accountMenu.open = false"
                   ><mat-icon aria-hidden="true">settings</mat-icon>Administrar</a
                 >
               }
@@ -115,7 +121,7 @@
           ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
         >
         @if (auth.admin()) {
-          <a routerLink="/admin/mouses"
+          <a routerLink="/admin/pedidos"
             ><mat-icon aria-hidden="true">settings</mat-icon>Administração</a
           >
         }

@@ -325,4 +325,4 @@ See [setup, contracts, recovery and deployment](docs/authentication.md).
 
 ### Transactional checkout
 
-The authenticated checkout now creates historical orders, commits stock atomically, and supports local PIX/card simulation, retries, cancellation and scheduled expiry. See [checkout contracts, configuration and validation](docs/transactional-checkout.md). Customer order history and administrative fulfillment remain the next backlog slice.
+The authenticated checkout now creates historical orders, commits stock atomically, and supports local PIX/card simulation, retries, cancellation and scheduled expiry. See [checkout contracts, configuration and validation](docs/transactional-checkout.md). Customer order history, administrative fulfillment and persisted wishlist are implemented in [slice 6](docs/customer-portal-admin-orders.md).

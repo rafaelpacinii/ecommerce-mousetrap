@@ -43,6 +43,7 @@
           >
         </div>
         <h1 id="product-title">{{ p.nome }}</h1>
+        <app-favorite-button [id]="p.id" />
         <p class="description">{{ p.descricao }}</p>
         <p class="price">{{ p.preco | currency: 'BRL' }}</p>
         <p class="sku">SKU: {{ p.sku }} · Cor: {{ p.cor }}</p>

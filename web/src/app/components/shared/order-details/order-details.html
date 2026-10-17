@@ -1,0 +1,91 @@
+<section class="order-card" aria-label="Detalhes do pedido">
+  <div class="order-heading">
+    <div>
+      <h2>Pedido #{{ pedido().id }}</h2>
+      <p>Realizado em {{ data(pedido().criadoEm) }}</p>
+    </div>
+    <span class="order-status" [attr.data-status]="pedido().status.id">{{
+      pedido().status.label
+    }}</span>
+  </div>
+  @if (etapa()) {
+    <ol class="timeline" aria-label="Andamento do pedido">
+      @for (label of etapas; track label; let i = $index) {
+        <li
+          [class.complete]="i + 1 <= etapa()"
+          [attr.aria-current]="i + 1 === etapa() ? 'step' : null"
+        >
+          <span
+            ><mat-icon aria-hidden="true">{{
+              i + 1 < etapa()
+                ? 'check'
+                : i + 1 === etapa()
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+            }}</mat-icon></span
+          ><strong>{{ label }}</strong>
+        </li>
+      }
+    </ol>
+  }
+  <div class="order-summary">
+    @for (item of pedido().itens; track item.idMouse) {
+      <p>
+        <strong>{{ item.quantidade }}× {{ item.nome }}</strong
+        ><span>{{ item.subtotal | currency: 'BRL' }}</span>
+      </p>
+    }
+    @if (pedido().codigoRastreio) {
+      <p class="tracking">
+        {{ pedido().transportadora }} · Código de rastreio:
+        <strong>{{ pedido().codigoRastreio }}</strong>
+      </p>
+    }
+    <p class="total">
+      <strong>Total da compra</strong><strong>{{ pedido().total | currency: 'BRL' }}</strong>
+    </p>
+  </div>
+  @if (!compact()) {
+    <div class="details-grid">
+      <div>
+        <h3>Endereço de entrega</h3>
+        <p>
+          {{ pedido().endereco.destinatario }}<br />{{ pedido().endereco.logradouro }},
+          {{ pedido().endereco.numero }} {{ pedido().endereco.complemento }}<br />{{
+            pedido().endereco.bairro
+          }}
+          · {{ pedido().endereco.municipio }}/{{ pedido().endereco.uf }}<br />CEP
+          {{ pedido().endereco.cep }}
+        </p>
+      </div>
+      <div>
+        <h3>Valores</h3>
+        <p>
+          Produtos: {{ pedido().subtotal | currency: 'BRL' }}<br />Frete:
+          {{ pedido().frete | currency: 'BRL' }}<br />Prazo estimado:
+          {{ pedido().prazoDiasUteis }} dias úteis após o pagamento.
+        </p>
+      </div>
+    </div>
+    @if (pedido().eventos?.length) {
+      <h3>Atualizações do pedido</h3>
+      <ol class="events">
+        @for (evento of pedido().eventos; track $index) {
+          <li>
+            <time [attr.datetime]="evento.ocorridoEm">{{ data(evento.ocorridoEm) }}</time
+            ><span>{{ evento.descricao }}</span>
+          </li>
+        }
+      </ol>
+    }
+    @if (pedido().pagamentos.length) {
+      <h3>Pagamentos</h3>
+      @for (pagamento of pedido().pagamentos; track pagamento.id) {
+        <p class="payment">
+          {{ pagamento.forma.label }} · {{ pagamento.status.label }} ·
+          {{ pagamento.valor | currency: 'BRL' }}
+        </p>
+      }
+    }
+  }
+</section>

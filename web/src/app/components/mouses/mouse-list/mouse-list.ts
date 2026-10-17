@@ -1,3 +1,5 @@
+import { ConfirmacaoService } from '../../shared/confirm-dialog';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { paginacaoPortugues } from '../../../services/paginator-intl';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ProductImageComponent } from '../../storefront/product-image/product-image';
@@ -11,7 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { finalize } from 'rxjs';
+import { filter, finalize, switchMap, Subscription } from 'rxjs';
 import { Mouse } from '../../../models/mouse.model';
 import { MouseService } from '../../../services/mouse.service';
 import { mensagemErro } from '../../../services/erro-api';
@@ -21,6 +23,7 @@ import { mensagemErro } from '../../../services/erro-api';
   standalone: true,
   providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   imports: [
+    MatSortModule,
     RouterLink,
     ProductImageComponent,
     MatButtonModule,
@@ -35,6 +38,9 @@ import { mensagemErro } from '../../../services/erro-api';
   styleUrl: './mouse-list.css',
 })
 export class MouseListComponent implements OnInit {
+  private readonly confirmacao = inject(ConfirmacaoService);
+  private request?: Subscription;
+  readonly ordenar = signal('');
   private readonly service = inject(MouseService);
   private readonly snack = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
@@ -53,13 +59,16 @@ export class MouseListComponent implements OnInit {
   }
 
   carregar(): void {
+    this.request?.unsubscribe();
     this.carregando.set(true);
     this.erro.set('');
     const filtro = this.filtro().trim();
-    const consulta = filtro
-      ? this.service.findByNome(filtro, this.pageIndex(), this.pageSize())
-      : this.service.findAll(this.pageIndex(), this.pageSize());
-    consulta
+    const consulta = this.ordenar()
+      ? this.service.pesquisar(filtro, this.ordenar(), this.pageIndex(), this.pageSize())
+      : filtro
+        ? this.service.findByNome(filtro, this.pageIndex(), this.pageSize())
+        : this.service.findAll(this.pageIndex(), this.pageSize());
+    this.request = consulta
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.carregando.set(false)),
@@ -85,18 +94,25 @@ export class MouseListComponent implements OnInit {
     this.carregar();
   }
 
+  ordenarPor(e: Sort) {
+    const campo = e.active === 'estoque' ? 'quantidadeEstoque' : e.active;
+    this.ordenar.set(e.direction ? campo + (e.direction === 'desc' ? '-desc' : '') : '');
+    this.pageIndex.set(0);
+    this.carregar();
+  }
   excluir(registro: Mouse): void {
-    if (
-      registro.id == null ||
-      this.excluindo() !== null ||
-      !window.confirm(`Excluir mouse "${registro.nome}"? Esta ação não pode ser desfeita.`)
-    )
-      return;
+    if (registro.id == null || this.excluindo() !== null) return;
     const id = registro.id;
     this.excluindo.set(id);
-    this.service
-      .delete(id)
+    this.confirmacao
+      .abrir(
+        'Excluir mouse?',
+        `Excluir "${registro.nome}"? Esta ação não pode ser desfeita.`,
+        'Excluir',
+      )
       .pipe(
+        filter(Boolean),
+        switchMap(() => this.service.delete(id)),
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.excluindo.set(null)),
       )

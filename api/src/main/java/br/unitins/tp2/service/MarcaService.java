@@ -6,6 +6,7 @@ import br.unitins.tp2.model.Marca;
 import java.util.List;
 
 public interface MarcaService {
+    br.unitins.tp2.dto.PageResponse<br.unitins.tp2.dto.MarcaResponseDTO> pesquisar(String busca,String ordenar,int page,int size);
     List<Marca> findAll(int page, int pageSize);
     List<Marca> findByNome(String nome, int page, int pageSize);
     long count();

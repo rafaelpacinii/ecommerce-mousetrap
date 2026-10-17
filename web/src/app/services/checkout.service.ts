@@ -46,6 +46,20 @@ export class CheckoutService {
     return this.recuperar();
   }
 
+  retomarPedido(id: number): Observable<Pedido> {
+    return this.daConta(this.http.get<Pedido>(`${this.url}/${id}`)).pipe(
+      tap((pedido) => {
+        const atual = this.tentativa();
+        if (atual?.pedidoId === pedido.id) return;
+        if (atual?.pagamento || (atual && !atual.pedidoId))
+          throw new Error('Recupere a tentativa atual antes de abrir outro pedido.');
+        this.salvar({
+          pedidoId: pedido.id,
+          forma: pedido.pagamentos.find((p) => p.status.id === 1)?.forma.id ?? 1,
+        });
+      }),
+    );
+  }
   recuperar(): Observable<Pedido> {
     const subject = this.auth.subject();
     const tentativa = this.tentativa();
@@ -56,7 +70,7 @@ export class CheckoutService {
     return this.daConta(request).pipe(
       tap((pedido) => {
         this.salvar({ ...tentativa, pedidoId: pedido.id });
-        this.carrinho.confirmarCompra(pedido.chaveCheckout, pedido.itens);
+        if (tentativa.criacao) this.carrinho.confirmarCompra(pedido.chaveCheckout, pedido.itens);
       }),
       catchError((erro) => {
         if (subject === this.auth.subject() && !tentativa.pedidoId && this.rejeicaoDefinitiva(erro))
@@ -109,8 +123,9 @@ export class CheckoutService {
   cancelar(id: number) {
     return this.daConta(this.http.post<Pedido>(`${this.url}/${id}/cancelamento`, {}));
   }
-  novaCompra(): void {
-    this.salvar(null);
+  prepararCompra(): void {
+    const atual = this.tentativa();
+    if (this.carrinho.itens().length && atual?.pedidoId && !atual.pagamento) this.salvar(null);
   }
 
   private daConta<T>(request: Observable<T>): Observable<T> {
@@ -152,26 +167,30 @@ export class CheckoutService {
       const uuid = (v: unknown) =>
         typeof v === 'string' &&
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+      const criacaoInvalida =
+        value.criacao &&
+        (!uuid(value.criacao.chaveCheckout) ||
+          !Number.isSafeInteger(value.criacao.idEndereco) ||
+          value.criacao.idEndereco < 1 ||
+          !Array.isArray(value.criacao.itens) ||
+          !value.criacao.itens.length ||
+          value.criacao.itens.length > 100 ||
+          !value.criacao.itens.every(
+            (i) =>
+              Number.isSafeInteger(i.idMouse) &&
+              i.idMouse > 0 &&
+              Number.isInteger(i.quantidade) &&
+              i.quantidade > 0 &&
+              i.quantidade <= 999 &&
+              typeof i.precoEsperado === 'number' &&
+              Number.isFinite(i.precoEsperado) &&
+              i.precoEsperado > 0,
+          ) ||
+          !Number.isFinite(value.criacao.freteEsperado) ||
+          value.criacao.freteEsperado < 0);
       if (
-        !uuid(value.criacao?.chaveCheckout) ||
-        !Number.isSafeInteger(value.criacao.idEndereco) ||
-        value.criacao.idEndereco < 1 ||
-        !Array.isArray(value.criacao.itens) ||
-        !value.criacao.itens.length ||
-        value.criacao.itens.length > 100 ||
-        !value.criacao.itens.every(
-          (i) =>
-            Number.isSafeInteger(i.idMouse) &&
-            i.idMouse > 0 &&
-            Number.isInteger(i.quantidade) &&
-            i.quantidade > 0 &&
-            i.quantidade <= 999 &&
-            typeof i.precoEsperado === 'number' &&
-            Number.isFinite(i.precoEsperado) &&
-            i.precoEsperado > 0,
-        ) ||
-        !Number.isFinite(value.criacao.freteEsperado) ||
-        value.criacao.freteEsperado < 0 ||
+        criacaoInvalida ||
+        (!value.criacao && !value.pedidoId) ||
         ![1, 2].includes(value.forma) ||
         (value.pedidoId != null && (!Number.isSafeInteger(value.pedidoId) || value.pedidoId < 1)) ||
         (value.pagamento &&

@@ -1,0 +1,135 @@
+:host {
+  display: block;
+}
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0 28px;
+}
+.kpis article {
+  padding: 24px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 16px;
+  background: var(--surface-pure);
+  box-shadow: var(--shadow-card);
+  min-width: 0;
+}
+.kpis p {
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--neutral-500);
+  margin: 0 0 20px;
+}
+.kpis strong {
+  font: 800 24px var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.kpis .revenue {
+  background: var(--prussian-blue);
+  color: white;
+}
+.revenue p {
+  color: var(--light-cyan);
+}
+.filters {
+  padding: 24px 32px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: start;
+  justify-content: space-between;
+}
+.status-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.status-tabs button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--alice-blue);
+  color: var(--neutral-700);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.status-tabs .selected {
+  background: var(--prussian-blue);
+  color: var(--golden-glow);
+}
+form {
+  max-width: 100%;
+}
+mat-form-field {
+  width: 280px;
+  max-width: 100%;
+}
+table {
+  width: 100%;
+  white-space: nowrap;
+}
+td small {
+  display: block;
+  color: var(--neutral-500);
+  font-size: 11px;
+  margin-top: 6px;
+}
+.status {
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--status-warning-bg);
+  color: #92400e;
+}
+.status[data-status='2'],
+.status[data-status='4'] {
+  background: var(--status-success-bg);
+  color: #065f46;
+}
+.status[data-status='3'] {
+  background: var(--status-info-bg);
+  color: #075985;
+}
+.status[data-status='5'],
+.status[data-status='6'] {
+  background: var(--status-danger-bg);
+  color: #991b1b;
+}
+.error {
+  padding: 16px;
+  background: var(--status-danger-bg);
+  color: #991b1b;
+  border-radius: 12px;
+}
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--neutral-500);
+}
+@media (max-width: 1200px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .kpis {
+    gap: 12px;
+  }
+  .kpis article {
+    padding: 16px;
+  }
+  .kpis strong {
+    font-size: 19px;
+  }
+  .filters {
+    padding: 20px 16px 0;
+  }
+}
+@media (max-width: 360px) {
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+}

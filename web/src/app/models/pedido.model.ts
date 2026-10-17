@@ -60,6 +60,12 @@ export interface Pedido {
   prazoDiasUteis: number;
   total: number;
   pagamentos: Pagamento[];
+  versao?: number;
+  transportadora?: string;
+  codigoRastreio?: string;
+  enviadoEm?: string;
+  entregueEm?: string;
+  eventos?: EventoPedido[];
 }
 export interface RevisaoPedido {
   endereco: EntregaPedido;
@@ -69,8 +75,51 @@ export interface RevisaoPedido {
   total: number;
 }
 export interface TentativaCheckout {
-  criacao: CriarPedido;
+  criacao?: CriarPedido;
   forma: number;
   pedidoId?: number;
   pagamento?: CriarPagamento;
+}
+
+export interface EventoPedido {
+  status: OpcaoPedido;
+  ocorridoEm: string;
+  descricao: string;
+}
+export interface ResumoPedido {
+  id: number;
+  cliente: string;
+  email: string;
+  criadoEm: string;
+  status: OpcaoPedido;
+  total: number;
+}
+export interface PedidoAdmin {
+  pedido: Pedido;
+  idCliente: number;
+  cliente: string;
+  email: string;
+}
+export interface IndicadoresPedido {
+  faturamentoMes: number;
+  pedidosPendentes: number;
+  mousesAtivos: number;
+  clientesCadastrados: number;
+  inicioMes: string;
+  fimMes: string;
+}
+export const STATUS_PEDIDO = [
+  { id: 1, label: 'Aguardando pagamento' },
+  { id: 2, label: 'Pago' },
+  { id: 3, label: 'Enviado' },
+  { id: 4, label: 'Entregue' },
+  { id: 5, label: 'Cancelado' },
+  { id: 6, label: 'Expirado' },
+];
+export function dataPedido(value?: string): string {
+  return value
+    ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
+        new Date(value),
+      )
+    : '—';
 }

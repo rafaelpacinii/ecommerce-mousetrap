@@ -115,3 +115,10 @@ h3 a:hover {
   height: 16px;
   font-size: 16px;
 }
+
+.favorite-control {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+}

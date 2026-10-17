@@ -41,6 +41,7 @@ public class MarcaResource {
                 service.count(termo), MarcaResponseDTO::valueOf);
     }
 
+    @GET @Path("/pagina") public Response pesquisar(@QueryParam("busca") String busca,@QueryParam("ordenar") @DefaultValue("nome") String ordenar,@QueryParam("page") @DefaultValue("0") int page,@QueryParam("pageSize") @DefaultValue("10") int size){return Response.ok(service.pesquisar(busca,ordenar,page,size)).build();}
     @GET
     @Path("/{id}")
     public Response findById(@PathParam("id") Long id) {

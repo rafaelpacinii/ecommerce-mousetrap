@@ -1,18 +1,18 @@
 # Transactional Checkout, Orders, and Simulated Payments
 
-Slice 5 adds an authenticated purchase flow based on [wireframe 05](ui-wireframes/05-storefront-checkout.svg), the [established visual system](visual-alignment.md), and the existing domain model. The homepage hero is unchanged. Customer order history and administrative order operations belong to slice 6.
+Slice 5 adds an authenticated purchase flow based on [wireframe 05](ui-wireframes/05-storefront-checkout.svg), the [established visual system](visual-alignment.md), and the existing domain model. The homepage hero is unchanged. Customer history, cross-customer administrative order operations, shipping and events are now implemented in [slice 6](customer-portal-admin-orders.md).
 
 ## Delivered behavior
 
 1. Select an owned delivery address and PIX or credit card. Customer-facing checkout copy contains no simulation labels or outcome controls. Card number (13–19 digits, with optional spaces/hyphens), printed holder name, non-expired month/year and 3–4 digit CVV are validated locally. The flow does not check card existence or require a Luhn checksum. Card fields never enter HTTP payloads, storage, logs or order snapshots and are cleared before submission. No CPF or installment promise is added.
 2. Review current product prices, stock, shipping, and total from the server. A changed price is visibly reported. Confirmation sends expected unit prices/freight only as comparison values; they never determine the amount charged.
 3. Create an awaiting-payment order and commit available stock atomically. The order copies product SKU/name/brand/color/unit prices and the full delivery address.
-4. Submit a pending payment request. Customers cannot choose approval/refusal or resolve pending attempts, including by calling the API directly. Only an authenticated administrator can request those outcomes; the existing simulation endpoint retains its order-ownership restriction. Cross-customer administrative list/details and explicit order operations remain slice 6. A refused attempt permits another payment method before expiry.
+4. Submit a pending payment request. Customers cannot choose approval/refusal or resolve pending attempts, including by calling the API directly. Only an authenticated administrator can request those outcomes; the existing simulation endpoint retains its order-ownership restriction. Cross-customer administrative list/details and explicit order operations are implemented in [slice 6](customer-portal-admin-orders.md). A refused attempt permits another payment method before expiry.
 5. Recover a purchase after refresh or an ambiguous network failure using the same owner-scoped, persisted checkout/payment request keys. Only confirmed creation removes purchased quantities from the cart. A cart receipt stored together with its remaining items prevents repeated successful responses from subtracting again.
 6. Display a locally generated, scannable PIX QR Code and matching Copia e Cola payload using the confirmed server total (including freight), order reference, BRL currency and CRC16. The hard-coded reserved `.invalid` recipient key prevents real transfers. Copying the code never changes payment/order status.
 7. Cancel an unpaid order or let it expire. Either operation cancels a pending payment and restores available quantities once. Paid orders cannot be cancelled without a future refund workflow.
 
-The checkout result remains at `/checkout` and can be recovered from this browser. This is not a replacement for the future cross-device order-history portal. The last purchase remains available until the user explicitly starts another purchase.
+The checkout result remains at `/checkout` and can be recovered from this browser. The cross-device order-history portal is now implemented in [slice 6](customer-portal-admin-orders.md). When the cart has new items, a normal visit to `/checkout` automatically starts a fresh checkout after the previous order creation has been confirmed. There is no manual purchase-reset action. Explicit `/checkout?pedido=<id>` links still resume that owned order; ambiguous creation/payment attempts retain their original recovery keys. With an empty cart, the previous result can still be recovered.
 
 ## Additive HTTP contracts
 
@@ -43,7 +43,7 @@ These IDs follow the existing domain plan; enums expose `{id,label}` and use JPA
 | `StatusPagamento`    | 1 PENDENTE; 2 APROVADO; 3 RECUSADO; 4 CANCELADO.                                |
 | `ResultadoSimulacao` | 1 APROVAR; 2 RECUSAR; 3 PENDENTE.                                               |
 
-Shipping/delivery transitions are deliberately unavailable in slice 5. No generic status-update or historical-data-edit endpoint exists.
+Shipping/delivery transitions are provided by the additive administrative operations in [slice 6](customer-portal-admin-orders.md). No generic status-update or historical-data-edit endpoint exists.
 
 ## Transaction and database guarantees
 
@@ -72,11 +72,13 @@ The active, ignored `application.properties` is not edited. Existing configured 
 
 ## Browser persistence and limits
 
+A normal checkout visit prepares the current cart automatically. Once an earlier order ID is confirmed, new cart items receive a fresh checkout key even if that earlier order still awaits payment. Drafts with an unknown creation result or an unanswered payment request remain recoverable with their original keys; they are not reset by this preparation.
+
 Purchase drafts are stored under `mousetrap.checkout.<subject>`, without tokens or credentials. A request is saved before it is submitted; blocked storage prevents starting a purchase that could not be recovered reliably. Authentication changes cannot expose another account's draft. A rejected request can be revised; a failed network response keeps its key and payload for replay.
 
 Legacy cart arrays remain readable. Once an order is confirmed, the same cart storage entry also holds a bounded list of purchase receipts, alongside its remaining items. Newly added quantities are preserved when the purchased quantity is removed. This remains browser-local cart persistence, with no cross-device synchronization.
 
-Real payment providers, payment notifications/webhooks, refunds, physical fulfillment, customer history, and administrative order screens remain outside this slice. The local payment engine is not a payment-provider integration. There are no customer simulation controls. Administrative cross-customer status management remains deferred to slice 6, so newly submitted customer payments stay pending until an authorized operation or expiry/cancellation.
+Real payment providers, payment notifications/webhooks, refunds and external carrier integration remain outside this slice. Customer history and administrative fulfillment screens were subsequently implemented in [slice 6](customer-portal-admin-orders.md). The local payment engine is not a payment-provider integration. There are no customer simulation controls. Administrative cross-customer payment decisions are now available in slice 6; submitted customer payments stay pending until an authorized decision or expiry/cancellation.
 
 ## PIX implementation references
 

@@ -24,6 +24,17 @@ public class Pedido extends DefaultEntity {
     private Integer prazoDiasUteis;
     @Embedded
     private EnderecoEntrega endereco;
+    @Column(length=100) private String transportadora;
+    @Column(name="codigo_rastreio",length=80) private String codigoRastreio;
+    @Column(name="enviado_em") private Instant enviadoEm;
+    @Column(name="entregue_em") private Instant entregueEm;
+    @OneToMany(mappedBy="pedido",cascade=CascadeType.PERSIST) @OrderBy("ocorridoEm ASC, id ASC")
+    private List<EventoPedido> eventos = new ArrayList<>();
+    public List<EventoPedido> getEventos(){return eventos;}
+    public String getTransportadora(){return transportadora;} public void setTransportadora(String v){transportadora=v;}
+    public String getCodigoRastreio(){return codigoRastreio;} public void setCodigoRastreio(String v){codigoRastreio=v;}
+    public Instant getEnviadoEm(){return enviadoEm;} public void setEnviadoEm(Instant v){enviadoEm=v;}
+    public Instant getEntregueEm(){return entregueEm;} public void setEntregueEm(Instant v){entregueEm=v;}
     @Version @Column(nullable = false)
     private Long versao;
 

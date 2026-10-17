@@ -13,3 +13,11 @@ table {
   text-align: center;
   color: var(--neutral-500);
 }
+
+.filtro-lista {
+  padding: 24px 24px 0;
+}
+mat-form-field {
+  width: 320px;
+  max-width: 100%;
+}

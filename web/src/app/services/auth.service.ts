@@ -146,7 +146,7 @@ export class AuthService {
   destination(): string {
     const target = safeReturnUrl(sessionStorage.getItem('mousetrap.returnUrl'));
     sessionStorage.removeItem('mousetrap.returnUrl');
-    return target ?? (this.admin() ? '/admin/mouses' : '/');
+    return target ?? (this.admin() ? '/admin/pedidos' : '/');
   }
 
   async logout(): Promise<void> {
