@@ -15,6 +15,6 @@ public record MouseResponseDTO(
                 mouse.getCor(), mouse.getPreco(), mouse.getQuantidadeEstoque(), mouse.getDpiMaximo(),
                 mouse.getQuantidadeBotoes(), mouse.getPesoGramas(), mouse.getAtivo(), mouse.getVersao(),
                 MarcaResponseDTO.valueOf(mouse.getMarca()),
-                mouse.getTiposConexao().stream().sorted(Comparator.comparing(TipoConexao::getId)).toList());
+                mouse.getTiposConexao().stream().sorted(Comparator.comparing(tipo -> tipo.getId())).toList());
     }
 }
