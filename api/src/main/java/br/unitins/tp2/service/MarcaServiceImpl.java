@@ -58,6 +58,7 @@ public class MarcaServiceImpl implements MarcaService {
         Marca marca = new Marca();
         marca.setNome(dto.nome());
         marca.setAtivo(dto.ativo());
+        marca.setLogomarcaUrl(dto.logomarcaUrl() == null || dto.logomarcaUrl().isBlank() ? null : dto.logomarcaUrl());
         repository.persistAndFlush(marca);
         return MarcaResponseDTO.valueOf(marca);
     }
@@ -69,6 +70,8 @@ public class MarcaServiceImpl implements MarcaService {
         validarNome(dto.nome(), id);
         marca.setNome(dto.nome());
         marca.setAtivo(dto.ativo());
+        // Legacy clients omit this field; an empty string explicitly removes the logo.
+        if (dto.logomarcaUrl() != null) marca.setLogomarcaUrl(dto.logomarcaUrl().isBlank() ? null : dto.logomarcaUrl());
         repository.flush();
         return MarcaResponseDTO.valueOf(marca);
     }

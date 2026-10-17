@@ -1,3 +1,4 @@
+import { ProductImageComponent } from '../../storefront/product-image/product-image';
 import { ConfirmacaoService } from '../../shared/confirm-dialog';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { paginacaoPortugues } from '../../../services/paginator-intl';
@@ -21,6 +22,7 @@ import { mensagemErro } from '../../../services/erro-api';
   standalone: true,
   providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   imports: [
+    ProductImageComponent,
     MatSortModule,
     RouterLink,
     MatButtonModule,

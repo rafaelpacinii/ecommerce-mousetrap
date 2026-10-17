@@ -125,8 +125,8 @@ when a gallery is replaced.
 
 ## Image handling
 
-This slice implements **URL management**, not binary upload or external storage
-integration. Images must use HTTP(S) URLs with a valid host or root-relative
+Catalog administration supports [Cloudflare R2 uploads](cloudflare-r2.md) as well
+as existing URL management. Images must use HTTP(S) URLs with a valid host or root-relative
 paths. The API validates lengths, required alternative text and nonnegative,
 unique order values, but never downloads remote images. Maximum gallery size is
 twelve. The lowest order is the cover; the UI provides move buttons to choose it.

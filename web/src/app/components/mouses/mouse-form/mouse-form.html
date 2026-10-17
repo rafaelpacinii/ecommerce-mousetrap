@@ -26,7 +26,7 @@
     </div>
   }
   <form class="formulario" [formGroup]="form" (ngSubmit)="salvar()">
-    <fieldset class="campos" [disabled]="salvando() || carregandoMarcas()">
+    <fieldset class="campos" [disabled]="salvando() || enviandoImagem() || carregandoMarcas()">
       <legend>Informações do produto</legend>
       <mat-form-field appearance="outline">
         <mat-label>Nome</mat-label><mat-icon aria-hidden="true" matSuffix>mouse</mat-icon>
@@ -177,9 +177,17 @@
     <section class="gallery-editor" aria-labelledby="gallery-title">
       <h2 id="gallery-title">Fotos do produto</h2>
       <p>
-        Adicione até 12 imagens por endereço. A primeira será a capa. Use fotos do produto e
-        descreva cada vista.
+        Envie até 12 imagens ou informe seus endereços. A primeira será a capa. Use fotos do produto
+        e descreva cada vista.
       </p>
+      <app-image-upload
+        destino="mouses"
+        rotulo="Enviar fotos do produto"
+        [limite]="12 - imagens.length"
+        [desabilitado]="salvando() || carregandoMarcas() || !!erroMarcas() || !marcas().length"
+        (ocupado)="enviandoImagem.set($event)"
+        (enviada)="imagemEnviada($event)"
+      />
       <div formArrayName="imagens">
         @for (imagem of imagens.controls; track imagem; let indice = $index) {
           <div class="image-editor" [formGroupName]="indice">
@@ -216,7 +224,7 @@
                 <button
                   mat-icon-button
                   type="button"
-                  [disabled]="indice === 0 || salvando() || carregandoMarcas()"
+                  [disabled]="indice === 0 || salvando() || enviandoImagem() || carregandoMarcas()"
                   [attr.aria-label]="'Mover imagem ' + (indice + 1) + ' para antes'"
                   (click)="moverImagem(indice, -1)"
                 >
@@ -225,7 +233,12 @@
                 <button
                   mat-icon-button
                   type="button"
-                  [disabled]="indice === imagens.length - 1 || salvando() || carregandoMarcas()"
+                  [disabled]="
+                    indice === imagens.length - 1 ||
+                    salvando() ||
+                    enviandoImagem() ||
+                    carregandoMarcas()
+                  "
                   [attr.aria-label]="'Mover imagem ' + (indice + 1) + ' para depois'"
                   (click)="moverImagem(indice, 1)"
                 >
@@ -234,7 +247,7 @@
                 <button
                   mat-button
                   type="button"
-                  [disabled]="salvando() || carregandoMarcas()"
+                  [disabled]="salvando() || enviandoImagem() || carregandoMarcas()"
                   (click)="removerImagem(indice)"
                 >
                   <mat-icon aria-hidden="true">delete</mat-icon>Remover
@@ -247,7 +260,7 @@
             class="empty-photo"
             type="button"
             (click)="adicionarImagem()"
-            [disabled]="salvando() || carregandoMarcas()"
+            [disabled]="salvando() || enviandoImagem() || carregandoMarcas()"
           >
             <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>
             <strong>Adicionar foto do produto</strong><span>Informe o endereço da imagem</span>
@@ -257,7 +270,7 @@
       <button
         mat-stroked-button
         type="button"
-        [disabled]="imagens.length >= 12 || salvando() || carregandoMarcas()"
+        [disabled]="imagens.length >= 12 || salvando() || enviandoImagem() || carregandoMarcas()"
         (click)="adicionarImagem()"
       >
         <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>Adicionar imagem
@@ -268,12 +281,14 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="salvando() || carregandoMarcas() || !!erroMarcas() || !marcas().length"
+        [disabled]="
+          salvando() || enviandoImagem() || carregandoMarcas() || !!erroMarcas() || !marcas().length
+        "
       >
         <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
         >{{ salvando() ? 'Salvando…' : mouse ? 'Salvar Alterações' : 'Cadastrar' }}
       </button>
-      <a mat-button routerLink="/admin/mouses" [disabled]="salvando()"
+      <a mat-button routerLink="/admin/mouses" [disabled]="salvando() || enviandoImagem()"
         ><mat-icon aria-hidden="true">close</mat-icon>Cancelar</a
       >
     </div>

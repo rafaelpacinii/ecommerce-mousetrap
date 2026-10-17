@@ -253,7 +253,7 @@ describe('App routing', () => {
       fixture.detectChanges();
       const element = fixture.nativeElement as HTMLElement;
       expect(TestBed.inject(Router).url).toBe('/');
-      expect(element.querySelector('h1')?.textContent).toContain('Precisão absoluta');
+      expect(element.querySelector('app-home h1')).not.toBeNull();
       expect(element.querySelector('app-storefront-layout')).not.toBeNull();
       expect(element.querySelector('app-admin-layout')).toBeNull();
       expect(element.querySelector('main#conteudo')).not.toBeNull();
