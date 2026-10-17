@@ -132,3 +132,82 @@ only to authorized operators and open `/admin/**`. Legacy administrative URLs
 redirect through guards. Personal settings are at `/meus-dados`; delivery addresses are at `/enderecos`.
 See [authentication and account ownership](authentication.md) for runtime
 configuration, local identity/email setup and public versus protected API reads.
+
+## Four-banner carousel — target release 1.1.0
+
+The homepage now uses `HeroCarouselComponent` with the supplied four campaign
+copies. It retains the established navy surface, yellow CTA, responsive product
+artwork and stacked mobile composition. Material Icons replace the supplied
+emoji/arrow notation: `flash_on`, `my_location`, `air`, `ac_unit`, `arrow_forward`,
+`chevron_left`, `chevron_right`, `pause` and `play_arrow`. The custom SVG brand
+remains the ecommerce mark.
+
+The carousel advances every seven seconds and wraps from banner 4 to banner 1.
+Visitors can choose a banner, use previous/next buttons or stop/start rotation.
+Hover and a hidden browser tab suspend rotation. Keyboard focus stops it until
+an explicit restart; focus never follows an automatic slide change. A reduced
+motion preference disables the fade through the shared motion rule while the
+seven-second rotation remains enabled. Explicit play also resumes rotation while
+the pointer remains over the banner; subsequent pointer re-entry can suspend it
+again. The play/pause icon and label reflect effective playback, including hover
+and visibility suspension. Manual selections are announced; unattended changes
+do not generate repeated live announcements.
+Inactive slides are inert and hidden from assistive technology. Slide content
+shares a grid cell, reserving the largest copy's height to prevent layout jumps.
+
+| Banner | Artwork | CTA destination |
+| --- | --- | --- |
+| 1 — Speed | `Hero.jpg` | `/catalogo?pollingRateMin=4000&tipoSwitch=1` |
+| 2 — Precision | `Hero2.jpg` | `/catalogo?ordenar=maior-dpi` |
+| 3 — Ultralight | `Hero3.jpg` | `/catalogo?pesoMax=59.99&ordenar=menor-peso` |
+| 4 — Glide | `Hero4.jpg` | `/catalogo` |
+
+These destinations use existing catalog contracts. DPI sorting does not certify
+sensor tracking quality. The domain has no PTFE/skate field, so the fourth CTA
+opens the public catalog without inventing a filter or assigning specifications
+to products. Campaign text is the copy supplied for this feature; product
+specification sheets continue to use actual catalog data.
+
+Original JPEG files are preserved. Only WebP derivatives at 768, 1440 and 2400 px
+are loaded, with explicit dimensions and responsive srcset/sizes. The first image
+has high fetch priority; the other banners create an image only when first shown.
+Previously visited images remain reusable. To regenerate the derivatives on a
+Linux workstation with GdkPixbuf/GObject/libwebp runtime libraries:
+
+```sh
+python3 scripts/export_hero_images.py
+```
+
+The exporter needs the system's working image-loader session (including D-Bus
+where the installed GdkPixbuf loader uses it); it is not part of normal build or
+runtime requirements. The generated assets are committed. The original hero-1
+filenames remain stable for existing OpenGraph references.
+
+Accessibility behavior follows the [WAI carousel pattern](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/).
+This is a compatible feature under the [versioning policy](versioning.md), so the
+next release target is **1.1.0**. This feature does not republish 1.0.0 or change
+application manifest versions before release preparation.
+
+Angular's public-asset copy excludes `Hero*.jpg` originals from the deployed
+build. They remain versioned source artwork; all four visible banners use WebP.
+
+### Carousel validation
+
+- `cd web; npm test -- --watch=false`: 104 tests passed across 25 files, including
+  rotation/wrapping, deferred images, timer disposal, pointer/focus ordering,
+  visibility/hover pauses, reduced motion, announcements and CTA parameters.
+- `cd web; npm run build`: passed all budgets; 344.53 kB initial bundle. All 12
+  responsive WebP files are present and original hero JPEGs are excluded.
+- `CAROUSEL_BASE_URL=http://127.0.0.1:14206 npm run e2e -- carousel.spec.ts` against
+  a temporary local production preview: 4 browser tests passed. The checks cover
+  20 banner/viewport combinations (1440, 1024, 768, 375, 320 px), stable hero
+  height, image loading, CTA containment/navigation, Material icons, keyboard
+  focus, automatic rotation/hover pauses, explicit play while hovered, autoplay
+  with reduced-motion preferences (without animated transitions) and eight Axe
+  WCAG audits.
+- Browser catalog reads were intercepted public fixtures; no authenticated
+  purchase, live backend suite or remote CI run was repeated for this feature.
+- `python3 -m unittest discover -s scripts -p 'test_*.py' -v`: 3 packaging/stack
+  regression tests passed. The exporter is included in the source archive allowlist.
+- Updated local documentation links and `git diff --check` passed. No dependency,
+  backend contract, migration, published tag or application manifest version changed.

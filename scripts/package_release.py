@@ -15,7 +15,8 @@ EXCLUDED_DIRS = {'.git', '.github', '.agents', '.codex', '.gemini', '.vscode', '
                  '.angular', '.local', '.certs', 'node_modules', 'target', 'dist',
                  'build', 'tmp', 'out-tsc', 'coverage', '__pycache__', 'test-results',
                  'playwright-report', '__screenshots__'}
-SCRIPT_FILES = {'package_release.py', 'test_release.py', 'configure_stack.py', 'verify_release.sh'}
+SCRIPT_FILES = {'package_release.py', 'test_release.py', 'configure_stack.py', 'verify_release.sh',
+                'export_hero_images.py'}
 EXCLUDED_SUFFIXES = {'.zip', '.tar', '.gz', '.tgz', '.class', '.jar', '.war', '.log',
                      '.pyc', '.pem', '.key', '.p12', '.pfx', '.jks', '.env', '.swp', '.orig'}
 REQUIRED = {'README.md', 'docs/release-readiness.md', 'docker-compose.yml',
