@@ -50,6 +50,15 @@ class ClienteResourceTest {
         given().get("/ceps/123").then().statusCode(400);
         given().get("/ceps/99999999").then().statusCode(400);
         given().get("/ceps/01001000").then().statusCode(200).body("ibge", is("3550308"));
+        given().get("/ceps/01001-000/frete").then().statusCode(200)
+            .body("cep", is("01001000"))
+            .body("localidade", is("São Paulo"))
+            .body("uf", is("SP"))
+            .body("valorFrete", is(29.90f))
+            .body("prazoDiasUteis", is(5));
+        given().get("/ceps/123/frete").then().statusCode(400);
+        given().get("/ceps/99999999/frete").then().statusCode(400);
+        given().get("/ceps/88888888/frete").then().statusCode(503);
         given().delete("/clientes/" + Long.MAX_VALUE).then().statusCode(404);
     }
 }

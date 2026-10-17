@@ -123,13 +123,13 @@ guards alone do not satisfy access control. Complete before public deployment.
 
 ### 4. Cart and saved addresses
 
-- [ ] Implement cart state with Angular services/signals and local storage.
-- [ ] Add/remove/update quantities, badge count and BRL totals.
-- [ ] Revalidate current products, prices and availability; handle invalid stored
+- [x] Implement cart state with Angular services/signals and local storage.
+- [x] Add/remove/update quantities, badge count and BRL totals.
+- [x] Revalidate current products, prices and availability; handle invalid stored
   data and changed/deleted products. A cart does not reserve stock.
-- [ ] Add owned address list/create/edit/delete and reuse ViaCEP validation.
-- [ ] Define backend freight policy and show estimates consistently.
-- [ ] Preserve cart and intended checkout destination through authentication.
+- [x] Add owned address list/create/edit/delete and reuse ViaCEP validation.
+- [x] Define backend freight policy and show estimates consistently.
+- [x] Preserve cart and intended checkout destination through authentication.
 
 Acceptance: cart survives refresh; address access is owner-scoped; client totals
 remain estimates until validated by the order service.

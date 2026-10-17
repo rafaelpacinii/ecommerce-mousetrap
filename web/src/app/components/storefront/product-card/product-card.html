@@ -32,9 +32,21 @@
         >{{ produto().quantidadeEstoque > 0 ? 'Em estoque' : 'Indisponível' }}</span
       >
     </div>
-    <a class="details-link" [routerLink]="['/catalogo', produto().id]"
-      >Ver detalhes <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
-    >
+    <div class="card-actions">
+      @if (produto().quantidadeEstoque > 0) {
+        <button
+          class="add-cart-btn"
+          type="button"
+          (click)="adicionarAoCarrinho()"
+          [attr.aria-label]="'Adicionar ' + produto().nome + ' ao carrinho'"
+        >
+          <mat-icon aria-hidden="true">add_shopping_cart</mat-icon>Adicionar
+        </button>
+      }
+      <a class="details-link" [routerLink]="['/catalogo', produto().id]"
+        >Ver detalhes <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
+      >
+    </div>
     <details>
       <summary><mat-icon aria-hidden="true">chevron_right</mat-icon>Especificações</summary>
       <dl>

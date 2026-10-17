@@ -23,4 +23,10 @@ public class CepResource {
     public Response consultar(@PathParam("cep") String cep) {
         return Response.ok(service.consultar(cep)).build();
     }
+
+    @GET
+    @Path("/{cep}/frete")
+    public Response calcularFrete(@PathParam("cep") String cep) {
+        return Response.ok(service.calcularFrete(cep)).build();
+    }
 }

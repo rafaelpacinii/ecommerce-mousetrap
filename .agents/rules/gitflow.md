@@ -15,14 +15,17 @@ always_on: true
   - `hotfix/<name>`: Emergency fixes from `main`, merged into `main` and `develop`.
   - `support/<version>`: Maintenance of historical releases.
 - **Unified Monorepo:** All modules (`api/`, `web/`, `scripts/`, `.github/`, `.agents/`) reside in a single Git repository at the workspace root.
+- **Mandatory Pre-Implementation Branch Creation:**
+  - Before starting any feature, bugfix, release, or support implementation, ALWAYS provide the user with the commands to sync `develop` and create the dedicated Gitflow branch first:
+    `git checkout develop && git pull --ff-only origin develop && git checkout -b feature/<name>`
 - **Command Presentation Rules:**
   - Provide commands in distinct blocks:
-    1. Status check: `git branch --show-current && git status --short`
+    1. Branch check / creation: `git checkout -b feature/<name>` (if still on `develop`) and `git branch --show-current && git status --short`
     2. Staging: `git add <files>`
     3. Diff check: `git diff --cached`
     4. Commit: `git commit -m "<type>(<scope>): <description>"`
     5. Push: `git push -u origin <branch>` (isolated block)
-    6. PR: `gh pr create --base develop ...`
+    6. PR: `gh pr create --base develop --head <branch> ...`
   - Push and PR commands must NEVER be executed automatically.
 - **Conventional Commits:** Enforce `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`.
 

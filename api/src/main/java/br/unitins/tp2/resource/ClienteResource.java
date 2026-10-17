@@ -2,6 +2,7 @@ package br.unitins.tp2.resource;
 
 import br.unitins.tp2.service.ClienteService;
 import br.unitins.tp2.dto.ClienteDTO;
+import br.unitins.tp2.dto.EnderecoDTO;
 import br.unitins.tp2.dto.PerfilClienteDTO;
 import jakarta.inject.Inject;
 import jakarta.annotation.security.RolesAllowed;
@@ -37,6 +38,42 @@ public class ClienteResource {
     @RolesAllowed({"customer", "admin"})
     public Response saveMe(@NotNull @Valid PerfilClienteDTO dto) {
         return Response.ok(service.saveMe(dto)).build();
+    }
+
+    @GET
+    @Path("/me/enderecos")
+    @RolesAllowed({"customer", "admin"})
+    public Response listarMeusEnderecos() {
+        return Response.ok(service.listarMeusEnderecos()).build();
+    }
+
+    @POST
+    @Path("/me/enderecos")
+    @RolesAllowed({"customer", "admin"})
+    public Response criarMeuEndereco(@NotNull @Valid EnderecoDTO dto) {
+        return Response.status(Response.Status.CREATED).entity(service.criarMeuEndereco(dto)).build();
+    }
+
+    @PUT
+    @Path("/me/enderecos/{id}")
+    @RolesAllowed({"customer", "admin"})
+    public Response atualizarMeuEndereco(@PathParam("id") Long id, @NotNull @Valid EnderecoDTO dto) {
+        return Response.ok(service.atualizarMeuEndereco(id, dto)).build();
+    }
+
+    @PUT
+    @Path("/me/enderecos/{id}/principal")
+    @RolesAllowed({"customer", "admin"})
+    public Response definirMeuEnderecoPrincipal(@PathParam("id") Long id) {
+        return Response.ok(service.definirMeuEnderecoPrincipal(id)).build();
+    }
+
+    @DELETE
+    @Path("/me/enderecos/{id}")
+    @RolesAllowed({"customer", "admin"})
+    public Response removerMeuEndereco(@PathParam("id") Long id) {
+        service.removerMeuEndereco(id);
+        return Response.noContent().build();
     }
 
     @GET

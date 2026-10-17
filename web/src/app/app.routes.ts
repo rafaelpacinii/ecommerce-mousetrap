@@ -29,7 +29,20 @@ export const routes: Routes = [
         resolve: { produto: produtoResolver },
         runGuardsAndResolvers: 'always',
       },
-
+      {
+        path: 'carrinho',
+        loadComponent: () =>
+          import('./components/storefront/cart/cart').then((m) => m.CartComponent),
+        title: 'Seu carrinho | MouseTrap',
+      },
+      {
+        path: 'checkout',
+        canActivate: [authGuard],
+        data: { checkoutMode: true },
+        loadComponent: () =>
+          import('./components/storefront/cart/cart').then((m) => m.CartComponent),
+        title: 'Checkout | MouseTrap',
+      },
       {
         path: 'minha-conta',
         canActivate: [authGuard],

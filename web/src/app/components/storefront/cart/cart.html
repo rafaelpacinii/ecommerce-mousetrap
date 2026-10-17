@@ -1,0 +1,280 @@
+<div class="store-container cart-page">
+  <header class="cart-header">
+    <div>
+      <h1>{{ checkoutMode() ? 'Revisão para Checkout' : 'Seu Carrinho' }}</h1>
+      <p>
+        {{
+          checkoutMode()
+            ? 'Confirme seu endereço de entrega e os itens antes de finalizar o pedido'
+            : 'Revise seus produtos antes de finalizar a compra'
+        }}
+      </p>
+    </div>
+    @if (carrinho.itens().length > 0) {
+      <button
+        type="button"
+        mat-button
+        (click)="revalidarItens()"
+        [disabled]="carrinho.revalidando()"
+      >
+        <mat-icon aria-hidden="true">sync</mat-icon>
+        {{ carrinho.revalidando() ? 'Atualizando preços e estoque…' : 'Atualizar disponibilidade' }}
+      </button>
+    }
+  </header>
+
+  @if (carrinho.erroRevalidacao()) {
+    <section class="aviso-banner aviso-erro" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <div>
+        <p>{{ carrinho.erroRevalidacao() }}</p>
+      </div>
+      <button type="button" mat-button (click)="revalidarItens()">Tentar novamente</button>
+    </section>
+  }
+
+  @if (carrinho.avisos().length > 0) {
+    <section class="aviso-banner" role="status" aria-live="polite">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <div>
+        <strong>Atualizações no seu carrinho:</strong>
+        <ul>
+          @for (aviso of carrinho.avisos(); track aviso) {
+            <li>{{ aviso }}</li>
+          }
+        </ul>
+      </div>
+      @if (carrinho.possuiIndisponiveis()) {
+        <button type="button" mat-button (click)="carrinho.removerIndisponiveis()">
+          Remover indisponíveis
+        </button>
+      }
+    </section>
+  }
+
+  @if (carrinho.itens().length === 0) {
+    <section class="estado-pagina cart-empty" role="status">
+      <mat-icon aria-hidden="true">shopping_cart</mat-icon>
+      <h2>Seu carrinho está vazio</h2>
+      <p>Explore nosso catálogo de mouses gamer e escolha o modelo ideal para o seu setup.</p>
+      <a class="store-button store-button-gold" routerLink="/catalogo">
+        <mat-icon aria-hidden="true">mouse</mat-icon>Explorar Mouses
+      </a>
+    </section>
+  } @else {
+    <div class="cart-grid">
+      <section class="cart-items" aria-label="Itens no carrinho">
+        @for (item of carrinho.itens(); track item.idMouse) {
+          <article class="cart-item" [class.indisponivel]="item.indisponivel">
+            <a class="item-thumb" [routerLink]="['/catalogo', item.idMouse]">
+              <app-product-image
+                [imagem]="item.imagem ?? undefined"
+                [nome]="item.nome"
+                [compacta]="true"
+              />
+            </a>
+            <div class="item-details">
+              <span class="item-brand">{{ item.marca }}</span>
+              <h2>
+                <a [routerLink]="['/catalogo', item.idMouse]">{{ item.nome }}</a>
+              </h2>
+              <p class="item-meta">
+                Cor: {{ item.cor }}
+                @if (item.indisponivel || item.quantidadeEstoque <= 0) {
+                  · <strong class="tag-indisponivel">Indisponível no momento</strong>
+                } @else {
+                  · {{ item.precoUnitario | currency: 'BRL' }} cada
+                }
+              </p>
+              <button type="button" class="remove-btn" (click)="removerItem(item.idMouse)">
+                Remover item
+              </button>
+            </div>
+
+            <div class="item-controls">
+              @if (!item.indisponivel && item.quantidadeEstoque > 0) {
+                <div class="stepper" role="group" [attr.aria-label]="'Quantidade de ' + item.nome">
+                  <button
+                    type="button"
+                    (click)="alterarQuantidade(item, -1)"
+                    [attr.aria-label]="'Diminuir quantidade de ' + item.nome"
+                  >
+                    −
+                  </button>
+                  <span aria-live="polite">{{ item.quantidade }}</span>
+                  <button
+                    type="button"
+                    (click)="alterarQuantidade(item, 1)"
+                    [disabled]="item.quantidade >= item.quantidadeEstoque"
+                    [attr.aria-label]="'Aumentar quantidade de ' + item.nome"
+                  >
+                    +
+                  </button>
+                </div>
+              }
+              <p class="item-subtotal">
+                {{
+                  item.indisponivel
+                    ? '—'
+                    : (item.precoUnitario * item.quantidade | currency: 'BRL')
+                }}
+              </p>
+            </div>
+          </article>
+        }
+      </section>
+
+      <aside class="cart-summary" aria-label="Resumo do pedido">
+        <h2>Resumo do Pedido</h2>
+        <hr />
+
+        @if (auth.authenticated()) {
+          <div class="saved-addresses">
+            <div class="saved-addresses-header">
+              <h3>Endereço de Entrega</h3>
+              <a
+                [routerLink]="['/minha-conta']"
+                [queryParams]="{ returnUrl: checkoutMode() ? '/checkout' : '/carrinho' }"
+              >
+                Gerenciar endereços
+              </a>
+            </div>
+            @if (carregandoEnderecos()) {
+              <p class="address-hint">Carregando seus endereços…</p>
+            } @else if (enderecos().length === 0) {
+              <p class="address-hint">Você ainda não cadastrou um endereço de entrega.</p>
+              <a
+                class="store-button store-button-dark address-cta"
+                [routerLink]="['/minha-conta']"
+                [queryParams]="{ returnUrl: checkoutMode() ? '/checkout' : '/carrinho' }"
+              >
+                <mat-icon aria-hidden="true">add_location_alt</mat-icon>Cadastrar endereço
+              </a>
+            } @else {
+              <div class="address-options" role="radiogroup" aria-label="Endereços salvos">
+                @for (end of enderecos(); track end.id) {
+                  <button
+                    type="button"
+                    class="address-option"
+                    [class.selected]="enderecoSelecionadoId() === end.id"
+                    [attr.aria-pressed]="enderecoSelecionadoId() === end.id"
+                    (click)="selecionarEndereco(end)"
+                  >
+                    <div class="address-option-top">
+                      <strong>{{ end.apelido }}</strong>
+                      @if (end.principal) {
+                        <span class="badge-principal">Principal</span>
+                      }
+                    </div>
+                    <p>{{ end.logradouro }}, {{ end.numero }} — {{ end.bairro }}</p>
+                    <small
+                      >{{ end.municipio.nome }}/{{ end.municipio.estado.sigla }} · CEP
+                      {{ end.cep }}</small
+                    >
+                  </button>
+                }
+              </div>
+            }
+          </div>
+          <hr />
+        }
+
+        <div class="shipping-section">
+          <h3>Calcular Entrega (CEP)</h3>
+          <form class="shipping-form" (ngSubmit)="calcularFrete()">
+            <input
+              type="text"
+              name="cep"
+              inputmode="numeric"
+              maxlength="9"
+              placeholder="00000-000"
+              aria-label="CEP para entrega"
+              [ngModel]="cepInput()"
+              (ngModelChange)="cepInput.set($event)"
+            />
+            <button
+              type="submit"
+              class="store-button store-button-dark"
+              [disabled]="calculandoFrete()"
+            >
+              {{ calculandoFrete() ? 'Calculando…' : 'Calcular' }}
+            </button>
+          </form>
+          @if (erroFrete()) {
+            <p class="frete-erro" role="alert">{{ erroFrete() }}</p>
+          } @else if (carrinho.frete(); as frete) {
+            <p class="frete-info" role="status">
+              Entrega para {{ frete.localidade }}/{{ frete.uf }} em até
+              {{ frete.prazoDiasUteis }} dias úteis
+            </p>
+          }
+        </div>
+
+        <hr />
+
+        <dl class="summary-lines">
+          <div>
+            <dt>Subtotal ({{ carrinho.quantidadeTotal() }} itens)</dt>
+            <dd>{{ carrinho.subtotal() | currency: 'BRL' }}</dd>
+          </div>
+          <div>
+            <dt>Frete estimado</dt>
+            <dd>
+              {{
+                carrinho.frete()
+                  ? (carrinho.valorFrete() | currency: 'BRL')
+                  : 'Informe o CEP'
+              }}
+            </dd>
+          </div>
+          <div class="summary-total">
+            <dt>Total estimado</dt>
+            <dd>{{ carrinho.totalEstimado() | currency: 'BRL' }}</dd>
+          </div>
+        </dl>
+
+        <p class="estimate-disclaimer">
+          Os valores e o estoque serão confirmados no momento da finalização do pedido.
+        </p>
+
+        @if (checkoutMode() && auth.authenticated() && enderecoSelecionado(); as end) {
+          <div class="checkout-ready" role="status">
+            <mat-icon aria-hidden="true">verified</mat-icon>
+            <div>
+              <strong>Endereço selecionado: {{ end.apelido }}</strong>
+              <p>
+                {{ end.destinatario }} · {{ end.logradouro }}, {{ end.numero }} ({{
+                  end.municipio.nome
+                }}/{{ end.municipio.estado.sigla }})
+              </p>
+            </div>
+          </div>
+        }
+
+        <button
+          type="button"
+          class="store-button store-button-gold checkout-btn"
+          [disabled]="
+            carrinho.itensDisponiveis().length === 0 ||
+            carrinho.possuiIndisponiveis() ||
+            carrinho.revalidando()
+          "
+          (click)="continuarParaCheckout()"
+        >
+          {{
+            !auth.authenticated()
+              ? 'Continuar para o Checkout'
+              : enderecos().length === 0
+                ? 'Cadastrar Endereço de Entrega'
+                : checkoutMode()
+                  ? 'Revalidar Itens e Frete'
+                  : 'Continuar para o Checkout'
+          }}
+        </button>
+
+        <a class="continue-shopping" routerLink="/catalogo">Continuar comprando</a>
+      </aside>
+    </div>
+  }
+</div>
+

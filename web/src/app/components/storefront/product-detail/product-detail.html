@@ -100,9 +100,54 @@
             </dd>
           </div>
         </dl>
-        <a class="store-button store-button-dark" routerLink="/catalogo"
-          ><mat-icon aria-hidden="true">arrow_back</mat-icon>Continuar explorando</a
-        >
+        <div class="buy-actions">
+          <button
+            type="button"
+            class="store-button store-button-gold buy-cta"
+            [disabled]="p.quantidadeEstoque <= 0"
+            (click)="adicionarAoCarrinho()"
+          >
+            <mat-icon aria-hidden="true">add_shopping_cart</mat-icon>
+            {{ p.quantidadeEstoque > 0 ? 'Adicionar ao Carrinho' : 'Produto Indisponível' }}
+          </button>
+          <a class="store-button store-button-dark" routerLink="/catalogo"
+            ><mat-icon aria-hidden="true">arrow_back</mat-icon>Continuar explorando</a
+          >
+        </div>
+        <div class="frete-box" aria-label="Cálculo de frete e prazo">
+          <h3>Calcular frete e prazo</h3>
+          <form class="frete-form" (ngSubmit)="calcularFrete()">
+            <input
+              type="text"
+              name="cep"
+              inputmode="numeric"
+              maxlength="9"
+              placeholder="00000-000"
+              aria-label="CEP para entrega"
+              [ngModel]="cepInput()"
+              (ngModelChange)="cepInput.set($event)"
+            />
+            <button
+              type="submit"
+              class="store-button store-button-dark"
+              [disabled]="calculandoFrete()"
+            >
+              {{ calculandoFrete() ? 'Calculando…' : 'Calcular' }}
+            </button>
+          </form>
+          @if (erroFrete()) {
+            <p class="frete-erro" role="alert">{{ erroFrete() }}</p>
+          } @else if (carrinho.frete(); as frete) {
+            <p class="frete-resultado" role="status">
+              <mat-icon aria-hidden="true">local_shipping</mat-icon>
+              <span>
+                Frete para {{ frete.localidade }}/{{ frete.uf }}:
+                <strong>{{ frete.valorFrete | currency: 'BRL' }}</strong>
+                (até {{ frete.prazoDiasUteis }} dias úteis)
+              </span>
+            </p>
+          }
+        </div>
       </section>
     </div>
   } @else {

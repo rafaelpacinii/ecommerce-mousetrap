@@ -24,6 +24,15 @@
       <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)"
         ><mat-icon aria-hidden="true">pan_tool</mat-icon>Encontre sua pegada</a
       >
+      <a
+        class="cart-nav-link"
+        routerLink="/carrinho"
+        (click)="menuAberto.set(false)"
+        [attr.aria-label]="'Carrinho de compras com ' + carrinho.quantidadeTotal() + ' itens'"
+      >
+        <mat-icon aria-hidden="true">shopping_cart</mat-icon>Carrinho
+        <span class="cart-badge">{{ carrinho.quantidadeTotal() }}</span>
+      </a>
       @if (auth.authenticated()) {
         <a routerLink="/minha-conta" (click)="menuAberto.set(false)"
           ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a

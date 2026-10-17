@@ -147,6 +147,65 @@ dd small {
   font-weight: 400;
   color: var(--neutral-700);
 }
+.buy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.buy-cta {
+  flex: 1 1 240px;
+  justify-content: center;
+  min-height: 48px;
+}
+.buy-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.frete-box {
+  padding-top: 20px;
+  border-top: 1px solid var(--neutral-200);
+}
+.frete-box h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--neutral-900);
+}
+.frete-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.frete-form input {
+  width: 190px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface-pure);
+  font-family: var(--font-mono, monospace);
+  font-size: 14px;
+  color: var(--neutral-900);
+}
+.frete-resultado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #065f46;
+}
+.frete-resultado mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+.frete-erro {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--status-danger);
+}
 @media (max-width: 900px) {
   .detail-grid {
     gap: 24px;

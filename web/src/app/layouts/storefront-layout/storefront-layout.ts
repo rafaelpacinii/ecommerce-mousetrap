@@ -1,5 +1,6 @@
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
+import { CarrinhoService } from '../../services/carrinho.service';
 import { inject, Component, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 
@@ -12,5 +13,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 })
 export class StorefrontLayoutComponent {
   readonly auth = inject(AuthService);
+  readonly carrinho = inject(CarrinhoService);
   readonly menuAberto = signal(false);
 }
+
