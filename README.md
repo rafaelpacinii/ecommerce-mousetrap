@@ -6,7 +6,7 @@ identity theme, SVG wireframes, automated verification and source packaging.
 
 ## Implemented
 
-- Responsive homepage, public catalog with combined filters, galleries and gaming specifications.
+- Responsive homepage with a four-banner carousel, public catalog with combined filters, galleries and gaming specifications.
 - PKCE authentication, registration, email verification/recovery, owned customer profiles and saved addresses.
 - Persistent cart, ViaCEP lookup, delivery estimates and authoritative checkout totals.
 - Transactional orders, stock concurrency, idempotency, cancellation and expiry.
@@ -98,5 +98,7 @@ credentials. Archive bytes are deterministic for identical source contents.
 CI runs backend, frontend, browser and packaging jobs for PRs to `develop`/`main`.
 It never deploys. Features and bug fixes target `develop`; release publication
 requires explicit review. Commits follow Conventional Commits in English.
+Application releases follow the [MAJOR.MINOR.PATCH policy](docs/versioning.md).
+The compatible homepage carousel targets the next minor release, `1.1.0`.
 
 [MIT License](LICENSE.md).

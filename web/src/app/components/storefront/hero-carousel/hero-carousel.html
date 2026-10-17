@@ -1,0 +1,99 @@
+<section
+  class="hero"
+  aria-roledescription="carrossel"
+  aria-label="Destaques MouseTrap"
+  (mouseenter)="hover(true)"
+  (mouseleave)="hover(false)"
+  (focusin)="pausar()"
+>
+  <button
+    class="rotation-control"
+    type="button"
+    [attr.aria-label]="
+      girando() ? 'Pausar troca automática de banners' : 'Iniciar troca automática de banners'
+    "
+    [title]="girando() ? 'Pausar banners' : 'Reproduzir banners'"
+    (pointerdown)="lembrarRotacao()"
+    (pointercancel)="esquecerRotacao()"
+    (pointerleave)="esquecerRotacao()"
+    (click)="alternarRotacao()"
+  >
+    <mat-icon aria-hidden="true">{{ girando() ? 'pause' : 'play_arrow' }}</mat-icon>
+  </button>
+  <div class="hero-slides" aria-live="off">
+    @for (banner of banners; track banner.id; let i = $index) {
+      <div
+        class="hero-slide"
+        [class.is-active]="indice() === i"
+        role="group"
+        aria-roledescription="slide"
+        [attr.aria-label]="i + 1 + ' de ' + banners.length + ': ' + banner.tema"
+        [attr.aria-hidden]="indice() !== i"
+        [attr.inert]="indice() !== i ? '' : null"
+      >
+        <div class="hero-art" aria-hidden="true">
+          @if (visitados().has(i)) {
+            <img
+              [src]="'images/' + banner.imagem + '-1440.webp'"
+              [srcset]="
+                'images/' +
+                banner.imagem +
+                '-768.webp 768w, images/' +
+                banner.imagem +
+                '-1440.webp 1440w, images/' +
+                banner.imagem +
+                '-2400.webp 2400w'
+              "
+              sizes="(max-width: 700px) 100vw, (max-width: 1350px) 94vw, 1280px"
+              width="2752"
+              height="1536"
+              alt=""
+              decoding="async"
+              [attr.fetchpriority]="i === 0 ? 'high' : 'auto'"
+            />
+          }
+        </div>
+        <div class="hero-content">
+          <span class="hero-eyebrow"
+            ><mat-icon aria-hidden="true">{{ banner.icone }}</mat-icon
+            >{{ banner.tagline }}</span
+          >
+          <h1>{{ banner.titulo }}</h1>
+          <p>{{ banner.descricao }}</p>
+          <a
+            class="store-button store-button-gold"
+            routerLink="/catalogo"
+            [queryParams]="banner.filtros"
+          >
+            {{ banner.cta }} <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+  <div class="hero-controls">
+    <div class="hero-indicators" role="group" aria-label="Escolher destaque">
+      @for (banner of banners; track banner.id; let i = $index) {
+        <button
+          type="button"
+          [class.is-active]="indice() === i"
+          [attr.aria-label]="'Mostrar banner ' + (i + 1) + ': ' + banner.tema"
+          [attr.aria-disabled]="indice() === i"
+          (click)="selecionar(i)"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+      }
+    </div>
+    <div class="hero-navigation">
+      <button type="button" aria-label="Banner anterior" (click)="selecionar(indice() - 1)">
+        <mat-icon aria-hidden="true">chevron_left</mat-icon>
+      </button>
+      <span class="hero-counter" aria-hidden="true">{{ indice() + 1 }} / {{ banners.length }}</span>
+      <button type="button" aria-label="Próximo banner" (click)="selecionar(indice() + 1)">
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+  <p class="visually-hidden" role="status">{{ anuncio() }}</p>
+</section>

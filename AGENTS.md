@@ -218,6 +218,17 @@ All commit messages must follow the Conventional Commits specification in **Engl
 
 Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`.
 
+### 5.3 Semantic Versioning (Mandatory)
+
+- Follow `MAJOR.MINOR.PATCH` for the unified MouseTrap release, as defined in [Versioning policy](docs/versioning.md).
+- **MAJOR:** incompatible public contracts or supported behavior; reset MINOR and PATCH to zero.
+- **MINOR:** new backward-compatible functionality; reset PATCH to zero.
+- **PATCH:** backward-compatible bug fixes without new functionality.
+- Choose the highest required increment across all changes since the last release. Commit counts and backlog stage numbers do not determine versions.
+- Keep published tags immutable. Use `release/vX.Y.Z` and an annotated `vX.Y.Z` tag on the released `main` commit; never reuse `v1.0.0` for subsequent work.
+- During release preparation, align `api/pom.xml`, `web/package.json` and the root package entry in `web/package-lock.json` to the same version. Feature branches document their target release without publishing or creating release branches automatically.
+- The homepage banner carousel is new compatible functionality after `v1.0.0`, so its target is **`v1.1.0`**, not `v1.0.1`.
+
 ---
 
 ## 6. Three-Tier Boundaries
