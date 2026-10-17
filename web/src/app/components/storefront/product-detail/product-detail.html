@@ -35,7 +35,7 @@
       <section class="product-info" aria-labelledby="product-title">
         <div class="brand-stock">
           <p class="section-label">{{ p.marca.nome }}</p>
-          <span class="stock"
+          <span class="stock" [class.unavailable]="p.quantidadeEstoque <= 0"
             ><mat-icon aria-hidden="true">{{
               p.quantidadeEstoque > 0 ? 'check_circle' : 'remove_circle_outline'
             }}</mat-icon
@@ -77,28 +77,6 @@
               }
             </dd>
           </div>
-          <div>
-            <dt><mat-icon aria-hidden="true">touch_app</mat-icon>Switch e botões</dt>
-            <dd>
-              {{ p.especificacoes?.tipoSwitch?.label || 'Switch não informado'
-              }}<small>
-                @if (p.especificacoes?.modeloSwitch) {
-                  {{ p.especificacoes?.modeloSwitch }} ·
-                }
-                {{ p.quantidadeBotoes }} botões</small
-              >
-            </dd>
-          </div>
-          <div>
-            <dt><mat-icon aria-hidden="true">pan_tool</mat-icon>Pegada</dt>
-            <dd>
-              @for (pegada of p.especificacoes?.pegadas ?? []; track pegada.id) {
-                <span>{{ pegada.label }}</span>
-              } @empty {
-                Não informada
-              }
-            </dd>
-          </div>
         </dl>
         <div class="buy-actions">
           <button
@@ -110,7 +88,7 @@
             <mat-icon aria-hidden="true">add_shopping_cart</mat-icon>
             {{ p.quantidadeEstoque > 0 ? 'Adicionar ao Carrinho' : 'Produto Indisponível' }}
           </button>
-          <a class="store-button store-button-dark" routerLink="/catalogo"
+          <a class="continue-link" routerLink="/catalogo"
             ><mat-icon aria-hidden="true">arrow_back</mat-icon>Continuar explorando</a
           >
         </div>
@@ -148,6 +126,33 @@
             </p>
           }
         </div>
+        <details class="extra-specs">
+          <summary>Mais especificações <mat-icon aria-hidden="true">expand_more</mat-icon></summary>
+          <dl class="spec-grid">
+            <div>
+              <dt><mat-icon aria-hidden="true">touch_app</mat-icon>Switch e botões</dt>
+              <dd>
+                {{ p.especificacoes?.tipoSwitch?.label || 'Switch não informado'
+                }}<small>
+                  @if (p.especificacoes?.modeloSwitch) {
+                    {{ p.especificacoes?.modeloSwitch }} ·
+                  }
+                  {{ p.quantidadeBotoes }} botões</small
+                >
+              </dd>
+            </div>
+            <div>
+              <dt><mat-icon aria-hidden="true">pan_tool</mat-icon>Pegada</dt>
+              <dd>
+                @for (pegada of p.especificacoes?.pegadas ?? []; track pegada.id) {
+                  <span>{{ pegada.label }}</span>
+                } @empty {
+                  Não informada
+                }
+              </dd>
+            </div>
+          </dl>
+        </details>
       </section>
     </div>
   } @else {

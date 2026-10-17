@@ -1,76 +1,6 @@
 .home {
   padding-top: 28px;
 }
-.hero {
-  position: relative;
-  min-height: 432px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  isolation: isolate;
-  background: var(--prussian-blue);
-}
-.hero-art {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-}
-.hero-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 57%;
-}
-.hero-art::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(10, 18, 42, 0.9),
-    rgba(10, 18, 42, 0.65) 38%,
-    transparent 68%
-  );
-}
-.hero-content {
-  padding: 64px 56px;
-  max-width: 640px;
-}
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--light-cyan);
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 1.6px;
-}
-.hero-eyebrow mat-icon {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
-  color: var(--golden-glow);
-}
-h1 {
-  margin: 24px 0 18px;
-  color: var(--surface-pure);
-  font-family: var(--font-heading);
-  font-size: clamp(32px, 3.5vw, 48px);
-  font-weight: 750;
-  line-height: 1.12;
-  letter-spacing: -1.8px;
-}
-.hero-content p {
-  margin: 0 0 28px;
-  color: var(--neutral-300);
-  font-size: 15px;
-  line-height: 1.7;
-}
-.hero .store-button {
-  gap: 30px;
-}
-.hero .store-button mat-icon {
-  font-size: 20px;
-}
 .grip-section,
 .catalog-section {
   margin-top: 48px;
@@ -79,7 +9,8 @@ h1 {
 h2 {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(23px, 2.5vw, 28px);
+  font-size: 24px;
+  font-weight: 800;
   letter-spacing: -0.8px;
   line-height: 1.3;
 }
@@ -94,13 +25,14 @@ h2 {
   background: var(--surface-pure);
   border: 1px solid var(--neutral-200);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 .grip-card summary {
   display: flex;
   align-items: center;
   gap: 14px;
   cursor: pointer;
-  padding: 22px 20px;
+  padding: 28px 24px;
   list-style: none;
 }
 .grip-card summary::-webkit-details-marker {
@@ -196,9 +128,6 @@ h2 {
   margin: 0 0 24px;
 }
 @media (max-width: 1000px) {
-  .hero-content {
-    padding: 52px 36px;
-  }
   .grip-grid,
   .product-grid {
     gap: 16px;
@@ -214,33 +143,6 @@ h2 {
 @media (max-width: 700px) {
   .home {
     padding-top: 16px;
-  }
-  .hero {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  .hero-content {
-    padding: 32px 24px 0;
-  }
-  h1 {
-    letter-spacing: -1px;
-    margin-top: 20px;
-  }
-  .hero-content p {
-    margin-bottom: 22px;
-  }
-  .hero-art {
-    position: relative;
-    height: 235px;
-    order: 2;
-    margin-top: 8px;
-  }
-  .hero-art img {
-    object-position: 82% 62%;
-  }
-  .hero-art::after {
-    background: linear-gradient(180deg, var(--prussian-blue), transparent 45%);
   }
   .section-heading {
     display: block;
@@ -269,4 +171,44 @@ h2 {
     width: auto;
     flex: 1 1 180px;
   }
+}
+
+.grip-section {
+  margin-top: 32px;
+}
+.catalog-section {
+  margin-top: 28px;
+}
+.catalog-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--slate-blue);
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.catalog-link mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+.home-search {
+  margin: -8px 0 16px;
+}
+.home-search summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--neutral-500);
+  cursor: pointer;
+  font-size: 12px;
+}
+.home-search summary mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+.home-search[open] summary {
+  margin-bottom: 16px;
 }

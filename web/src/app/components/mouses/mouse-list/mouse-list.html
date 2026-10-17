@@ -10,129 +10,131 @@
     </a>
   </div>
 
-  <mat-form-field appearance="outline" class="campo-filtro">
-    <mat-label>Filtrar por nome</mat-label>
-    <input
-      matInput
-      placeholder="Ex.: Mouse sem fio"
-      [value]="filtro()"
-      (input)="applyFilter($event)"
-      aria-label="Filtrar mouses por nome"
-    />
-    <mat-icon aria-hidden="true" matSuffix>search</mat-icon>
-  </mat-form-field>
+  <div class="admin-data-panel">
+    <mat-form-field appearance="outline" class="campo-filtro">
+      <mat-label>Filtrar por nome</mat-label>
+      <input
+        matInput
+        placeholder="Ex.: Mouse sem fio"
+        [value]="filtro()"
+        (input)="applyFilter($event)"
+        aria-label="Filtrar mouses por nome"
+      />
+      <mat-icon aria-hidden="true" matSuffix>search</mat-icon>
+    </mat-form-field>
 
-  @if (carregando()) {
-    <p role="status" class="estado-pagina">
-      <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando mouses…
-    </p>
-  } @else if (erro()) {
-    <div class="estado-pagina" role="alert">
-      <p><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erro() }}</p>
-      <button mat-button (click)="carregar()">
-        <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
-      </button>
-    </div>
-  } @else if (registros().length === 0) {
-    <div class="estado-pagina">
-      <mat-icon aria-hidden="true">{{ filtro().trim() ? 'search_off' : 'mouse' }}</mat-icon>
-      <h2>{{ filtro().trim() ? 'Nenhum mouse encontrado' : 'Nenhum mouse cadastrado' }}</h2>
-      <p>
-        {{
-          filtro().trim()
-            ? 'Tente ajustar o termo de busca.'
-            : 'Use “Novo Cadastro” para adicionar o primeiro mouse.'
-        }}
+    @if (carregando()) {
+      <p role="status" class="estado-pagina">
+        <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando mouses…
       </p>
-    </div>
-  } @else {
-    <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de mouses">
-      <table mat-table [dataSource]="registros()">
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef>Nome</th>
-          <td mat-cell *matCellDef="let registro">
-            <div class="product-row">
-              <div class="product-thumbnail">
-                <app-product-image
-                  [imagem]="registro.imagens?.[0]"
-                  [nome]="registro.nome"
-                  [compacta]="true"
-                />
+    } @else if (erro()) {
+      <div class="estado-pagina" role="alert">
+        <p><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erro() }}</p>
+        <button mat-button (click)="carregar()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+        </button>
+      </div>
+    } @else if (registros().length === 0) {
+      <div class="estado-pagina">
+        <mat-icon aria-hidden="true">{{ filtro().trim() ? 'search_off' : 'mouse' }}</mat-icon>
+        <h2>{{ filtro().trim() ? 'Nenhum mouse encontrado' : 'Nenhum mouse cadastrado' }}</h2>
+        <p>
+          {{
+            filtro().trim()
+              ? 'Tente ajustar o termo de busca.'
+              : 'Use “Novo Cadastro” para adicionar o primeiro mouse.'
+          }}
+        </p>
+      </div>
+    } @else {
+      <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de mouses">
+        <table mat-table [dataSource]="registros()">
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let registro">
+              <div class="product-row">
+                <div class="product-thumbnail">
+                  <app-product-image
+                    [imagem]="registro.imagens?.[0]"
+                    [nome]="registro.nome"
+                    [compacta]="true"
+                  />
+                </div>
+                <div>
+                  <strong>{{ registro.nome }}</strong
+                  ><span class="sku">{{ registro.sku }}</span>
+                </div>
               </div>
-              <div>
-                <strong>{{ registro.nome }}</strong
-                ><span class="sku">{{ registro.sku }}</span>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="marca">
-          <th mat-header-cell *matHeaderCellDef>Marca</th>
-          <td mat-cell *matCellDef="let registro">{{ registro.marca.nome }}</td>
-        </ng-container>
-        <ng-container matColumnDef="especificacoes"
-          ><th mat-header-cell *matHeaderCellDef>Especificações</th>
-          <td mat-cell *matCellDef="let registro">
-            <span>{{ registro.pesoGramas }} g · {{ registro.dpiMaximo }} DPI</span
-            ><small class="sku"
-              >{{ registro.especificacoes?.sensor || 'Sensor não informado' }}
-              @if (registro.especificacoes?.pollingRate) {
-                · {{ registro.especificacoes.pollingRate }} Hz
-              }
-            </small>
-          </td></ng-container
-        >
-        <ng-container matColumnDef="preco">
-          <th mat-header-cell *matHeaderCellDef>Preço</th>
-          <td mat-cell *matCellDef="let registro">{{ registro.preco | currency: 'BRL' }}</td>
-        </ng-container>
-        <ng-container matColumnDef="estoque">
-          <th mat-header-cell *matHeaderCellDef>Estoque</th>
-          <td mat-cell *matCellDef="let registro">{{ registro.quantidadeEstoque }} un.</td>
-        </ng-container>
-        <ng-container matColumnDef="ativo">
-          <th mat-header-cell *matHeaderCellDef>Situação</th>
-          <td mat-cell *matCellDef="let registro">
-            <span class="situacao" [class.inativo]="!registro.ativo"
-              ><mat-icon aria-hidden="true">{{
-                registro.ativo ? 'check_circle' : 'remove_circle_outline'
-              }}</mat-icon
-              >{{ registro.ativo ? 'Ativo' : 'Inativo' }}</span
-            >
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="acoes">
-          <th mat-header-cell *matHeaderCellDef>Ações</th>
-          <td mat-cell *matCellDef="let registro">
-            <a
-              mat-icon-button
-              [routerLink]="['/admin/mouses/editar', registro.id]"
-              [attr.aria-label]="'Editar ' + registro.nome"
-              [disabled]="excluindo() !== null"
-            >
-              <mat-icon aria-hidden="true">edit</mat-icon>
-            </a>
-            <button
-              mat-icon-button
-              (click)="excluir(registro)"
-              [disabled]="excluindo() !== null"
-              [attr.aria-label]="'Excluir ' + registro.nome"
-            >
-              <mat-icon aria-hidden="true">delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
-        <tr mat-row *matRowDef="let row; columns: colunas"></tr>
-      </table>
-    </div>
-    <mat-paginator
-      [length]="totalItems()"
-      [pageIndex]="pageIndex()"
-      [pageSize]="pageSize()"
-      [pageSizeOptions]="[5, 10, 20]"
-      (page)="onPageChange($event)"
-      aria-label="Paginação de mouses"
-    />
-  }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="marca">
+            <th mat-header-cell *matHeaderCellDef>Marca</th>
+            <td mat-cell *matCellDef="let registro">{{ registro.marca.nome }}</td>
+          </ng-container>
+          <ng-container matColumnDef="especificacoes"
+            ><th mat-header-cell *matHeaderCellDef>Especificações</th>
+            <td mat-cell *matCellDef="let registro">
+              <span>{{ registro.pesoGramas }} g · {{ registro.dpiMaximo }} DPI</span
+              ><small class="sku"
+                >{{ registro.especificacoes?.sensor || 'Sensor não informado' }}
+                @if (registro.especificacoes?.pollingRate) {
+                  · {{ registro.especificacoes.pollingRate }} Hz
+                }
+              </small>
+            </td></ng-container
+          >
+          <ng-container matColumnDef="preco">
+            <th mat-header-cell *matHeaderCellDef>Preço</th>
+            <td mat-cell *matCellDef="let registro">{{ registro.preco | currency: 'BRL' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="estoque">
+            <th mat-header-cell *matHeaderCellDef>Estoque</th>
+            <td mat-cell *matCellDef="let registro">{{ registro.quantidadeEstoque }} un.</td>
+          </ng-container>
+          <ng-container matColumnDef="ativo">
+            <th mat-header-cell *matHeaderCellDef>Situação</th>
+            <td mat-cell *matCellDef="let registro">
+              <span class="situacao" [class.inativo]="!registro.ativo"
+                ><mat-icon aria-hidden="true">{{
+                  registro.ativo ? 'check_circle' : 'remove_circle_outline'
+                }}</mat-icon
+                >{{ registro.ativo ? 'Ativo' : 'Inativo' }}</span
+              >
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let registro">
+              <a
+                mat-icon-button
+                [routerLink]="['/admin/mouses/editar', registro.id]"
+                [attr.aria-label]="'Editar ' + registro.nome"
+                [disabled]="excluindo() !== null"
+              >
+                <mat-icon aria-hidden="true">edit</mat-icon>
+              </a>
+              <button
+                mat-icon-button
+                (click)="excluir(registro)"
+                [disabled]="excluindo() !== null"
+                [attr.aria-label]="'Excluir ' + registro.nome"
+              >
+                <mat-icon aria-hidden="true">delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+        </table>
+      </div>
+      <mat-paginator
+        [length]="totalItems()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[5, 10, 20]"
+        (page)="onPageChange($event)"
+        aria-label="Paginação de mouses"
+      />
+    }
+  </div>
 </section>

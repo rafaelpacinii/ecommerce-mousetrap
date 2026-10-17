@@ -8,7 +8,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 28px 20px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -21,7 +21,7 @@
   gap: 10px;
   color: white;
   text-decoration: none;
-  font-size: 1.15rem;
+  font-size: 17px;
   font-weight: 750;
 }
 small {
@@ -58,7 +58,8 @@ nav button:hover {
   color: white;
 }
 nav a.selecionado {
-  background: #6140b5;
+  background: var(--slate-blue);
+  position: relative;
   color: white;
 }
 main {
@@ -66,7 +67,7 @@ main {
   max-width: 1260px;
   min-width: 0;
   margin: 0 auto;
-  padding: 40px 32px 64px;
+  padding: 40px 44px 64px;
   outline: none;
 }
 @media (max-width: 900px) {
@@ -87,6 +88,59 @@ main {
   nav a,
   nav button {
     padding: 10px 12px;
+  }
+  main {
+    padding: 28px 16px 48px;
+  }
+}
+
+.identidade {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #1a2645;
+}
+nav a.selecionado::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--golden-glow);
+}
+.admin-account {
+  margin-top: auto;
+}
+.account-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  margin-bottom: 8px;
+  background: #182447;
+  border-radius: 12px;
+}
+.account-identity > mat-icon {
+  color: var(--golden-glow);
+}
+.account-identity span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 900px) {
+  .topo {
+    gap: 16px;
+  }
+  .identidade {
+    padding-bottom: 16px;
+  }
+  .admin-account {
+    margin-top: 0;
+  }
+  .account-identity {
+    display: none;
   }
   main {
     padding: 28px 16px 48px;

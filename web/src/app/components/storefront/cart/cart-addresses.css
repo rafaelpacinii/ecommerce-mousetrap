@@ -1,0 +1,83 @@
+.saved-addresses h3,
+.shipping-section h3 {
+  margin: 0;
+  font-size: 13px;
+}
+.saved-addresses-header a {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--slate-blue);
+  text-decoration: none;
+}
+.address-option {
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neutral-200);
+  background: var(--surface-canvas);
+  cursor: pointer;
+}
+.address-option.selected {
+  border-color: var(--slate-blue);
+  background: var(--alice-blue);
+}
+.badge-principal {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--light-cyan);
+  font-size: 11px;
+  font-weight: 700;
+}
+.address-option p {
+  margin: 4px 0 2px;
+  font-size: 12px;
+}
+.delivery-panel {
+  padding: 28px;
+  background: white;
+  border: 1px solid var(--neutral-200);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+.delivery-panel > h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+  font-size: 18px;
+}
+.delivery-panel .saved-addresses h3 {
+  display: none;
+}
+.delivery-panel .address-option {
+  padding: 20px;
+}
+.saved-addresses {
+  margin-bottom: 20px;
+}
+.saved-addresses-header {
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.saved-addresses-header,
+.address-option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.address-options {
+  display: grid;
+  gap: 14px;
+}
+.address-hint,
+.address-option small {
+  color: var(--neutral-500);
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  .delivery-panel {
+    padding: 20px;
+  }
+}

@@ -4,8 +4,7 @@
       <p class="sobretitulo">Catálogo / Mouses</p>
       <h1 id="titulo-form">{{ mouse ? 'Editar mouse' : 'Cadastrar mouse' }}</h1>
       <p class="descricao-pagina">
-        Cada SKU representa um produto com preço e estoque próprios. Preencha os dados obrigatórios
-        e as especificações disponíveis.
+        Preencha as informações técnicas e adicione as fotos do produto.
       </p>
     </div>
   </div>
@@ -28,6 +27,7 @@
   }
   <form class="formulario" [formGroup]="form" (ngSubmit)="salvar()">
     <fieldset class="campos" [disabled]="salvando() || carregandoMarcas()">
+      <legend>Informações do produto</legend>
       <mat-form-field appearance="outline">
         <mat-label>Nome</mat-label><mat-icon aria-hidden="true" matSuffix>mouse</mat-icon>
         <input matInput formControlName="nome" maxlength="150" />
@@ -243,7 +243,15 @@
             </div>
           </div>
         } @empty {
-          <p>Nenhuma imagem adicionada.</p>
+          <button
+            class="empty-photo"
+            type="button"
+            (click)="adicionarImagem()"
+            [disabled]="salvando() || carregandoMarcas()"
+          >
+            <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>
+            <strong>Adicionar foto do produto</strong><span>Informe o endereço da imagem</span>
+          </button>
         }
       </div>
       <button

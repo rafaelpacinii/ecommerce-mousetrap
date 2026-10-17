@@ -1,86 +1,129 @@
-<header class="store-header" (keydown.escape)="menuAberto.set(false)">
+<header
+  class="store-header"
+  [class.auth-header]="paginaAuth()"
+  (keydown.escape)="menuAberto.set(false)"
+>
   <div class="store-container header-content">
     <a class="brand" routerLink="/" aria-label="MouseTrap — Início" (click)="menuAberto.set(false)">
-      <img src="favicon.svg" width="38" height="38" alt="" />
-      <span>MOUSETRAP<small>PRECISÃO EM SUAS MÃOS</small></span>
+      <img src="favicon.svg" width="36" height="36" alt="" />
+      <span>MOUSETRAP</span>
     </a>
-    <button
-      class="menu-toggle"
-      type="button"
-      aria-controls="store-navigation"
-      [attr.aria-expanded]="menuAberto()"
-      (click)="menuAberto.set(!menuAberto())"
-    >
-      {{ menuAberto() ? 'Fechar' : 'Menu' }}
-      <mat-icon aria-hidden="true">{{ menuAberto() ? 'close' : 'menu' }}</mat-icon>
-    </button>
-    <nav id="store-navigation" aria-label="Navegação da loja" [class.is-open]="menuAberto()">
-      <a routerLink="/" (click)="menuAberto.set(false)"
-        ><mat-icon aria-hidden="true">home</mat-icon>Início</a
+    @if (paginaAuth()) {
+      <a class="back-store" routerLink="/catalogo"
+        ><mat-icon aria-hidden="true">arrow_back</mat-icon>Voltar à loja</a
       >
-      <a routerLink="/catalogo" (click)="menuAberto.set(false)"
-        ><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a
+    } @else {
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Menu da loja"
+        aria-controls="store-navigation"
+        [attr.aria-expanded]="menuAberto()"
+        (click)="menuAberto.set(!menuAberto())"
       >
-      <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)"
-        ><mat-icon aria-hidden="true">pan_tool</mat-icon>Encontre sua pegada</a
-      >
-      <a
-        class="cart-nav-link"
-        routerLink="/carrinho"
-        (click)="menuAberto.set(false)"
-        [attr.aria-label]="'Carrinho de compras com ' + carrinho.quantidadeTotal() + ' itens'"
-      >
-        <mat-icon aria-hidden="true">shopping_cart</mat-icon>Carrinho
-        <span class="cart-badge">{{ carrinho.quantidadeTotal() }}</span>
-      </a>
-      @if (auth.authenticated()) {
-        <a routerLink="/minha-conta" (click)="menuAberto.set(false)"
-          ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
+        <mat-icon aria-hidden="true">{{ menuAberto() ? 'close' : 'menu' }}</mat-icon>
+      </button>
+      <nav id="store-navigation" aria-label="Navegação da loja" [class.is-open]="menuAberto()">
+        <a
+          routerLink="/"
+          [routerLinkActiveOptions]="{ exact: true }"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="menuAberto.set(false)"
+          >Início</a
         >
-        @if (auth.admin()) {
-          <a routerLink="/admin/mouses" (click)="menuAberto.set(false)"
-            ><mat-icon aria-hidden="true">settings</mat-icon>Administrar</a
+        <a
+          routerLink="/catalogo"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="menuAberto.set(false)"
+          >Mouses</a
+        >
+        <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)">Guia de pegadas</a>
+      </nav>
+      <form
+        class="header-search"
+        role="search"
+        [class.is-open]="menuAberto()"
+        (submit)="buscar($event)"
+      >
+        <input
+          type="search"
+          name="nome"
+          aria-label="Buscar mouse"
+          placeholder="Buscar mouse…"
+          maxlength="150"
+          [value]="busca()"
+          (input)="busca.set($any($event.target).value)"
+        />
+        <button type="submit" aria-label="Buscar">
+          <mat-icon aria-hidden="true">search</mat-icon>
+        </button>
+      </form>
+      <div class="header-actions">
+        <a
+          class="cart-nav-link"
+          routerLink="/carrinho"
+          [attr.aria-label]="'Carrinho de compras com ' + carrinho.quantidadeTotal() + ' itens'"
+        >
+          <mat-icon aria-hidden="true">shopping_cart</mat-icon
+          ><span class="cart-label">Carrinho</span
+          ><span class="cart-badge">{{ carrinho.quantidadeTotal() }}</span>
+        </a>
+        @if (auth.authenticated()) {
+          <details class="account-menu" #accountMenu>
+            <summary>
+              <mat-icon aria-hidden="true">account_circle</mat-icon><span>Minha conta</span
+              ><mat-icon aria-hidden="true">expand_more</mat-icon>
+            </summary>
+            <div class="account-links">
+              <a routerLink="/minha-conta" (click)="accountMenu.open = false"
+                ><mat-icon aria-hidden="true">person</mat-icon>Minha conta</a
+              >
+              @if (auth.admin()) {
+                <a routerLink="/admin/mouses" (click)="accountMenu.open = false"
+                  ><mat-icon aria-hidden="true">settings</mat-icon>Administrar</a
+                >
+              }
+              <button type="button" (click)="auth.logout()">
+                <mat-icon aria-hidden="true">logout</mat-icon>Sair
+              </button>
+            </div>
+          </details>
+        } @else {
+          <a class="sign-in" routerLink="/login"
+            ><mat-icon aria-hidden="true">login</mat-icon>Entrar</a
           >
         }
-        <button class="session-action" type="button" (click)="auth.logout()">
-          <mat-icon aria-hidden="true">logout</mat-icon>Sair
-        </button>
-      } @else {
-        <a routerLink="/login" (click)="menuAberto.set(false)"
-          ><mat-icon aria-hidden="true">login</mat-icon>Entrar</a
-        >
-      }
-    </nav>
-    <a class="header-search" routerLink="/catalogo" aria-label="Buscar mouses">
-      <mat-icon aria-hidden="true">search</mat-icon>
-      <span>Buscar mouse</span>
-    </a>
+      </div>
+    }
   </div>
 </header>
 <main id="conteudo" tabindex="-1"><router-outlet /></main>
-<footer class="store-footer">
-  <div class="store-container footer-content">
-    <div>
-      <a class="brand" routerLink="/" aria-label="MouseTrap — Início">
-        <img src="favicon.svg" width="36" height="36" alt="" />
-        <span>MOUSETRAP</span>
-      </a>
-      <p>O próximo movimento é seu.</p>
-    </div>
-    <nav aria-label="Navegação do rodapé">
-      <a routerLink="/catalogo"><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a>
-      <a routerLink="/" fragment="pegadas"
-        ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
-      >
-      @if (auth.admin()) {
-        <a routerLink="/admin/mouses"
-          ><mat-icon aria-hidden="true">settings</mat-icon>Administração</a
+@if (!paginaAuth()) {
+  <footer class="store-footer">
+    <div class="store-container footer-content">
+      <div>
+        <a class="brand" routerLink="/" aria-label="MouseTrap — Início"
+          ><img src="favicon.svg" width="36" height="36" alt="" /><span>MOUSETRAP</span></a
         >
-      }
-      <a routerLink="/minha-conta"
-        ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
-      >
-    </nav>
-  </div>
-  <div class="store-container footer-bottom">MouseTrap · Mouses para o seu jeito de jogar.</div>
-</footer>
+        <p>O próximo movimento é seu.</p>
+      </div>
+      <nav aria-label="Navegação do rodapé">
+        <a routerLink="/catalogo"><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a>
+        <a routerLink="/" fragment="pegadas"
+          ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
+        >
+        @if (auth.admin()) {
+          <a routerLink="/admin/mouses"
+            ><mat-icon aria-hidden="true">settings</mat-icon>Administração</a
+          >
+        }
+        <a routerLink="/minha-conta"
+          ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
+        >
+      </nav>
+    </div>
+    <div class="store-container footer-bottom">MouseTrap · Mouses para o seu jeito de jogar.</div>
+  </footer>
+}

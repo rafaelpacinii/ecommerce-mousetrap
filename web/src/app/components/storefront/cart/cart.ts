@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,6 +21,7 @@ import { mensagemErro } from '../../../services/erro-api';
   standalone: true,
   imports: [
     CurrencyPipe,
+    NgTemplateOutlet,
     FormsModule,
     RouterLink,
     MatIconModule,
@@ -28,7 +29,7 @@ import { mensagemErro } from '../../../services/erro-api';
     ProductImageComponent,
   ],
   templateUrl: './cart.html',
-  styleUrl: './cart.css',
+  styleUrls: ['./cart.css', './cart-addresses.css'],
 })
 export class CartComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -156,7 +157,10 @@ export class CartComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          if (this.carrinho.possuiIndisponiveis() || this.carrinho.itensDisponiveis().length === 0) {
+          if (
+            this.carrinho.possuiIndisponiveis() ||
+            this.carrinho.itensDisponiveis().length === 0
+          ) {
             this.snack.open(
               'Revise os itens atualizados no seu carrinho antes de continuar.',
               'Fechar',
@@ -169,11 +173,9 @@ export class CartComponent implements OnInit {
             return;
           }
           if (this.enderecos().length === 0) {
-            this.snack.open(
-              'Cadastre um endereço de entrega para concluir sua compra.',
-              'Fechar',
-              { duration: 4500 },
-            );
+            this.snack.open('Cadastre um endereço de entrega para concluir sua compra.', 'Fechar', {
+              duration: 4500,
+            });
             void this.router.navigate(['/minha-conta'], {
               queryParams: { returnUrl: '/checkout' },
             });
@@ -193,4 +195,3 @@ export class CartComponent implements OnInit {
       });
   }
 }
-

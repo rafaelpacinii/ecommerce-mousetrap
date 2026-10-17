@@ -10,85 +10,92 @@
     </a>
   </div>
 
-  <mat-form-field appearance="outline" class="campo-filtro">
-    <mat-label>Filtrar por nome</mat-label>
-    <input matInput placeholder="Ex.: Logitech" (input)="applyFilter($event)" [value]="filtro()" />
-    <mat-icon aria-hidden="true" matSuffix>search</mat-icon>
-  </mat-form-field>
-
-  @if (carregando()) {
-    <p role="status" class="estado-pagina">
-      <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando marcas…
-    </p>
-  } @else if (erro()) {
-    <div class="estado-pagina" role="alert">
-      <p><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erro() }}</p>
-      <button mat-button (click)="carregar()">
-        <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
-      </button>
-    </div>
-  } @else if (registros().length === 0) {
-    <div class="estado-pagina">
-      <mat-icon aria-hidden="true">{{ filtro() ? 'search_off' : 'sell' }}</mat-icon>
-      <h2>{{ filtro() ? 'Nenhuma marca encontrada' : 'Nenhuma marca cadastrada' }}</h2>
-      <p>
-        {{
-          filtro() ? 'Tente outro nome.' : 'Use “Novo Cadastro” para adicionar a primeira marca.'
-        }}
-      </p>
-    </div>
-  } @else {
-    <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de marcas">
-      <table mat-table [dataSource]="registros()">
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef>Nome</th>
-          <td mat-cell *matCellDef="let registro">
-            <strong>{{ registro.nome }}</strong>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="ativo">
-          <th mat-header-cell *matHeaderCellDef>Situação</th>
-          <td mat-cell *matCellDef="let registro">
-            <span class="situacao" [class.inativo]="!registro.ativo"
-              ><mat-icon aria-hidden="true">{{
-                registro.ativo ? 'check_circle' : 'remove_circle_outline'
-              }}</mat-icon
-              >{{ registro.ativo ? 'Ativa' : 'Inativa' }}</span
-            >
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="acoes">
-          <th mat-header-cell *matHeaderCellDef>Ações</th>
-          <td mat-cell *matCellDef="let registro">
-            <a
-              mat-icon-button
-              [routerLink]="['/admin/marcas/editar', registro.id]"
-              [attr.aria-label]="'Editar ' + registro.nome"
-              [disabled]="excluindo() !== null"
-            >
-              <mat-icon aria-hidden="true">edit</mat-icon>
-            </a>
-            <button
-              mat-icon-button
-              (click)="excluir(registro)"
-              [disabled]="excluindo() !== null"
-              [attr.aria-label]="'Excluir ' + registro.nome"
-            >
-              <mat-icon aria-hidden="true">delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
-        <tr mat-row *matRowDef="let row; columns: colunas"></tr>
-      </table>
-      <mat-paginator
-        [length]="totalItems()"
-        [pageIndex]="pageIndex()"
-        [pageSize]="pageSize()"
-        [pageSizeOptions]="[5, 10, 20]"
-        (page)="onPageChange($event)"
-        aria-label="Paginação de marcas"
+  <div class="admin-data-panel">
+    <mat-form-field appearance="outline" class="campo-filtro">
+      <mat-label>Filtrar por nome</mat-label>
+      <input
+        matInput
+        placeholder="Ex.: Logitech"
+        (input)="applyFilter($event)"
+        [value]="filtro()"
       />
-    </div>
-  }
+      <mat-icon aria-hidden="true" matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    @if (carregando()) {
+      <p role="status" class="estado-pagina">
+        <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Carregando marcas…
+      </p>
+    } @else if (erro()) {
+      <div class="estado-pagina" role="alert">
+        <p><mat-icon aria-hidden="true">error_outline</mat-icon>{{ erro() }}</p>
+        <button mat-button (click)="carregar()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+        </button>
+      </div>
+    } @else if (registros().length === 0) {
+      <div class="estado-pagina">
+        <mat-icon aria-hidden="true">{{ filtro() ? 'search_off' : 'sell' }}</mat-icon>
+        <h2>{{ filtro() ? 'Nenhuma marca encontrada' : 'Nenhuma marca cadastrada' }}</h2>
+        <p>
+          {{
+            filtro() ? 'Tente outro nome.' : 'Use “Novo Cadastro” para adicionar a primeira marca.'
+          }}
+        </p>
+      </div>
+    } @else {
+      <div class="tabela-container" tabindex="0" role="region" aria-label="Lista de marcas">
+        <table mat-table [dataSource]="registros()">
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let registro">
+              <strong>{{ registro.nome }}</strong>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="ativo">
+            <th mat-header-cell *matHeaderCellDef>Situação</th>
+            <td mat-cell *matCellDef="let registro">
+              <span class="situacao" [class.inativo]="!registro.ativo"
+                ><mat-icon aria-hidden="true">{{
+                  registro.ativo ? 'check_circle' : 'remove_circle_outline'
+                }}</mat-icon
+                >{{ registro.ativo ? 'Ativa' : 'Inativa' }}</span
+              >
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let registro">
+              <a
+                mat-icon-button
+                [routerLink]="['/admin/marcas/editar', registro.id]"
+                [attr.aria-label]="'Editar ' + registro.nome"
+                [disabled]="excluindo() !== null"
+              >
+                <mat-icon aria-hidden="true">edit</mat-icon>
+              </a>
+              <button
+                mat-icon-button
+                (click)="excluir(registro)"
+                [disabled]="excluindo() !== null"
+                [attr.aria-label]="'Excluir ' + registro.nome"
+              >
+                <mat-icon aria-hidden="true">delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+        </table>
+        <mat-paginator
+          [length]="totalItems()"
+          [pageIndex]="pageIndex()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[5, 10, 20]"
+          (page)="onPageChange($event)"
+          aria-label="Paginação de marcas"
+        />
+      </div>
+    }
+  </div>
 </section>

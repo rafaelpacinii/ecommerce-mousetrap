@@ -74,3 +74,38 @@ body {
   margin: 0;
   height: 100%;
 }
+
+html {
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 10px,
+      outlined-container-shape: 10px,
+      protected-container-shape: 10px,
+      text-container-shape: 10px,
+      protected-container-color: var(--golden-glow),
+      protected-label-text-color: var(--prussian-blue),
+      protected-container-elevation-shadow: none,
+      protected-container-height: 46px,
+      outlined-container-height: 44px,
+      protected-label-text-weight: 750,
+    )
+  );
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 10px,
+      outlined-outline-color: var(--neutral-300),
+      outlined-label-text-color: var(--neutral-700),
+      container-height: 48px,
+      container-vertical-padding: 12px,
+      container-text-size: 14px,
+      outlined-label-text-size: 14px,
+    )
+  );
+  @include mat.table-overrides(
+    (
+      background-color: var(--surface-pure),
+      header-container-height: 48px,
+      row-item-container-height: 68px,
+    )
+  );
+}

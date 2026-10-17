@@ -1,13 +1,12 @@
 <article class="product-card">
   <div class="product-stage">
     <div class="spec-pills">
-      <span
-        ><mat-icon aria-hidden="true">fitness_center</mat-icon
-        >{{ produto().pesoGramas | number: '1.0-1' }} g</span
-      ><span
-        ><mat-icon aria-hidden="true">track_changes</mat-icon
-        >{{ produto().dpiMaximo | number }} DPI</span
-      >
+      <span>{{ produto().pesoGramas | number: '1.0-1' }} g</span>
+      <span>{{
+        produto().especificacoes?.pollingRate
+          ? (produto().especificacoes?.pollingRate | number) + ' Hz'
+          : (produto().dpiMaximo | number) + ' DPI'
+      }}</span>
     </div>
     <a
       class="product-photo"
@@ -22,17 +21,8 @@
     <h3>
       <a [routerLink]="['/catalogo', produto().id]">{{ produto().nome }}</a>
     </h3>
-    <p class="product-description">{{ produto().descricao }}</p>
     <div class="product-bottom">
       <strong>{{ produto().preco | currency: 'BRL' }}</strong>
-      <span class="availability" [class.unavailable]="produto().quantidadeEstoque <= 0"
-        ><mat-icon aria-hidden="true">{{
-          produto().quantidadeEstoque > 0 ? 'check_circle' : 'remove_circle_outline'
-        }}</mat-icon
-        >{{ produto().quantidadeEstoque > 0 ? 'Em estoque' : 'Indisponível' }}</span
-      >
-    </div>
-    <div class="card-actions">
       @if (produto().quantidadeEstoque > 0) {
         <button
           class="add-cart-btn"
@@ -40,33 +30,13 @@
           (click)="adicionarAoCarrinho()"
           [attr.aria-label]="'Adicionar ' + produto().nome + ' ao carrinho'"
         >
-          <mat-icon aria-hidden="true">add_shopping_cart</mat-icon>Adicionar
+          Adicionar
         </button>
+      } @else {
+        <span class="unavailable"
+          ><mat-icon aria-hidden="true">remove_circle_outline</mat-icon>Indisponível</span
+        >
       }
-      <a class="details-link" [routerLink]="['/catalogo', produto().id]"
-        >Ver detalhes <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
-      >
     </div>
-    <details>
-      <summary><mat-icon aria-hidden="true">chevron_right</mat-icon>Especificações</summary>
-      <dl>
-        <div>
-          <dt>Cor</dt>
-          <dd>{{ produto().cor }}</dd>
-        </div>
-        <div>
-          <dt>Botões</dt>
-          <dd>{{ produto().quantidadeBotoes }}</dd>
-        </div>
-        <div>
-          <dt>Conexão</dt>
-          <dd>
-            @for (conexao of produto().tiposConexao; track conexao.id) {
-              <span class="connection">{{ conexao.label }}</span>
-            }
-          </dd>
-        </div>
-      </dl>
-    </details>
   </div>
 </article>

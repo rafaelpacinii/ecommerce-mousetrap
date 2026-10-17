@@ -2,7 +2,7 @@ import { paginacaoPortugues } from '../../../services/paginator-intl';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,6 @@ import { ProductCardComponent } from '../product-card/product-card';
   providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     MatIconModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -133,6 +132,15 @@ export class CatalogComponent implements OnInit {
         this.produtos.set(resposta.items);
         this.total.set(resposta.totalItems);
       });
+  }
+
+  alternarFaceta(campo: 'marca' | 'pegada' | 'conexao', id: number, selecionado: boolean): void {
+    const controle = this.form.controls[campo];
+    controle.setValue(
+      selecionado
+        ? [...new Set([...controle.value, id])]
+        : controle.value.filter((valor) => valor !== id),
+    );
   }
 
   carregarFacetas(): void {

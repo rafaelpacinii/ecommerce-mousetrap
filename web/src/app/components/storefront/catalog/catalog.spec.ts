@@ -82,6 +82,24 @@ describe('Public catalog navigation', () => {
     expect(harness.routeNativeElement?.textContent).toContain('Nenhum mouse encontrado');
   });
 
+  it('combines checkbox and grip selections in the existing URL-backed filters', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/catalogo', CatalogComponent);
+    http.expectOne('http://localhost:8080/catalogo/filtros').flush(facets);
+    http.expectOne((r) => r.url.endsWith('/catalogo/mouses')).flush(result());
+    harness.detectChanges();
+    const root = harness.routeNativeElement!;
+    (root.querySelector('.facet-group input[type="checkbox"]') as HTMLInputElement).click();
+    (root.querySelector('.grip-filter') as HTMLButtonElement).click();
+    root.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true }));
+    await harness.fixture.whenStable();
+    const request = http.expectOne((r) => r.url.endsWith('/catalogo/mouses'));
+    expect(request.request.params.getAll('marca')).toEqual(['1']);
+    expect(request.request.params.getAll('pegada')).toEqual(['2']);
+    request.flush(result());
+    expect(TestBed.inject(Router).url).toContain('pegada=2');
+  });
+
   it('rejects inverted prices and recovers a URL page beyond the available results', async () => {
     const harness = await RouterTestingHarness.create();
     const component = await harness.navigateByUrl('/catalogo?page=99', CatalogComponent);

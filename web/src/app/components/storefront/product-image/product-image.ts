@@ -31,14 +31,20 @@ import { ImagemMouse } from '../../../models/mouse.model';
       display: grid;
       width: 100%;
       height: 100%;
-      min-height: inherit;
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
       place-items: center;
     }
     img {
       display: block;
       width: 100%;
       height: 100%;
-      max-height: 560px;
+      min-height: 0;
+      min-width: 0;
+      max-height: 100%;
       object-fit: contain;
     }
     .fallback {
