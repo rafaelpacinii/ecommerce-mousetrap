@@ -1,0 +1,184 @@
+<div class="store-container catalog-page">
+  <a class="breadcrumb" routerLink="/"><mat-icon aria-hidden="true">home</mat-icon>Início</a>
+  <div class="section-heading">
+    <div>
+      <p class="section-label">DO SEU JEITO</p>
+      <h1>Catálogo de mouses</h1>
+    </div>
+    <p>Encontre a combinação para a sua mão e seu jogo.</p>
+  </div>
+  <button
+    class="filter-toggle"
+    mat-stroked-button
+    type="button"
+    aria-controls="catalog-filters"
+    [attr.aria-expanded]="filtrosAbertos()"
+    (click)="filtrosAbertos.set(!filtrosAbertos())"
+  >
+    <mat-icon aria-hidden="true">tune</mat-icon>Filtros
+  </button>
+  <div class="catalog-layout">
+    <aside
+      id="catalog-filters"
+      [class.is-open]="filtrosAbertos()"
+      aria-label="Filtros do catálogo"
+      (keydown.escape)="filtrosAbertos.set(false)"
+    >
+      <div class="filter-title">
+        <h2>Filtros</h2>
+        <button mat-button type="button" (click)="limpar()">
+          <mat-icon aria-hidden="true">clear</mat-icon>Limpar
+        </button>
+      </div>
+      @if (erroFacetas()) {
+        <p role="status">Não foi possível carregar as opções.</p>
+        <button mat-button (click)="carregarFacetas()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+        </button>
+      }
+      <form [formGroup]="form" (ngSubmit)="aplicar()">
+        <mat-form-field appearance="outline"
+          ><mat-label>Nome do mouse</mat-label
+          ><input matInput formControlName="nome" maxlength="150" /><mat-icon
+            matSuffix
+            aria-hidden="true"
+            >search</mat-icon
+          ></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Marca</mat-label
+          ><mat-select formControlName="marca" multiple>
+            @for (m of facetas()?.marcas ?? []; track m.id) {
+              <mat-option [value]="m.id">{{ m.nome }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Sensor</mat-label
+          ><mat-select formControlName="sensor"
+            ><mat-option value="">Todos</mat-option>
+            @for (s of facetas()?.sensores ?? []; track s) {
+              <mat-option [value]="s">{{ s }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Pegada</mat-label
+          ><mat-select formControlName="pegada" multiple>
+            @for (p of facetas()?.pegadas ?? []; track p.id) {
+              <mat-option [value]="p.id">{{ p.label }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Conexão</mat-label
+          ><mat-select formControlName="conexao" multiple>
+            @for (c of facetas()?.conexoes ?? []; track c.id) {
+              <mat-option [value]="c.id">{{ c.label }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Polling rate mínimo</mat-label
+          ><mat-select formControlName="pollingRateMin"
+            ><mat-option [value]="null">Qualquer</mat-option>
+            @for (p of pollingRates; track p) {
+              <mat-option [value]="p">{{ p }} Hz</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Tipo de switch</mat-label
+          ><mat-select formControlName="tipoSwitch"
+            ><mat-option [value]="null">Todos</mat-option>
+            @for (s of facetas()?.tiposSwitch ?? []; track s.id) {
+              <mat-option [value]="s.id">{{ s.label }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Peso máximo (g)</mat-label
+          ><input
+            matInput
+            type="number"
+            formControlName="pesoMax"
+            min="0.01"
+            step="0.01"
+          /><mat-error>Informe um peso positivo.</mat-error></mat-form-field
+        >
+        <div class="price-range">
+          <mat-form-field appearance="outline"
+            ><mat-label>Preço mínimo (R$)</mat-label
+            ><input matInput type="number" formControlName="precoMin" min="0" /><mat-error
+              >Valor inválido.</mat-error
+            ></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>Preço máximo (R$)</mat-label
+            ><input matInput type="number" formControlName="precoMax" min="0" /><mat-error
+              >Valor inválido.</mat-error
+            ></mat-form-field
+          >
+        </div>
+        @if (form.hasError('faixaPreco')) {
+          <p role="alert">O preço máximo deve ser maior ou igual ao mínimo.</p>
+        }
+        <mat-checkbox formControlName="emEstoque">Somente em estoque</mat-checkbox>
+        <button class="store-button store-button-dark apply" type="submit">
+          <mat-icon aria-hidden="true">filter_list</mat-icon>Aplicar filtros
+        </button>
+      </form>
+    </aside>
+    <section class="results" aria-label="Produtos encontrados" [attr.aria-busy]="carregando()">
+      <div class="result-toolbar">
+        <p role="status">
+          {{ total() }} {{ total() === 1 ? 'produto encontrado' : 'produtos encontrados' }}
+        </p>
+        <mat-form-field appearance="outline"
+          ><mat-label>Ordenar por</mat-label
+          ><mat-select [value]="filtro().ordenar" (selectionChange)="ordenar($event.value)">
+            @for (o of ordenacoes; track o.valor) {
+              <mat-option [value]="o.valor">{{ o.label }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+      </div>
+      @if (carregando()) {
+        <div class="estado-pagina" role="status">
+          <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Buscando mouses…
+        </div>
+      } @else if (erro()) {
+        <div class="estado-pagina" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <h2>Não foi possível carregar o catálogo.</h2>
+          <p>Confira os filtros ou tente novamente.</p>
+          <button mat-button (click)="repetir()">
+            <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente</button
+          ><button mat-button (click)="limpar()">Limpar filtros</button>
+        </div>
+      } @else if (!produtos().length) {
+        <div class="estado-pagina" role="status">
+          <mat-icon aria-hidden="true">search_off</mat-icon>
+          <h2>Nenhum mouse encontrado.</h2>
+          <p>Experimente uma combinação diferente.</p>
+          <button mat-button (click)="limpar()">
+            <mat-icon aria-hidden="true">clear</mat-icon>Limpar filtros
+          </button>
+        </div>
+      } @else {
+        <div class="product-grid">
+          @for (produto of produtos(); track produto.id) {
+            <app-product-card [produto]="produto" />
+          }
+        </div>
+        <mat-paginator
+          [length]="total()"
+          [pageIndex]="filtro().page ?? 0"
+          [pageSize]="filtro().pageSize ?? 12"
+          [pageSizeOptions]="[6, 12, 24]"
+          (page)="paginar($event)"
+          aria-label="Paginação do catálogo"
+        />
+      }
+    </section>
+  </div>
+</div>

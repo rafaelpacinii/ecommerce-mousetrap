@@ -18,14 +18,14 @@
       <a routerLink="/" (click)="menuAberto.set(false)"
         ><mat-icon aria-hidden="true">home</mat-icon>Início</a
       >
-      <a routerLink="/" fragment="catalogo" (click)="menuAberto.set(false)"
+      <a routerLink="/catalogo" (click)="menuAberto.set(false)"
         ><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a
       >
       <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)"
         ><mat-icon aria-hidden="true">pan_tool</mat-icon>Encontre sua pegada</a
       >
     </nav>
-    <a class="header-search" routerLink="/" fragment="busca" aria-label="Buscar mouses">
+    <a class="header-search" routerLink="/catalogo" aria-label="Buscar mouses">
       <mat-icon aria-hidden="true">search</mat-icon>
       <span>Buscar mouse</span>
     </a>
@@ -42,7 +42,7 @@
       <p>O próximo movimento é seu.</p>
     </div>
     <nav aria-label="Navegação do rodapé">
-      <a routerLink="/" fragment="catalogo"><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a>
+      <a routerLink="/catalogo"><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a>
       <a routerLink="/" fragment="pegadas"
         ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
       >

@@ -7,6 +7,9 @@ import br.unitins.tp2.dto.MouseResponseDTO;
 import br.unitins.tp2.exception.ValidationException;
 import br.unitins.tp2.model.Marca;
 import br.unitins.tp2.model.Mouse;
+import br.unitins.tp2.model.ImagemMouse;
+import br.unitins.tp2.model.Pegada;
+import br.unitins.tp2.model.TipoSwitch;
 import br.unitins.tp2.model.TipoConexao;
 import br.unitins.tp2.repository.MarcaRepository;
 import br.unitins.tp2.repository.MouseRepository;
@@ -87,6 +90,42 @@ public class MouseServiceImpl implements MouseService {
         }
         Marca marca = marcaRepository.findById(dto.idMarca());
         if (marca == null) throw new ValidationException("idMarca", "A marca selecionada não existe.");
+        if (dto.especificacoes() != null) {
+            var especificacoes = dto.especificacoes();
+            if (especificacoes.pollingRate() != null && !java.util.Set.of(125, 250, 500, 1000, 2000, 4000, 8000).contains(especificacoes.pollingRate())) {
+                throw new ValidationException("especificacoes.pollingRate", "Selecione uma taxa de atualização suportada.");
+            }
+            mouse.setSensor(especificacoes.sensor() == null || especificacoes.sensor().isBlank() ? null : especificacoes.sensor());
+            mouse.setPollingRate(especificacoes.pollingRate());
+            mouse.setTipoSwitch(TipoSwitch.valueOf(especificacoes.tipoSwitch()));
+            mouse.setModeloSwitch(especificacoes.modeloSwitch() == null || especificacoes.modeloSwitch().isBlank() ? null : especificacoes.modeloSwitch());
+            mouse.getPegadas().clear();
+            if (especificacoes.pegadas() != null) mouse.getPegadas().addAll(especificacoes.pegadas().stream().map(Pegada::valueOf).toList());
+        }
+        if (dto.imagens() != null) {
+            if (dto.imagens().stream().map(i -> i.ordem()).distinct().count() != dto.imagens().size()) {
+                throw new ValidationException("imagens", "A ordem das imagens não pode se repetir.");
+            }
+            for (var imagem : dto.imagens()) {
+                try {
+                    var uri = java.net.URI.create(imagem.url());
+                    if (uri.isAbsolute() && uri.getHost() == null) throw new IllegalArgumentException();
+                } catch (IllegalArgumentException ex) {
+                    throw new ValidationException("imagens", "Informe um endereço de imagem válido.");
+                }
+            }
+            mouse.getImagens().clear();
+            // Release previous unique order values before inserting the replacement gallery.
+            if (mouse.getId() != null) repository.flush();
+            for (var imagemDto : dto.imagens()) {
+                ImagemMouse imagem = new ImagemMouse();
+                imagem.setMouse(mouse);
+                imagem.setUrl(imagemDto.url());
+                imagem.setTextoAlternativo(imagemDto.textoAlternativo());
+                imagem.setOrdem(imagemDto.ordem());
+                mouse.getImagens().add(imagem);
+            }
+        }
         mouse.setMarca(marca);
         mouse.setSku(dto.sku());
         mouse.setNome(dto.nome());

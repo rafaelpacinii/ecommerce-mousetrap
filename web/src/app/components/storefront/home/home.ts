@@ -3,24 +3,25 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
-import { Observable, Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
-import { Mouse } from '../../../models/mouse.model';
-import { MouseService } from '../../../services/mouse.service';
+import { Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
+import { Produto } from '../../../models/catalogo.model';
+import { CatalogoService } from '../../../services/catalogo.service';
+import { RouterLink } from '@angular/router';
 import { ProductCardComponent } from '../product-card/product-card';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatIconModule, FormsModule, ProductCardComponent],
+  imports: [MatIconModule, FormsModule, ProductCardComponent, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class HomeComponent implements OnInit {
-  private readonly service = inject(MouseService);
+  private readonly service = inject(CatalogoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly meta = inject(Meta);
   private readonly consultas = new Subject<string>();
-  readonly produtos = signal<Mouse[]>([]);
+  readonly produtos = signal<Produto[]>([]);
   readonly carregando = signal(true);
   readonly erro = signal(false);
   readonly termoAtual = signal('');
@@ -62,9 +63,9 @@ export class HomeComponent implements OnInit {
           this.termoAtual.set(termo);
           this.carregando.set(true);
           this.erro.set(false);
-          return this.buscarDisponiveis(termo).pipe(
-            map((produtos) => ({ produtos, erro: false })),
-            catchError(() => of({ produtos: [] as Mouse[], erro: true })),
+          return this.service.findAll({ nome: termo, pageSize: 3 }).pipe(
+            map((resposta) => ({ produtos: resposta.items, erro: false })),
+            catchError(() => of({ produtos: [] as Produto[], erro: true })),
           );
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -83,27 +84,5 @@ export class HomeComponent implements OnInit {
   limpar(): void {
     this.termo = '';
     this.buscar();
-  }
-
-  private buscarDisponiveis(
-    termo: string,
-    pagina = 0,
-    anteriores: Mouse[] = [],
-  ): Observable<Mouse[]> {
-    const consulta = termo
-      ? this.service.findByNome(termo, pagina, 12)
-      : this.service.findAll(pagina, 12);
-    return consulta.pipe(
-      switchMap((resposta) => {
-        const produtos = [
-          ...anteriores,
-          ...resposta.items.filter((mouse) => mouse.ativo && mouse.marca.ativo),
-        ];
-        // Continue past inactive records instead of showing a false empty catalog.
-        return produtos.length >= 3 || pagina + 1 >= resposta.totalPages
-          ? of(produtos.slice(0, 3))
-          : this.buscarDisponiveis(termo, pagina + 1, produtos);
-      }),
-    );
   }
 }

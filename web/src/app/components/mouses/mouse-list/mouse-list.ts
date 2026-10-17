@@ -1,4 +1,6 @@
+import { paginacaoPortugues } from '../../../services/paginator-intl';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ProductImageComponent } from '../../storefront/product-image/product-image';
 import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -7,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { Mouse } from '../../../models/mouse.model';
@@ -17,8 +19,10 @@ import { mensagemErro } from '../../../services/erro-api';
 @Component({
   selector: 'app-mouse-list',
   standalone: true,
+  providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   imports: [
     RouterLink,
+    ProductImageComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -42,7 +46,7 @@ export class MouseListComponent implements OnInit {
   readonly pageSize = signal(10);
   readonly totalItems = signal(0);
   readonly filtro = signal('');
-  readonly colunas = ['nome', 'marca', 'preco', 'estoque', 'ativo', 'acoes'];
+  readonly colunas = ['nome', 'marca', 'especificacoes', 'preco', 'estoque', 'ativo', 'acoes'];
 
   ngOnInit(): void {
     this.carregar();

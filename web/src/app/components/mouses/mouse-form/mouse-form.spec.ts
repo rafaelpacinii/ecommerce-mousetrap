@@ -79,4 +79,47 @@ describe('MouseFormComponent', () => {
     http.expectNone('http://localhost:8080/mouses/9');
     expect(fixture.componentInstance.carregandoMarcas()).toBe(false);
   });
+  it('saves gaming specifications and ordered gallery after selecting a new cover', () => {
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(MouseFormComponent);
+    fixture.detectChanges();
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
+    const c = fixture.componentInstance;
+    c.form.controls.especificacoes.patchValue({
+      sensor: 'PAW3395',
+      pollingRate: 8000,
+      tipoSwitch: 1,
+      pegadas: [2, 3],
+    });
+    c.adicionarImagem({ url: '/a.webp', textoAlternativo: 'A', ordem: 0 });
+    c.adicionarImagem({ url: '/b.webp', textoAlternativo: 'B', ordem: 1 });
+    c.moverImagem(1, -1);
+    c.salvar();
+    const request = http.expectOne('http://localhost:8080/mouses/9');
+    expect(request.request.body.especificacoes.pegadas).toEqual([2, 3]);
+    expect(request.request.body.imagens).toEqual([
+      { url: '/b.webp', textoAlternativo: 'B', ordem: 0 },
+      { url: '/a.webp', textoAlternativo: 'A', ordem: 1 },
+    ]);
+    request.flush(mouse);
+  });
+
+  it('rejects invalid image URLs and loads brands beyond the first page', () => {
+    const fixture = TestBed.createComponent(MouseFormComponent);
+    fixture.detectChanges();
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [], page: 0, pageSize: 10, totalItems: 11, totalPages: 2 });
+    http
+      .expectOne('http://localhost:8080/marcas?page=1&pageSize=10')
+      .flush({ items: [marca], page: 1, pageSize: 10, totalItems: 11, totalPages: 2 });
+    const c = fixture.componentInstance;
+    expect(c.marcas()).toEqual([marca]);
+    c.adicionarImagem({ url: 'javascript:alert(1)', textoAlternativo: 'Invalida', ordem: 0 });
+    c.salvar();
+    expect(c.imagens.invalid).toBe(true);
+    http.expectNone('http://localhost:8080/mouses/9');
+  });
 });

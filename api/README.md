@@ -70,7 +70,21 @@ Quando o banco estiver aceitando conexões:
 
 A suíte cobre operações do catálogo, validações, paginação e filtro de marcas, registros inexistentes, vínculos entre marca e mouse, conflitos de versão e CORS. A configuração atual usa `skipITs=true` para Failsafe; os testes HTTP executam pelo Surefire.
 
-Ao terminar, remova o banco descartável:
+### Continuous testing and database availability
+
+The HTTP test profile also runs during continuous testing in `./mvnw quarkus:dev`.
+Keep the test database container running while using this mode. It is separate
+from the development database on port 5432.
+
+If startup fails with `Connection to localhost:55439 refused`, check
+`docker ps --filter name=ecommerce-mouses-crud-tests` and start the test database
+with the `docker run` command above if it is missing. Wait until `pg_isready`
+reports that connections are accepted, then press `r` in the Quarkus terminal
+to rerun the tests. The `--rm` option removes the container when it stops, so
+`docker start` cannot restore it afterward; use `docker run` again.
+
+Stop the disposable database only after ending the test session, including
+continuous testing:
 
 ```bash
 docker stop ecommerce-mouses-crud-tests
@@ -94,3 +108,19 @@ Os endpoints administrativos ainda não exigem autenticação. O controle de ace
 ## Clientes e consulta por CEP
 
 Cadastro, edição, listagem e exclusão de clientes com endereço estruturado em Município e Estado, preenchimento por ViaCEP e validações nos dois lados. [Contratos, arquitetura, migration e avaliação](docs/clientes-cep.md).
+
+## Public catalog, product images and gaming specifications
+
+The second storefront slice is implemented. Public browsing uses
+`GET /catalogo/mouses`, `GET /catalogo/mouses/{id}` and `GET /catalogo/filtros`.
+It supports active-product/active-brand visibility, combined filters, safe sorting
+and pagination. The existing administrative CRUD contracts are preserved. Mouse
+payloads additionally accept optional `especificacoes` and `imagens` groups.
+
+Migration V3 adds product images and gaming specifications without modifying V1/V2
+or inventing values for existing products. Images are managed by URL and inherit
+entity audit fields; gallery edits use the mouse's optimistic version check.
+Authentication, orders, wishlist and payments remain future slices. The current
+image/gallery behavior supersedes older statements describing images as planned.
+
+See [Public catalog contracts, migration and validation](../docs/public-catalog.md).

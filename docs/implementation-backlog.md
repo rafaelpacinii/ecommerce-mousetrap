@@ -12,11 +12,11 @@ proposals, not changes to existing HTTP contracts.
 | --- | --- | --- |
 | Catalog API | [Resources](../api/src/main/java/br/unitins/tp2/resource/), [Mouse service](../api/src/main/java/br/unitins/tp2/service/MouseServiceImpl.java) | Brand and mouse CRUD, input validation, SKU/name uniqueness, paging/name search, prices, stock, active flags, and optimistic locking on mouse edits. |
 | Customer API | [Customer service](../api/src/main/java/br/unitins/tp2/service/ClienteServiceImpl.java), [CEP service](../api/src/main/java/br/unitins/tp2/service/CepServiceImpl.java) | Customer CRUD, one address stored on each customer, shared municipalities/states, ViaCEP lookup and server-side address validation. |
-| Database | [Migrations](../api/src/main/resources/db/migration/) | V1: catalog; V2: customers, municipalities, states. No orders, payments, identity links, image gallery, or wishlists. |
+| Database | [Migrations](../api/src/main/resources/db/migration/) | V1: catalog; V2: customers, municipalities, states; V3: product images and gaming specifications. No orders, payments, identity links or wishlists. |
 | Administrative UI | [Routes](../web/src/app/app.routes.ts), [components](../web/src/app/components/) | Nine CRUD routes for brands, mice, and customers; standalone Material components, reactive forms and edit resolvers. Brand/mouse lists have paging and name filters; customer list is unpaged. |
 | Branding | [Public assets](../web/public/), [global styles](../web/src/styles.css) | SVG/PNG/ICO icons, manifest, brand color variables. `Hero.jpg` is retained as source; the homepage uses responsive WebP exports. |
 | Theme and layout | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html) | Brand colors are mapped to Material M3. Storefront and legacy administrative layouts are separate; the future admin sidebar remains pending. |
-| Tests | [Backend tests](../api/src/test/), frontend `*.spec.ts` files | Existing catalog/customer/CEP tests, frontend form/list/resolver tests, and homepage/legacy-route regression coverage. No purchase-flow suite exists yet. |
+| Tests | [Backend tests](../api/src/test/), frontend `*.spec.ts` files | Catalog/customer/CEP tests plus public catalog, gallery and compatibility tests; frontend form/list/resolver, URL-filter and gallery coverage. No purchase-flow suite exists yet. |
 
 The `/` route now renders the storefront homepage; unknown routes redirect to it.
 Legacy CRUD routes remain unchanged under their own layout. The visible storefront
@@ -31,17 +31,17 @@ There are **12 SVGs: one design-system sheet and 11 screen wireframes**.
 | Reference | Status | Remaining work |
 | --- | --- | --- |
 | 00 — Design system | Foundation implemented | Brand colors mapped to Material M3, reusable surface/radius/button tokens, typography and numerical alignment. Continue applying them to future screens. |
-| 01 — Homepage `/` | Foundation implemented | Responsive hero/header/footer, grip guide and searchable real-product preview are implemented. Curated weekly highlights, product photos and account/cart navigation depend on subsequent slices. |
-| 02 — Catalog `/mouses` | Homepage preview only | Reusable cards and name search exist on the homepage. Full catalog facets, sorting, paging, URL filter state and mobile filters remain pending. Current `/mouses` stays an administrative table. |
-| 03 — Product `/mouses/:id` | Missing | Gallery, specs, price, availability, quantity/add-to-cart, delivery estimate and unavailable-product states. |
+| 01 — Homepage `/` | Implemented for current scope | Responsive hero/header/footer, grip guide and searchable public-product preview with real gallery covers. Curated weekly highlights and account/cart navigation remain later work. |
+| 02 — Public catalog | Implemented at `/catalogo` | Combined facets, safe sorting, server paging, URL state and mobile filters. `/mouses` remains administrative for compatibility. |
+| 03 — Product detail | Implemented at `/catalogo/:id` | Gallery, specs, current price, availability, image/error/missing states and metadata. Purchase and freight controls await their corresponding slices. |
 | 04 — Cart `/carrinho` | Missing | Local persistence, quantities, removal, totals, delivery estimate, empty and stale-product states. |
 | 05 — Checkout `/checkout` | Missing | Authenticated address selection, purchase review, payment selection, transactional order placement and result handling. |
 | 06 — Customer portal `/meus-pedidos` | Missing | Personal orders and status timeline, details/tracking, account/logout, saved addresses and wishlist views. |
 | 07 — Login `/login` | Missing | Unified login entry, recovery flow, role-aware return navigation and session handling. |
 | 08 — Registration `/cadastro` | Partial foundation | Reuse validated customer/CEP behavior; add public identity registration, identity/profile link and saved address flow. Current customer form is administrative and has no credentials. |
 | 09 — Admin orders `/admin/pedidos` | Missing | Admin shell/sidebar, real order metrics, filtered/paged order table, details and allowed status transitions. |
-| 10 — Admin catalog `/admin/mouses` | Partial | Adapt existing table to the wireframe, integrate images/specs and add sorting; introduce the admin route namespace with a compatibility plan. |
-| 11 — Admin product form | Partial | Reuse validated form/version handling; add images, sensor, polling rate, grip and switch fields as their contracts become available. |
+| 10 — Admin catalog | Images/specs implemented | Existing `/mouses` table now includes images/specifications. Admin namespace and broader administrative sorting remain later work. |
+| 11 — Admin product form | Implemented for catalog scope | Validated form, version checks, URL gallery with ordering/cover/removal, sensor, polling rate, grip and switch fields. Binary upload is not part of this slice. |
 
 Brand and customer CRUD also need integration into the admin shell, even though
 they do not have dedicated screen wireframes. Separate wireframes are still
@@ -90,18 +90,18 @@ Dynamic merchandising is complete only after its data source is connected.
 
 ### 2. Catalog data, images and public browsing
 
-- [ ] Add sensor, polling rate, switch type and grip fields across migration,
+- [x] Add sensor, polling rate, switch type and grip fields across migration,
   entity, DTOs, services, Angular models/forms and tests. Weight, DPI,
   connectivity, price and stock already exist.
-- [ ] Implement ordered product images with accessible descriptions and cover
+- [x] Implement ordered product images with accessible descriptions and cover
   selection. Decide URL management versus upload/storage before promising upload.
-- [ ] Define public active-product/active-brand rules and out-of-stock behavior.
-- [ ] Add combined brand/spec/price/weight/connectivity filters, supported sorts
+- [x] Define public active-product/active-brand rules and out-of-stock behavior.
+- [x] Add combined brand/spec/price/weight/connectivity filters, supported sorts
   and paginated results at the API level.
-- [ ] Build catalog cards, filter drawer, result count and shareable URL state.
-- [ ] Build product details/gallery with loading, missing-image, invalid-ID,
+- [x] Build catalog cards, filter drawer, result count and shareable URL state.
+- [x] Build product details/gallery with loading, missing-image, invalid-ID,
   inactive/unavailable and out-of-stock handling.
-- [ ] Adapt administrative list/form to manage the expanded catalog.
+- [x] Adapt administrative list/form to manage the expanded catalog.
 
 Acceptance: public results match the combined filters, inactive records are not
 exposed as purchasable, and product detail reflects current API values.
@@ -218,3 +218,13 @@ time, rather than assuming V3 will remain available throughout the roadmap.
   and navigation to the existing administrative layout. Browser catalog responses
   were intercepted fixtures; this was not a live backend/database integration test.
 - The database schema, REST contracts and dependencies were not changed.
+
+## Second implementation slice — completed
+
+See [Public catalog implementation](public-catalog.md). V3 adds images and
+specifications without modifying V1/V2. Public routes use `/catalogo` and
+`/catalogo/:id`, while existing administrative routes remain unchanged. Product
+images are managed by URL with alternative text and ordering. No external image
+storage, upload provider, payment behavior or authentication was introduced.
+
+The next implementation slice is authentication, authorization and owned accounts.

@@ -106,3 +106,13 @@ Implement product images, expanded gaming specifications and the public catalog
 contract before adding full catalog filters and product detail pages. Login,
 cart, saved addresses, payments and purchases remain on the
 [implementation backlog](implementation-backlog.md).
+
+## Second-slice update
+
+The full public catalog is now at `/catalogo`, with product details at
+`/catalogo/:id`. Header links and the hero CTA open that catalog. The homepage
+now uses `/catalogo/mouses?page=0&pageSize=3` and its optional `nome` parameter;
+visibility is enforced by the backend instead of paging through administrative
+records in the browser. Cards use gallery covers and link to details. The old
+preview-contract and placeholder descriptions above document the first slice;
+current behavior is specified in [Public catalog](public-catalog.md).

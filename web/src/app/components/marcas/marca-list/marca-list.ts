@@ -1,3 +1,4 @@
+import { paginacaoPortugues } from '../../../services/paginator-intl';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -7,7 +8,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { finalize } from 'rxjs';
 import { Marca } from '../../../models/marca.model';
 import { MarcaService } from '../../../services/marca.service';
@@ -16,6 +17,7 @@ import { mensagemErro } from '../../../services/erro-api';
 @Component({
   selector: 'app-marca-list',
   standalone: true,
+  providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   imports: [
     RouterLink,
     MatButtonModule,

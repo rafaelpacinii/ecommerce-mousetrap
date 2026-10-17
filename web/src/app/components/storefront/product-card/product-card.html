@@ -9,12 +9,19 @@
         >{{ produto().dpiMaximo | number }} DPI</span
       >
     </div>
-    <mat-icon aria-hidden="true" class="product-placeholder">mouse</mat-icon>
-    <span class="illustration-label">Imagem ilustrativa</span>
+    <a
+      class="product-photo"
+      [routerLink]="['/catalogo', produto().id]"
+      [attr.aria-label]="'Ver ' + produto().nome"
+    >
+      <app-product-image [imagem]="capa()" [nome]="produto().nome" />
+    </a>
   </div>
   <div class="product-content">
     <p class="product-brand">{{ produto().marca.nome }}</p>
-    <h3>{{ produto().nome }}</h3>
+    <h3>
+      <a [routerLink]="['/catalogo', produto().id]">{{ produto().nome }}</a>
+    </h3>
     <p class="product-description">{{ produto().descricao }}</p>
     <div class="product-bottom">
       <strong>{{ produto().preco | currency: 'BRL' }}</strong>
@@ -25,6 +32,9 @@
         >{{ produto().quantidadeEstoque > 0 ? 'Em estoque' : 'Indisponível' }}</span
       >
     </div>
+    <a class="details-link" [routerLink]="['/catalogo', produto().id]"
+      >Ver detalhes <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
+    >
     <details>
       <summary><mat-icon aria-hidden="true">chevron_right</mat-icon>Especificações</summary>
       <dl>

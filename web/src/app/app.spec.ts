@@ -21,7 +21,7 @@ describe('App routing', () => {
     await TestBed.inject(Router).navigateByUrl('/');
     fixture.detectChanges();
     http
-      .expectOne('http://localhost:8080/mouses?page=0&pageSize=12')
+      .expectOne('http://localhost:8080/catalogo/mouses?page=0&pageSize=3')
       .flush({ items: [], page: 0, pageSize: 12, totalItems: 0, totalPages: 0 });
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;

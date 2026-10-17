@@ -3,6 +3,8 @@ package br.unitins.tp2.dto;
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Set;
+import java.util.List;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 public record MouseDTO(
@@ -21,7 +23,9 @@ public record MouseDTO(
         @NotNull(message = "Selecione uma marca.") @Positive Long idMarca,
         @NotEmpty(message = "Selecione ao menos uma conexão.") @Size(max = 3)
         Set<@NotNull @Min(1) @Max(3) Integer> tiposConexao,
-        @PositiveOrZero Long versao) {
+        @PositiveOrZero Long versao,
+        @Valid EspecificacoesMouseDTO especificacoes,
+        @Size(max = 12) List<@NotNull @Valid ImagemMouseDTO> imagens) {
     public MouseDTO {
         if (sku != null) sku = sku.strip().toUpperCase(Locale.ROOT);
         if (nome != null) nome = nome.strip();
