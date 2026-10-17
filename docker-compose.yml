@@ -72,6 +72,12 @@ services:
       WEB_ORIGIN: ${PUBLIC_WEB_URL:?Required public web URL}
       PAGAMENTOS_SIMULACAO_HABILITADA: ${PAYMENT_DEMO_ENABLED:-false}
       VIACEP_URL: ${VIACEP_URL:-https://viacep.com.br/ws/}
+      R2_ENABLED: ${R2_ENABLED:-false}
+      R2_ENDPOINT: ${R2_ENDPOINT:-}
+      R2_BUCKET: ${R2_BUCKET:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
     ports:
       - '127.0.0.1:${API_PORT:-8080}:8080'
     depends_on:

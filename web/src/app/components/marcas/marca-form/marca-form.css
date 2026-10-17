@@ -16,3 +16,18 @@ fieldset {
     gap: 0;
   }
 }
+
+.logo-preview {
+  height: 160px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--alice-blue);
+}
+section > p {
+  color: var(--neutral-700);
+  font-size: 13px;
+  line-height: 1.6;
+}
+h2 {
+  font-size: 16px;
+}

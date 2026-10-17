@@ -46,13 +46,14 @@ This loopback-only stack is a release rehearsal. Before public deployment, follo
 ## Architecture and contracts
 
 The API follows Resource → Service → Repository with Java record DTOs and
-incremental Flyway migrations V1–V7. The SPA uses standalone components, Angular
+incremental Flyway migrations V1–V8. The SPA uses standalone components, Angular
 Material, services/signals and lazy routes. Backend roles and ownership are
 mandatory; guards only improve navigation.
 
 | Area | Routes / documentation |
 | --- | --- |
 | Public catalog | `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`; [contracts](docs/public-catalog.md) |
+| Catalog image uploads | Admin-only `POST /imagens/{mouses\|marcas}`; [Cloudflare R2 setup](docs/cloudflare-r2.md) |
 | Postcode / freight | `/ceps/{cep}`, `/ceps/{cep}/frete`; [addresses](api/docs/clientes-cep.md) |
 | Owned profile / addresses | `/clientes/me`, `/clientes/me/enderecos`; [authentication](docs/authentication.md) |
 | Checkout / payments | `/pedidos`; [transactional contracts](docs/transactional-checkout.md) |

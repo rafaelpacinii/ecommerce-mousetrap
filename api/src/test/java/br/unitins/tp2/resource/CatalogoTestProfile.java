@@ -7,6 +7,8 @@ public class CatalogoTestProfile implements QuarkusTestProfile {
     @Override
     public Map<String, String> getConfigOverrides() {
         return Map.ofEntries(
+                Map.entry("storage.r2.enabled", "false"),
+                Map.entry("quarkus.http.limits.max-body-size", "6M"),
                 Map.entry("pedidos.expiracao.intervalo", "1s"),
                 Map.entry("pagamentos.simulacao.habilitada", "true"),
                 Map.entry("quarkus.oidc.tenant-enabled", "false"),
