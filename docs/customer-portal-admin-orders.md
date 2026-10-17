@@ -4,6 +4,31 @@ Slice 6 implements the next [backlog](implementation-backlog.md) stage. The cust
 
 ## Customer behavior
 
+- A shared customer layout keeps one account sidebar mounted across order history,
+  order details, wishlist and account settings. Active destinations remain marked
+  on desktop and in the stacked mobile navigation.
+- Personal settings and delivery addresses have independent destinations:
+  `/meus-dados` and `/enderecos`. The former combined account route is removed;
+  neither page contains internal tabs. The shared sidebar prioritizes orders,
+  personal data, addresses, wishlist and logout in that order.
+- Navigation between the two account pages retains unsaved fields and preserves
+  a checkout `returnUrl`. Both are authenticated routes with their own page titles.
+  Their matching route reuses the profile form instance while the visible section
+  follows the URL. Plain document flow avoids internal tab scrollbars.
+- Personal settings contain name, read-only email and access to email/password
+  management. Saved-address creation, editing, removal, principal selection and
+  CEP lookup belong to the address page. Existing profiles do not repeat address
+  inputs in personal settings.
+- **Cancelar** in personal settings is disabled without changes and during save.
+  It restores the last loaded/saved personal name locally, keeps the current page
+  and leaves address drafts intact. Successful saves establish the new baseline.
+- The initial profile still requires personal and address data under the existing
+  API contract. Incomplete submission opens the page that needs attention; saving
+  the first address completes registration and reveals the saved-address list.
+- Address changes refresh the profile's retained principal fields before a personal
+  save. Pending address mutations, loading and failed refreshes block profile
+  submission to avoid restoring a stale principal address; failed loads retain
+  the visible address list and provide retry.
 - `/meus-pedidos` provides paged, newest-first orders scoped to the authenticated token subject. The first page highlights its most recent ongoing order; the other orders remain accessible through history cards and pagination.
 - `/meus-pedidos/:id` shows immutable item/address snapshots, totals, the four-step progression, recorded events, payment attempts and shipping information. A different account receives 404. An administrator shopping through these customer routes has the same ownership restriction.
 - New items in the cart open a fresh checkout automatically, without a manual “start another purchase” step. Previously created orders remain in history, including awaiting-payment orders. Ambiguous creation/payment attempts keep their recovery keys.
@@ -87,6 +112,24 @@ Executed checks:
 - Prettier and `git diff --check`: passed. V1–V6 and the homepage hero remain unchanged.
 
 Browser accounts, permissions, fixtures and owned preview processes were cleaned up after verification. The developer database was not used for end-to-end fixtures. The final compact history presentation follows the wireframe card while keeping full address/event/payment details on the detail route; frontend tests/build were repeated after that presentation refinement.
+
+## Account navigation follow-up validation
+
+- Frontend unit and routing suite: **117 tests passed across 24 files**. Coverage
+  includes protected pages, removal of the combined account route, persistent
+  sidebar, navigation priority, initial registration, retained drafts, checkout
+  return paths, principal-address synchronization, failed-refresh recovery, cancel
+  state, first-name truncation and combined catalog search.
+- Production frontend build passed within configured budgets.
+- Chromium preview with **mocked authentication and HTTP responses**: **29 checks**,
+  including **20 viewport/page combinations** for existing and new profiles at
+  1440, 1024, 768, 375 and 320 px, plus five catalog-search layouts and **6 Axe audits**. Both account pages had no
+  horizontal overflow or redundant internal scrolling. Address edits, personal
+  saves, keyboard navigation and shared sidebar persistence passed without browser
+  runtime errors. The named account dropdown, conditional cancellation, search
+  shortcut, draft-text clearing and filter preservation also passed.
+- Backend and the complete Docker/Keycloak purchase suite were not rerun for this
+  frontend correction. Their historical results above remain separate.
 
 ## Remaining limits
 

@@ -6,38 +6,34 @@ import { finalize } from 'rxjs';
 import { Pedido } from '../../../models/pedido.model';
 import { PedidoService } from '../../../services/pedido.service';
 import { mensagemErro } from '../../../services/erro-api';
-import { AccountNavComponent } from './account-nav';
 import { OrderDetailsComponent } from '../../shared/order-details/order-details';
 @Component({
   selector: 'app-customer-order',
   standalone: true,
-  imports: [RouterLink, MatIconModule, AccountNavComponent, OrderDetailsComponent],
-  template: ` <div class="store-container portal-grid">
-    <app-account-nav />
-    <div class="portal-content">
-      <a class="order-link" routerLink="/meus-pedidos"
-        ><mat-icon aria-hidden="true">arrow_back</mat-icon>Meus pedidos</a
-      >
-      @if (erro()) {
-        <p class="feedback" role="alert">{{ erro() }}</p>
-      }
-      @if (pedido(); as p) {
-        <app-order-details [pedido]="p" />
-        <div class="detail-actions">
-          <button class="text-button" (click)="atualizar()" [disabled]="ocupado()">
-            <mat-icon aria-hidden="true">refresh</mat-icon>Atualizar pedido
-          </button>
-          @if (p.status.id === 1) {
-            <a
-              class="store-button store-button-gold"
-              routerLink="/checkout"
-              [queryParams]="{ pedido: p.id }"
-              >Continuar com o pagamento</a
-            >
-          }
-        </div>
-      }
-    </div>
+  imports: [RouterLink, MatIconModule, OrderDetailsComponent],
+  template: ` <div class="portal-content">
+    <a class="order-link" routerLink="/meus-pedidos"
+      ><mat-icon aria-hidden="true">arrow_back</mat-icon>Meus pedidos</a
+    >
+    @if (erro()) {
+      <p class="feedback" role="alert">{{ erro() }}</p>
+    }
+    @if (pedido(); as p) {
+      <app-order-details [pedido]="p" />
+      <div class="detail-actions">
+        <button class="text-button" (click)="atualizar()" [disabled]="ocupado()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>Atualizar pedido
+        </button>
+        @if (p.status.id === 1) {
+          <a
+            class="store-button store-button-gold"
+            routerLink="/checkout"
+            [queryParams]="{ pedido: p.id }"
+            >Continuar com o pagamento</a
+          >
+        }
+      </div>
+    }
   </div>`,
   styleUrl: './customer-portal.css',
 })

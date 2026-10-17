@@ -33,6 +33,102 @@ describe('Public catalog navigation', () => {
     totalItems: total,
     totalPages: total ? 1 : 0,
   });
+  const clearButtons = (root: HTMLElement) =>
+    Array.from(root.querySelectorAll('button')).filter((button) =>
+      button.textContent?.includes('Limpar'),
+    );
+
+  it.each([
+    '/catalogo',
+    '/catalogo?ordenar=menor-preco&page=2&pageSize=24',
+    '/catalogo?nome=%20%20&sensor=&emEstoque=false',
+  ])(
+    'hides clear actions during loading, errors and empty results without filters: %s',
+    async (url) => {
+      const harness = await RouterTestingHarness.create();
+      const component = await harness.navigateByUrl(url, CatalogComponent);
+      http.expectOne('http://localhost:8080/catalogo/filtros').flush(facets);
+      const root = harness.routeNativeElement!;
+      harness.detectChanges();
+      expect(clearButtons(root)).toHaveLength(0);
+
+      http
+        .expectOne((r) => r.url.endsWith('/catalogo/mouses'))
+        .flush({}, { status: 503, statusText: 'Unavailable' });
+      harness.detectChanges();
+      expect(root.textContent).toContain('Não foi possível carregar o catálogo');
+      expect(clearButtons(root)).toHaveLength(0);
+
+      component.repetir();
+      http
+        .expectOne((r) => r.url.endsWith('/catalogo/mouses'))
+        .flush({ ...result(component.filtro().page, 50), totalPages: 5 });
+      harness.detectChanges();
+      expect(root.textContent).toContain('Nenhum mouse encontrado');
+      expect(clearButtons(root)).toHaveLength(0);
+    },
+  );
+
+  it('recognizes a zero price boundary and clears the URL and form through the rendered action', async () => {
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/catalogo?precoMin=0', CatalogComponent);
+    http.expectOne('http://localhost:8080/catalogo/filtros').flush(facets);
+    http.expectOne((r) => r.url.endsWith('/catalogo/mouses')).flush(result());
+    harness.detectChanges();
+    const root = harness.routeNativeElement!;
+    expect(clearButtons(root)).toHaveLength(2);
+    clearButtons(root)[1].click();
+    await harness.fixture.whenStable();
+    http.expectOne((r) => r.url.endsWith('/catalogo/mouses')).flush(result());
+    harness.detectChanges();
+    expect(TestBed.inject(Router).url).toBe('/catalogo');
+    expect(component.form.controls.precoMin.value).toBeNull();
+    expect(clearButtons(root)).toHaveLength(0);
+  });
+
+  it('submits the search bar with existing facets and clears only its draft text', async () => {
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl(
+      '/catalogo?marca=1&pesoMax=59&page=2',
+      CatalogComponent,
+    );
+    http.expectOne('http://localhost:8080/catalogo/filtros').flush(facets);
+    http
+      .expectOne((r) => r.url.endsWith('/catalogo/mouses'))
+      .flush({ ...result(2, 50), totalPages: 5 });
+    harness.detectChanges();
+    const root = harness.routeNativeElement!;
+    const input = root.querySelector('#catalog-query') as HTMLInputElement;
+    input.value = '  Viper  ';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const shortcut = new KeyboardEvent('keydown', {
+      key: '/',
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    document.dispatchEvent(shortcut);
+    expect(shortcut.defaultPrevented).toBe(true);
+    root.querySelector('.catalog-search')!.dispatchEvent(new Event('submit', { bubbles: true }));
+    await harness.fixture.whenStable();
+    const search = http.expectOne((r) => r.url.endsWith('/catalogo/mouses'));
+    expect(search.request.params.get('nome')).toBe('Viper');
+    expect(search.request.params.getAll('marca')).toEqual(['1']);
+    expect(search.request.params.get('pesoMax')).toBe('59');
+    expect(search.request.params.get('page')).toBe('0');
+    search.flush(result());
+    harness.detectChanges();
+    (root.querySelector('.search-erase') as HTMLButtonElement).click();
+    expect(component.form.controls.nome.value).toBe('');
+    expect(component.form.controls.marca.value).toEqual([1]);
+    http.expectNone((r) => r.url.endsWith('/catalogo/mouses'));
+    root.querySelector('.catalog-search')!.dispatchEvent(new Event('submit', { bubbles: true }));
+    await harness.fixture.whenStable();
+    const cleared = http.expectOne((r) => r.url.endsWith('/catalogo/mouses'));
+    expect(cleared.request.params.has('nome')).toBe(false);
+    expect(cleared.request.params.getAll('marca')).toEqual(['1']);
+    cleared.flush(result());
+  });
 
   it('restores shared URL filters, sends combined parameters and resets pagination on apply', async () => {
     const harness = await RouterTestingHarness.create();
@@ -46,6 +142,8 @@ describe('Public catalog navigation', () => {
     expect(initial.request.params.get('pesoMax')).toBe('60');
     expect(initial.request.params.get('page')).toBe('2');
     initial.flush({ ...result(2, 50), totalPages: 5 });
+    harness.detectChanges();
+    expect(clearButtons(harness.routeNativeElement!)).toHaveLength(2);
     expect(component.form.controls.pegada.value).toEqual([2]);
     component.form.controls.nome.setValue('  Mouse  ');
     component.aplicar();
@@ -59,6 +157,8 @@ describe('Public catalog navigation', () => {
     await harness.fixture.whenStable();
     http.expectOne((r) => r.url.endsWith('/catalogo/mouses')).flush(result());
     expect(TestBed.inject(Router).url).toBe('/catalogo');
+    harness.detectChanges();
+    expect(clearButtons(harness.routeNativeElement!)).toHaveLength(0);
   });
 
   it('cancels stale requests and retries errors without changing the URL', async () => {
@@ -75,6 +175,7 @@ describe('Public catalog navigation', () => {
     expect(harness.routeNativeElement?.textContent).toContain(
       'Não foi possível carregar o catálogo',
     );
+    expect(clearButtons(harness.routeNativeElement!)).toHaveLength(2);
     component.repetir();
     http.expectOne((r) => r.url.endsWith('/catalogo/mouses')).flush(result());
     harness.detectChanges();

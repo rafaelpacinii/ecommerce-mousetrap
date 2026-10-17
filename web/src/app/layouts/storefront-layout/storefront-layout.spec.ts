@@ -16,11 +16,81 @@ describe('Storefront navigation', () => {
         provideRouter([
           { path: 'catalogo', component: DestinationComponent },
           { path: 'login', component: DestinationComponent },
+          { path: 'meus-dados', component: DestinationComponent },
+          { path: 'meus-pedidos', component: DestinationComponent },
         ]),
         { provide: AuthService, useValue: { authenticated: signal(false), admin: signal(false) } },
         { provide: CarrinhoService, useValue: { quantidadeTotal: signal(2) } },
       ],
     });
+  });
+
+  it.each([false, true])(
+    'opens the named account menu and navigates to personal settings from its links (admin=%s)',
+    async (admin) => {
+      const logout = vi.fn();
+      TestBed.overrideProvider(AuthService, {
+        useValue: {
+          authenticated: signal(true),
+          admin: signal(admin),
+          nome: signal('Rafael Pacini'),
+          logout,
+        },
+      });
+      const fixture = TestBed.createComponent(StorefrontLayoutComponent);
+      await TestBed.inject(Router).navigateByUrl('/catalogo');
+      fixture.detectChanges();
+      const root = fixture.nativeElement as HTMLElement;
+      const menu = root.querySelector('.account-menu') as HTMLDetailsElement;
+      const profile = menu.querySelector('a[href="/meus-dados"]') as HTMLAnchorElement;
+      expect(root.querySelector('.account-name')?.textContent?.trim()).toBe('Rafael');
+      expect(menu.querySelector('summary')?.getAttribute('aria-label')).toBe(
+        'Opções da conta de Rafael Pacini',
+      );
+      expect(profile).not.toBeNull();
+      expect(menu.querySelector('a[href="/enderecos"]')).not.toBeNull();
+      expect(!!menu.querySelector('a[href="/admin/pedidos"]')).toBe(admin);
+      expect(menu.querySelector('a[href="/lista-de-desejos"]')).not.toBeNull();
+
+      fixture.componentInstance.menuAberto.set(true);
+      menu.open = true;
+      profile.click();
+      await fixture.whenStable();
+      expect(TestBed.inject(Router).url).toBe('/meus-dados');
+      expect(fixture.componentInstance.menuAberto()).toBe(false);
+      expect(menu.open).toBe(false);
+
+      menu.open = true;
+      menu
+        .querySelector('summary')!
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      expect(menu.open).toBe(false);
+
+      menu.open = true;
+      (menu.querySelector('a[href="/meus-pedidos"]') as HTMLAnchorElement).click();
+      await fixture.whenStable();
+      expect(TestBed.inject(Router).url).toBe('/meus-pedidos');
+      expect(menu.open).toBe(false);
+
+      menu.open = true;
+      menu.querySelector('button')!.click();
+      expect(logout).toHaveBeenCalledOnce();
+      expect(menu.open).toBe(false);
+    },
+  );
+
+  it.each([
+    ['  José  da Silva  ', 'José'],
+    ['abcdefghijklmnop Sobrenome', 'abcdefghijklmnop'],
+    ['abcdefghijklmnopq Sobrenome', 'abcdefghijklm...'],
+    ['', 'Sua conta'],
+  ])('shows only a bounded first name in the header for %s', (nome, exibido) => {
+    TestBed.overrideProvider(AuthService, {
+      useValue: { authenticated: signal(true), admin: signal(false), nome: signal(nome) },
+    });
+    const fixture = TestBed.createComponent(StorefrontLayoutComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.account-name').textContent.trim()).toBe(exibido);
   });
 
   it('submits a trimmed name to the catalog and closes mobile navigation', async () => {

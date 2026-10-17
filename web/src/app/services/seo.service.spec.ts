@@ -19,7 +19,7 @@ describe('Route metadata', () => {
             data: { description: 'Compare mouses.' },
           },
           {
-            path: 'minha-conta',
+            path: 'meus-dados',
             component: Page,
             title: 'Minha conta | MouseTrap',
             data: { description: 'Gerencie seus dados.' },
@@ -43,7 +43,7 @@ describe('Route metadata', () => {
     expect(
       document.querySelector('meta[property="og:url"]')?.getAttribute('content'),
     ).not.toContain('?');
-    await harness.navigateByUrl('/minha-conta?email=private@example.test');
+    await harness.navigateByUrl('/meus-dados?email=private@example.test');
     expect(document.querySelector('link[rel="canonical"]')).toBeNull();
     expect(document.querySelector('meta[property="og:url"]')).toBeNull();
     expect(document.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe(

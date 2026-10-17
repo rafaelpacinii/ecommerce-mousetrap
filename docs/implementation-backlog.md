@@ -154,6 +154,8 @@ and delivery data survive later catalog/address edits.
 
 ### 6. Customer portal, admin operations and wishlist
 
+- [x] Keep shared customer navigation across orders, wishlist and account; separate
+      personal data and saved addresses into independent pages with direct links.
 - [x] Build owner-scoped order history, details, status timeline and tracking.
 - [x] Build admin order list/details, search/status filters and allowed shipping
       and delivery actions, including administrative payment confirmation/refusal. Use explicit business operations rather than arbitrary

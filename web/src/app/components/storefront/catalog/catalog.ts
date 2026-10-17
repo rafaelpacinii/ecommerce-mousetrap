@@ -1,5 +1,16 @@
 import { paginacaoPortugues } from '../../../services/paginator-intl';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -38,7 +49,7 @@ import { ProductCardComponent } from '../product-card/product-card';
     ProductCardComponent,
   ],
   templateUrl: './catalog.html',
-  styleUrl: './catalog.css',
+  styleUrls: ['./catalog.css', './catalog-search.css'],
 })
 export class CatalogComponent implements OnInit {
   private readonly service = inject(CatalogoService);
@@ -48,6 +59,11 @@ export class CatalogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly meta = inject(Meta);
   private readonly tentativas = new Subject<void>();
+  private readonly document = inject(DOCUMENT);
+  private readonly campoBusca = viewChild.required<ElementRef<HTMLInputElement>>('catalogSearch');
+  readonly atalhoBusca = /Mac|iPhone|iPad/.test(this.document.defaultView?.navigator.platform ?? '')
+    ? '⌘ /'
+    : 'Ctrl /';
   readonly produtos = signal<Produto[]>([]);
   readonly facetas = signal<CatalogoFacetas | null>(null);
   readonly erroFacetas = signal(false);
@@ -56,6 +72,20 @@ export class CatalogComponent implements OnInit {
   readonly filtrosAbertos = signal(false);
   readonly total = signal(0);
   readonly filtro = signal<CatalogoFiltro>({});
+  readonly temFiltros = computed(() => {
+    const f = this.filtro();
+    return Boolean(
+      f.nome?.trim() ||
+      f.sensor?.trim() ||
+      f.marca?.length ||
+      f.conexao?.length ||
+      f.pegada?.length ||
+      f.emEstoque ||
+      [f.pollingRateMin, f.tipoSwitch, f.pesoMax, f.precoMin, f.precoMax].some(
+        (valor) => valor != null,
+      ),
+    );
+  });
   readonly ordenacoes = ORDENACOES;
   readonly pollingRates = POLLING_RATES;
   readonly form = this.fb.nonNullable.group(
@@ -132,6 +162,19 @@ export class CatalogComponent implements OnInit {
         this.produtos.set(resposta.items);
         this.total.set(resposta.totalItems);
       });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  focarBusca(event: KeyboardEvent): void {
+    if (!event.isComposing && (event.ctrlKey || event.metaKey) && event.key === '/') {
+      event.preventDefault();
+      this.campoBusca().nativeElement.focus();
+    }
+  }
+
+  apagarBusca(): void {
+    this.form.controls.nome.setValue('');
+    this.campoBusca().nativeElement.focus();
   }
 
   alternarFaceta(campo: 'marca' | 'pegada' | 'conexao', id: number, selecionado: boolean): void {

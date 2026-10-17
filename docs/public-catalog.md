@@ -8,6 +8,12 @@ Visual references: wireframes 02, 03, 10 and 11 in [the wireframe index](ui-wire
 
 - `/catalogo`: responsive product grid, mobile filter panel, name search,
   combined technical/price filters, supported sorting and server pagination.
+- The full-width search bar above the filter layout uses a rounded, layered
+  surface inspired by [Sanjana Gondaliya's search-bar reference](https://dribbble.com/shots/24953449-Search-bar), adapted to the brand palette and Material Icons.
+  Enter or **Buscar** submits the name together with the facet selections and
+  resets pagination. Ctrl+/ (or Cmd+/ on macOS) focuses the search field.
+  **Apagar busca** clears only the draft text and restores focus; submitting
+  applies it without removing other selected filters.
 - `/catalogo/:id`: functional resolver, ordered gallery with selectable
   thumbnails, specifications, current price and stock status, accessible image
   fallbacks, missing/unavailable states, network retry and product metadata.
@@ -68,6 +74,9 @@ Best-selling order is not offered because sales data does not exist yet.
 The browser URL retains filters, sort, page and page size. Applying filters or
 changing sort resets the page. Clear removes the query. Browser navigation and
 direct links restore the form; an out-of-range page returns to the first page.
+Clear actions in the filter panel, empty results and request errors appear only
+when a search or facet filter is applied. Sorting, pagination, empty text and
+`emEstoque=false` alone do not expose them; a price boundary of zero is a filter.
 Requests are canceled when a newer URL/search supersedes them, and retry works
 without requiring a URL change.
 
