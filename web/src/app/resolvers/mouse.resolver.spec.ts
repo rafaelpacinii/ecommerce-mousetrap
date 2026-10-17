@@ -30,7 +30,7 @@ describe('mouseResolver', () => {
       .flush({ detail: 'Mouse não encontrado.' }, { status: 404, statusText: 'Not Found' });
     expect(destino).toBeInstanceOf(RedirectCommand);
     expect(TestBed.inject(Router).serializeUrl((destino as RedirectCommand).redirectTo)).toBe(
-      '/mouses',
+      '/admin/mouses',
     );
     http.verify();
   });

@@ -5,12 +5,14 @@ import java.util.List;
 import br.unitins.tp2.dto.*;
 import br.unitins.tp2.service.CatalogoService;
 import jakarta.inject.Inject;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/catalogo")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@PermitAll
 public class CatalogoResource {
     @Inject CatalogoService service;
 

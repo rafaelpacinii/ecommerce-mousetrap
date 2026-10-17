@@ -1,0 +1,116 @@
+{
+  "realm": "mousetrap",
+  "enabled": true,
+  "displayName": "MouseTrap",
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "verifyEmail": true,
+  "editUsernameAllowed": false,
+  "rememberMe": true,
+  "bruteForceProtected": true,
+  "passwordPolicy": "length(12) and digits(1) and upperCase(1) and lowerCase(1)",
+  "loginTheme": "mousetrap",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "pt-BR",
+    "en"
+  ],
+  "defaultLocale": "pt-BR",
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "conta@mousetrap.test",
+    "fromDisplayName": "MouseTrap",
+    "ssl": "false",
+    "starttls": "false",
+    "auth": "false"
+  },
+  "defaultRole": {
+    "name": "default-roles-mousetrap",
+    "composite": true,
+    "clientRole": false
+  },
+  "roles": {
+    "realm": [
+      {
+        "name": "admin"
+      },
+      {
+        "name": "customer"
+      },
+      {
+        "name": "default-roles-mousetrap",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "customer"
+          ],
+          "client": {
+            "account": [
+              "view-profile",
+              "manage-account"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "mousetrap-api",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "bearerOnly": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    },
+    {
+      "clientId": "mousetrap-web",
+      "name": "MouseTrap",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/auth/callback",
+        "http://localhost:4200/silent-check-sso.html"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4200/"
+      },
+      "defaultClientScopes": [
+        "basic",
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "mousetrap-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "mousetrap-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ],
+      "fullScopeAllowed": true
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { APP_SETTINGS } from '../config/app-settings';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -5,7 +6,13 @@ import { Cliente, ClienteDTO } from '../models/cliente.model';
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl: string = 'http://localhost:8080/clientes';
+  private readonly apiUrl: string = `${inject(APP_SETTINGS).apiUrl}/clientes`;
+  findMe(): Observable<Cliente> {
+    return this.http.get<Cliente>(`${this.apiUrl}/me`);
+  }
+  saveMe(cliente: Omit<ClienteDTO, 'email'>): Observable<Cliente> {
+    return this.http.put<Cliente>(`${this.apiUrl}/me`, cliente);
+  }
   findAll(): Observable<Cliente[]> {
     return this.http.get<Cliente[]>(this.apiUrl);
   }

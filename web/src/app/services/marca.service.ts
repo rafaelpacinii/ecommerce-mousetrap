@@ -1,3 +1,4 @@
+import { APP_SETTINGS } from '../config/app-settings';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +8,7 @@ import { PagedResponse } from '../models/page-response.model';
 @Injectable({ providedIn: 'root' })
 export class MarcaService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl: string = 'http://localhost:8080/marcas';
+  private readonly apiUrl: string = `${inject(APP_SETTINGS).apiUrl}/marcas`;
 
   findAll(page = 0, pageSize = 10): Observable<PagedResponse<Marca>> {
     return this.http.get<PagedResponse<Marca>>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`);

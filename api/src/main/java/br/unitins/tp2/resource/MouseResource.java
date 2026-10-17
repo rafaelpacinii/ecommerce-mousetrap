@@ -5,6 +5,7 @@ import br.unitins.tp2.dto.MouseResponseDTO;
 import br.unitins.tp2.dto.PageResponse;
 import br.unitins.tp2.service.MouseService;
 import jakarta.inject.Inject;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -14,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/mouses")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RolesAllowed("admin")
 public class MouseResource {
     @Inject
     MouseService service;

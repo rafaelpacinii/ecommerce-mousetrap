@@ -13,12 +13,12 @@ export const marcaResolver: ResolveFn<Marca> = (route) => {
   const id = Number(route.paramMap.get('id'));
   if (!Number.isSafeInteger(id) || id <= 0) {
     snack.open('Identificador inválido.', 'Fechar', { duration: 5000 });
-    return new RedirectCommand(router.parseUrl('/marcas'));
+    return new RedirectCommand(router.parseUrl('/admin/marcas'));
   }
   return service.findById(id).pipe(
     catchError((erro: unknown) => {
       snack.open(mensagemErro(erro), 'Fechar', { duration: 6000 });
-      return of(new RedirectCommand(router.parseUrl('/marcas')));
+      return of(new RedirectCommand(router.parseUrl('/admin/marcas')));
     }),
   );
 };

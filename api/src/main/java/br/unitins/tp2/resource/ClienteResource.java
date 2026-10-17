@@ -2,7 +2,9 @@ package br.unitins.tp2.resource;
 
 import br.unitins.tp2.service.ClienteService;
 import br.unitins.tp2.dto.ClienteDTO;
+import br.unitins.tp2.dto.PerfilClienteDTO;
 import jakarta.inject.Inject;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
@@ -19,8 +21,23 @@ import jakarta.ws.rs.core.Response;
 @Path("/clientes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RolesAllowed("admin")
 public class ClienteResource {
     @Inject ClienteService service;
+
+    @GET
+    @Path("/me")
+    @RolesAllowed({"customer", "admin"})
+    public Response findMe() {
+        return Response.ok(service.findMe()).build();
+    }
+
+    @PUT
+    @Path("/me")
+    @RolesAllowed({"customer", "admin"})
+    public Response saveMe(@NotNull @Valid PerfilClienteDTO dto) {
+        return Response.ok(service.saveMe(dto)).build();
+    }
 
     @GET
     public Response findAll() {

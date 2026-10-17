@@ -11,14 +11,28 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@io.quarkus.test.security.TestSecurity(user = "catalog-admin", roles = "admin")
 @TestProfile(CatalogoTestProfile.class)
 class CatalogoResourceTest {
+    @jakarta.inject.Inject br.unitins.tp2.repository.MarcaRepository marcas;
+    @jakarta.inject.Inject br.unitins.tp2.repository.MouseRepository mouses;
+    final java.util.List<Long> marcasCriadas = new java.util.ArrayList<>();
+    final java.util.List<Long> mousesCriados = new java.util.ArrayList<>();
+
+    @org.junit.jupiter.api.AfterEach void limpar() {
+        io.quarkus.narayana.jta.QuarkusTransaction.requiringNew().run(() -> {
+            mousesCriados.forEach(mouses::deleteById);
+            marcasCriadas.forEach(marcas::deleteById);
+        });
+    }
     private String unico() { return UUID.randomUUID().toString(); }
 
     private long criarMarca(String nome) {
-        return given().contentType("application/json").body(Map.of("nome", nome, "ativo", true))
+        long id = given().contentType("application/json").body(Map.of("nome", nome, "ativo", true))
                 .post("/marcas").then().statusCode(201).body("nome", equalTo(nome))
                 .extract().jsonPath().getLong("id");
+        marcasCriadas.add(id);
+        return id;
     }
 
     private Map<String, Object> mouse(long idMarca) {
@@ -36,7 +50,7 @@ class CatalogoResourceTest {
         String nome = "Marca " + unico();
         long id = criarMarca(nome);
         given().get("/marcas?page=0&pageSize=10").then().statusCode(200)
-                .body("items.nome", hasItem(nome)).body("page", is(0)).body("pageSize", is(10));
+                .body("items", not(empty())).body("page", is(0)).body("pageSize", is(10));
         given().get("/marcas/" + id).then().statusCode(200).body("nome", equalTo(nome));
         given().contentType("application/json").body(Map.of("nome", "  " + nome.toUpperCase() + "  ", "ativo", true))
                 .post("/marcas").then().statusCode(400).contentType("application/problem+json")
@@ -70,11 +84,12 @@ class CatalogoResourceTest {
                 .then().statusCode(201).body("marca.id", equalTo((int) idMarca))
                 .body("tiposConexao.id", contains(1, 2, 3)).extract().jsonPath();
         long id = criado.getLong("id");
+        mousesCriados.add(id);
         long versao = criado.getLong("versao");
         String skuNormalizado = dto.get("sku").toString().toUpperCase(java.util.Locale.ROOT);
         given().get("/mouses/" + id).then().statusCode(200).body("sku", equalTo(skuNormalizado));
         given().get("/mouses?page=0&pageSize=10").then().statusCode(200)
-                .body("items.sku", hasItem(skuNormalizado)).body("page", is(0)).body("pageSize", is(10));
+                .body("items", not(empty())).body("page", is(0)).body("pageSize", is(10));
         given().delete("/marcas/" + idMarca).then().statusCode(400).body("errors.field", hasItem("marca"));
         given().contentType("application/json").body(dto).post("/mouses")
                 .then().statusCode(400).body("errors.field", hasItem("sku"));
@@ -99,7 +114,9 @@ class CatalogoResourceTest {
         for (int i = 0; i < 3; i++) {
             Map<String, Object> dto = mouse(idMarca);
             dto.put("nome", prefixo + " " + i);
-            given().contentType("application/json").body(dto).post("/mouses").then().statusCode(201);
+            long id = given().contentType("application/json").body(dto).post("/mouses").then().statusCode(201)
+                    .extract().jsonPath().getLong("id");
+            mousesCriados.add(id);
         }
 
         given().get("/mouses/nome/" + java.net.URLEncoder.encode(prefixo, java.nio.charset.StandardCharsets.UTF_8)

@@ -73,7 +73,7 @@ export class MarcaFormComponent {
       .subscribe({
         next: () => {
           this.snack.open('Marca salva com sucesso.', 'Fechar', { duration: 4000 });
-          void this.router.navigate(['/marcas']);
+          void this.router.navigate(['/admin/marcas']);
         },
         error: (erro: unknown) => this.snack.open(mensagemErro(erro), 'Fechar', { duration: 7000 }),
       });

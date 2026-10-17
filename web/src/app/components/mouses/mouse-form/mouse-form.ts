@@ -258,7 +258,7 @@ export class MouseFormComponent implements OnInit {
       .subscribe({
         next: () => {
           this.snack.open('Mouse salvo com sucesso.', 'Fechar', { duration: 4000 });
-          void this.router.navigate(['/mouses']);
+          void this.router.navigate(['/admin/mouses']);
         },
         error: (erro: unknown) => this.snack.open(mensagemErro(erro), 'Fechar', { duration: 7000 }),
       });

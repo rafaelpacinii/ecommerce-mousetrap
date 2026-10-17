@@ -11,7 +11,7 @@
   min-height: 88px;
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
 }
 
 .brand {
@@ -38,7 +38,7 @@
 nav {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
 }
 
 nav a {
@@ -122,7 +122,7 @@ main {
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1200px) {
   .header-content {
     min-height: 76px;
     flex-wrap: wrap;
@@ -179,4 +179,15 @@ main {
   .store-footer {
     margin-top: 48px;
   }
+}
+
+.session-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--neutral-700);
+  cursor: pointer;
+  padding: 12px 0;
 }

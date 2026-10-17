@@ -103,7 +103,9 @@ java -jar target/quarkus-app/quarkus-run.jar
 - [Catálogo: contratos e regras de negócio](docs/catalogo.md).
 - [Modelo de dados e diagrama de classes](docs/modelagem/README.md).
 
-Os endpoints administrativos ainda não exigem autenticação. O controle de acesso deve ser implementado antes de disponibilizá-los publicamente.
+Administrative endpoints now require the `admin` role. Public clients use
+`/catalogo/**` and `/ceps/{cep}`. Start the identity stack before the API; see
+[authentication setup and contracts](../docs/authentication.md).
 
 ## Clientes e consulta por CEP
 
@@ -124,3 +126,13 @@ Authentication, orders, wishlist and payments remain future slices. The current
 image/gallery behavior supersedes older statements describing images as planned.
 
 See [Public catalog contracts, migration and validation](../docs/public-catalog.md).
+
+## Authentication and owned profiles
+
+OIDC defaults in `META-INF/microprofile-config.properties` also apply to existing
+local configuration files. Set `OIDC_AUTH_SERVER_URL` for another issuer; audience
+`mousetrap-api` and realm roles are validated. `GET /clientes/me` and
+`PUT /clientes/me` use the verified token subject and email, never caller IDs.
+V4 adds the unique identity link without claiming existing customers by email.
+Tests use test-scoped identities and retain the isolated PostgreSQL requirement.
+See [authentication and authorization](../docs/authentication.md).

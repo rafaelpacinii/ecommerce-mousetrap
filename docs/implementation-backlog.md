@@ -12,14 +12,14 @@ proposals, not changes to existing HTTP contracts.
 | --- | --- | --- |
 | Catalog API | [Resources](../api/src/main/java/br/unitins/tp2/resource/), [Mouse service](../api/src/main/java/br/unitins/tp2/service/MouseServiceImpl.java) | Brand and mouse CRUD, input validation, SKU/name uniqueness, paging/name search, prices, stock, active flags, and optimistic locking on mouse edits. |
 | Customer API | [Customer service](../api/src/main/java/br/unitins/tp2/service/ClienteServiceImpl.java), [CEP service](../api/src/main/java/br/unitins/tp2/service/CepServiceImpl.java) | Customer CRUD, one address stored on each customer, shared municipalities/states, ViaCEP lookup and server-side address validation. |
-| Database | [Migrations](../api/src/main/resources/db/migration/) | V1: catalog; V2: customers, municipalities, states; V3: product images and gaming specifications. No orders, payments, identity links or wishlists. |
-| Administrative UI | [Routes](../web/src/app/app.routes.ts), [components](../web/src/app/components/) | Nine CRUD routes for brands, mice, and customers; standalone Material components, reactive forms and edit resolvers. Brand/mouse lists have paging and name filters; customer list is unpaged. |
+| Database | [Migrations](../api/src/main/resources/db/migration/) | V1: catalog; V2: customers, municipalities, states; V3: images/specifications; V4: unique customer identity link. No orders, payments or wishlists. |
+| Administrative UI | [Routes](../web/src/app/app.routes.ts), [components](../web/src/app/components/) | Nine guarded CRUD routes under `/admin/**` for brands, mice, and customers; standalone Material components, reactive forms and edit resolvers. Brand/mouse lists have paging and name filters; customer list is unpaged. |
 | Branding | [Public assets](../web/public/), [global styles](../web/src/styles.css) | SVG/PNG/ICO icons, manifest, brand color variables. `Hero.jpg` is retained as source; the homepage uses responsive WebP exports. |
-| Theme and layout | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html) | Brand colors are mapped to Material M3. Storefront and legacy administrative layouts are separate; the future admin sidebar remains pending. |
+| Theme and layout | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html) | Brand colors are mapped to Material M3. Storefront and legacy administrative layouts are separate; the responsive admin sidebar is implemented. |
 | Tests | [Backend tests](../api/src/test/), frontend `*.spec.ts` files | Catalog/customer/CEP tests plus public catalog, gallery and compatibility tests; frontend form/list/resolver, URL-filter and gallery coverage. No purchase-flow suite exists yet. |
 
 The `/` route now renders the storefront homepage; unknown routes redirect to it.
-Legacy CRUD routes remain unchanged under their own layout. The visible storefront
+Legacy CRUD URLs redirect to guarded `/admin/**` screens under their own layout. The visible storefront
 header/footer and administrative header use the SVG brand mark. See
 [Homepage implementation](homepage.md) for the completed first slice and its limits.
 
@@ -31,19 +31,19 @@ There are **12 SVGs: one design-system sheet and 11 screen wireframes**.
 | Reference | Status | Remaining work |
 | --- | --- | --- |
 | 00 — Design system | Foundation implemented | Brand colors mapped to Material M3, reusable surface/radius/button tokens, typography and numerical alignment. Continue applying them to future screens. |
-| 01 — Homepage `/` | Implemented for current scope | Responsive hero/header/footer, grip guide and searchable public-product preview with real gallery covers. Curated weekly highlights and account/cart navigation remain later work. |
+| 01 — Homepage `/` | Implemented for current scope | Responsive hero/header/footer, grip guide and searchable public-product preview with real gallery covers. Account navigation is implemented; curated weekly highlights and cart remain later work. |
 | 02 — Public catalog | Implemented at `/catalogo` | Combined facets, safe sorting, server paging, URL state and mobile filters. `/mouses` remains administrative for compatibility. |
 | 03 — Product detail | Implemented at `/catalogo/:id` | Gallery, specs, current price, availability, image/error/missing states and metadata. Purchase and freight controls await their corresponding slices. |
 | 04 — Cart `/carrinho` | Missing | Local persistence, quantities, removal, totals, delivery estimate, empty and stale-product states. |
 | 05 — Checkout `/checkout` | Missing | Authenticated address selection, purchase review, payment selection, transactional order placement and result handling. |
 | 06 — Customer portal `/meus-pedidos` | Missing | Personal orders and status timeline, details/tracking, account/logout, saved addresses and wishlist views. |
-| 07 — Login `/login` | Missing | Unified login entry, recovery flow, role-aware return navigation and session handling. |
-| 08 — Registration `/cadastro` | Partial foundation | Reuse validated customer/CEP behavior; add public identity registration, identity/profile link and saved address flow. Current customer form is administrative and has no credentials. |
-| 09 — Admin orders `/admin/pedidos` | Missing | Admin shell/sidebar, real order metrics, filtered/paged order table, details and allowed status transitions. |
-| 10 — Admin catalog | Images/specs implemented | Existing `/mouses` table now includes images/specifications. Admin namespace and broader administrative sorting remain later work. |
+| 07 — Login `/login` | Implemented | Unified entry, branded identity forms, recovery by email, PKCE, role-aware returns and session handling. |
+| 08 — Registration `/cadastro` | Implemented for account scope | Public identity registration and verification, followed by owned profile/address completion. Multiple saved addresses remain in slice 4. |
+| 09 — Admin orders `/admin/pedidos` | Missing | Admin shell/sidebar exists; order metrics, table, details and permitted transitions await orders. |
+| 10 — Admin catalog | Images/specs implemented | The `/admin/mouses` table includes images/specifications and uses the protected admin shell. Broader administrative sorting remains later work. |
 | 11 — Admin product form | Implemented for catalog scope | Validated form, version checks, URL gallery with ordering/cover/removal, sensor, polling rate, grip and switch fields. Binary upload is not part of this slice. |
 
-Brand and customer CRUD also need integration into the admin shell, even though
+Brand and customer CRUD are integrated into the guarded admin shell, although
 they do not have dedicated screen wireframes. Separate wireframes are still
 needed for customer address/wishlist management and any additional category or
 order-detail screens selected for implementation.
@@ -55,9 +55,9 @@ they do not block starting the theme, shared layout, and homepage structure.
 
 | Topic | Conflicting or incomplete evidence | Proposed direction / required decision |
 | --- | --- | --- |
-| Identity | Master instructions specify Keycloak; [domain plan](../api/docs/modelagem/README.md) describes local credentials on `Usuario`. The actual code only has `Cliente`, without authentication. | Follow the master Keycloak requirement. Design the local customer/profile link to the token subject; avoid a second password store. Define registration/profile-provisioning and recovery behavior. |
-| Roles | Master uses `admin`/`customer`; UI documents use `ADMIN`/`CLIENTE`; domain plan uses `ADMINISTRADOR`. | Use canonical Keycloak role names and an explicit mapping. Define whether an administrator can also shop. |
-| Frontend routes | Current CRUD occupies `/mouses`, `/marcas`, and `/clientes`; wireframes need public product browsing and `/admin/**`. | Add separate layouts and an admin namespace. Review existing navigation, resolvers and deep links before replacing routes. |
+| Identity | Keycloak owns credentials; V4 links `Cliente` by token subject. | Implemented without local password storage. Legacy rows remain unclaimed; email matching never grants ownership. |
+| Roles | Canonical `admin` and `customer` realm roles are enforced. | Administrators can also maintain an owned shopping profile; no technical role names appear in customer screens. |
+| Frontend routes | Public browsing uses `/catalogo`; administration uses guarded `/admin/**`. | Legacy CRUD paths redirect, including create/edit routes. Edit resolvers execute after guards. |
 | Public catalog contract | Existing reads return administrative records, including inactive products; paging/name search are the only query capabilities. | Define an additive public read contract with active-brand/product rules, combined filters, safe sorting and image/spec projections. Preserve existing admin clients. |
 | CEP route | Actual API/client use `/ceps/{cep}`; master/root documentation mention `/cep/**`. | Document the implemented plural path; do not rename it silently. |
 | Customer/address model | V2 stores one address directly on `Cliente`; the purchase plan expects reusable, owned `Endereco` records. | Add owned addresses and a migration/backfill strategy preserving current customers and contracts. |
@@ -108,14 +108,14 @@ exposed as purchasable, and product detail reflects current API values.
 
 ### 3. Authentication, authorization and account ownership
 
-- [ ] Configure the `mousetrap` realm, SPA client and backend token validation.
-- [ ] Implement Authorization Code with PKCE, login/logout/session handling,
+- [x] Configure the `mousetrap` realm, SPA client and backend token validation.
+- [x] Implement Authorization Code with PKCE, login/logout/session handling,
   HTTP authorization interceptor and role guards.
-- [ ] Enforce roles and customer ownership in backend services/resources.
-- [ ] Link authenticated identity to the local customer profile and addresses;
+- [x] Enforce roles and customer ownership in backend services/resources.
+- [x] Link authenticated identity to the local customer profile and addresses;
   add authenticated self-service contracts such as `/clientes/me` as agreed.
-- [ ] Deliver the unified login, public registration and password-recovery flows.
-- [ ] Move administrative screens into the approved `/admin/**` routing scheme.
+- [x] Deliver the unified login, public registration and password-recovery flows.
+- [x] Move administrative screens into the approved `/admin/**` routing scheme.
 
 Acceptance: anonymous visitors can browse; customers cannot administer the store
 or access another customer's data; authorized admins can manage it. Frontend
@@ -170,7 +170,7 @@ without leaking customer data or allowing invalid transitions.
 
 ### 7. Release readiness across all slices
 
-- [ ] Centralize the API base URL; existing frontend services hardcode localhost.
+- [x] Centralize API and identity URLs in public runtime configuration; keep credentials out of the frontend.
 - [ ] Add route descriptions, OpenGraph metadata and accurate Product structured
   data; route titles and a skip link already exist.
 - [ ] Verify responsive layouts, keyboard/focus behavior, contrast, accessible
@@ -180,8 +180,8 @@ without leaking customer data or allowing invalid transitions.
 - [ ] Add focused authorization, public filtering, address-ownership, checkout
   concurrency/idempotency, payment/expiration and end-to-end purchase tests.
 - [ ] Define CI checks and deployment settings for the SPA, API, PostgreSQL,
-  identity server, secrets and migrations. Backend Dockerfiles exist; no
-  repository CI workflow or Compose stack was found in this audit.
+  identity server, secrets and migrations. Backend Dockerfiles and the local identity/email Compose stack exist;
+  repository CI and a complete deployment stack remain pending.
 - [ ] Synchronize READMEs with actual endpoints and implemented features; remove
   stale packaging references and distinguish planned capabilities clearly.
 - [ ] Validate submission exclusions when generating an academic release package.
@@ -227,4 +227,14 @@ specifications without modifying V1/V2. Public routes use `/catalogo` and
 images are managed by URL with alternative text and ordering. No external image
 storage, upload provider, payment behavior or authentication was introduced.
 
-The next implementation slice is authentication, authorization and owned accounts.
+## Third implementation slice — completed
+
+See [Authentication and account ownership](authentication.md). Realm import,
+local identity/email infrastructure, S256 PKCE, token validation, admin/customer
+roles, verified subject-scoped `/clientes/me`, and guarded `/admin/**` routes
+are implemented. V4 leaves existing customers unclaimed; no email-based account
+claiming or password storage is introduced. Multiple saved addresses remain
+part of slice 4. Credentials, verification and recovery stay with the branded
+identity provider forms.
+
+The next implementation slice is cart persistence and multiple saved addresses.

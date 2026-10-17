@@ -5,7 +5,7 @@
       <h1 id="titulo-lista">Marcas</h1>
       <p class="descricao-pagina">Gerencie os fabricantes dos produtos da loja.</p>
     </div>
-    <a mat-raised-button color="primary" routerLink="/marcas/novo">
+    <a mat-raised-button color="primary" routerLink="/admin/marcas/novo">
       <mat-icon aria-hidden="true">add</mat-icon>Novo Cadastro
     </a>
   </div>
@@ -62,7 +62,7 @@
           <td mat-cell *matCellDef="let registro">
             <a
               mat-icon-button
-              [routerLink]="['/marcas/editar', registro.id]"
+              [routerLink]="['/admin/marcas/editar', registro.id]"
               [attr.aria-label]="'Editar ' + registro.nome"
               [disabled]="excluindo() !== null"
             >

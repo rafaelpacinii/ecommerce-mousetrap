@@ -24,6 +24,23 @@
       <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)"
         ><mat-icon aria-hidden="true">pan_tool</mat-icon>Encontre sua pegada</a
       >
+      @if (auth.authenticated()) {
+        <a routerLink="/minha-conta" (click)="menuAberto.set(false)"
+          ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
+        >
+        @if (auth.admin()) {
+          <a routerLink="/admin/mouses" (click)="menuAberto.set(false)"
+            ><mat-icon aria-hidden="true">settings</mat-icon>Administrar</a
+          >
+        }
+        <button class="session-action" type="button" (click)="auth.logout()">
+          <mat-icon aria-hidden="true">logout</mat-icon>Sair
+        </button>
+      } @else {
+        <a routerLink="/login" (click)="menuAberto.set(false)"
+          ><mat-icon aria-hidden="true">login</mat-icon>Entrar</a
+        >
+      }
     </nav>
     <a class="header-search" routerLink="/catalogo" aria-label="Buscar mouses">
       <mat-icon aria-hidden="true">search</mat-icon>
@@ -46,7 +63,14 @@
       <a routerLink="/" fragment="pegadas"
         ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
       >
-      <a routerLink="/marcas"><mat-icon aria-hidden="true">settings</mat-icon>Administração</a>
+      @if (auth.admin()) {
+        <a routerLink="/admin/mouses"
+          ><mat-icon aria-hidden="true">settings</mat-icon>Administração</a
+        >
+      }
+      <a routerLink="/minha-conta"
+        ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
+      >
     </nav>
   </div>
   <div class="store-container footer-bottom">MouseTrap · Mouses para o seu jeito de jogar.</div>

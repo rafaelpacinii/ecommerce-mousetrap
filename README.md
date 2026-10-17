@@ -3,7 +3,7 @@
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Quarkus](https://img.shields.io/badge/Quarkus-3.15-4695EB?style=for-the-badge&logo=quarkus&logoColor=white)](https://quarkus.io/)
 [![Angular](https://img.shields.io/badge/Angular-22-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.dev/)
-[![Keycloak](https://img.shields.io/badge/Keycloak-24.0-008080?style=for-the-badge&logo=keycloak&logoColor=white)](https://www.keycloak.org/)
+[![Keycloak](https://img.shields.io/badge/Keycloak-26.8-008080?style=for-the-badge&logo=keycloak&logoColor=white)](https://www.keycloak.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Flyway](https://img.shields.io/badge/Flyway-Migrations-CC0200?style=for-the-badge&logo=flyway&logoColor=white)](https://flywaydb.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE.md)
@@ -27,7 +27,7 @@
   - [1. Database Setup (Docker PostgreSQL)](#1-database-setup-docker-postgresql)
   - [2. Backend Setup (Quarkus API)](#2-backend-setup-quarkus-api)
   - [3. Frontend Setup (Angular Web)](#3-frontend-setup-angular-web)
-  - [4. Keycloak Identity Server](#4-keycloak-identity-server-optional)
+  - [4. Keycloak Identity Server](#4-keycloak-identity-server)
 - [REST API Reference](#-rest-api-reference)
 - [Testing & Quality Assurance](#-testing--quality-assurance)
 - [Packaging for Academic Submission](#-packaging-for-academic-submission)
@@ -132,7 +132,7 @@ flowchart TD
 - **Persistence:** Hibernate ORM with Panache (Repository Pattern)
 - **Database:** PostgreSQL 16
 - **Migrations:** Flyway
-- **Security:** SmallRye JWT & Quarkus OIDC
+- **Security:** Quarkus OIDC bearer-token validation
 - **Validation:** Jakarta Bean Validation (Hibernate Validator)
 - **API Documentation:** OpenAPI 3.0 & Swagger UI
 
@@ -201,16 +201,12 @@ npm start
 
 - **Application URL:** `http://localhost:4200`
 
-### 4. Keycloak Identity Server (Optional)
-To test authentication flows locally:
+### 4. Keycloak Identity Server
+Start the imported realm, branded account forms and local recovery mailbox using
+[the identity setup guide](docs/authentication.md). Choose a local bootstrap
+password rather than committing credentials. This stack is required for sign-in;
+authorized application operators must have the `admin` role in the `mousetrap` realm.
 
-```bash
-docker run --detach --name mousetrap-keycloak \
-  --publish 8180:8080 \
-  --env KEYCLOAK_ADMIN=admin \
-  --env KEYCLOAK_ADMIN_PASSWORD=admin \
-  quay.io/keycloak/keycloak:24.0.5 start-dev
-```
 
 ---
 
@@ -218,20 +214,22 @@ docker run --detach --name mousetrap-keycloak \
 
 | Method | Endpoint | Description | Auth / Role |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/marcas?page=0&pageSize=10` | List brands with server-side pagination | Public |
-| `GET` | `/marcas/{id}` | Get brand details by ID | Public |
+| `GET` | `/marcas?page=0&pageSize=10` | List brands with server-side pagination | `admin` |
+| `GET` | `/marcas/{id}` | Get brand details by ID | `admin` |
 | `POST` | `/marcas` | Create a new brand | `admin` |
 | `PUT` | `/marcas/{id}` | Update an existing brand | `admin` |
 | `DELETE` | `/marcas/{id}` | Remove brand (blocked if products linked) | `admin` |
-| `GET` | `/mouses?page=0&pageSize=10` | List gaming mice with specs and filters | Public |
-| `GET` | `/mouses/{id}` | Get gaming mouse specifications by ID | Public |
+| `GET` | `/mouses?page=0&pageSize=10` | List gaming mice with specs and filters | `admin` |
+| `GET` | `/mouses/{id}` | Get gaming mouse specifications by ID | `admin` |
 | `POST` | `/mouses` | Register a new gaming mouse | `admin` |
 | `PUT` | `/mouses/{id}` | Update mouse specifications (optimistic lock) | `admin` |
 | `DELETE` | `/mouses/{id}` | Soft delete / remove mouse | `admin` |
-| `GET` | `/clientes?page=0&pageSize=10`| List customers | `admin` |
-| `GET` | `/clientes/{id}` | Get customer profile | `admin` / `customer` |
-| `POST` | `/clientes` | Register new customer with address | Public |
-| `GET` | `/cep/{cep}` | Query Brazilian postal address via ViaCEP | Public |
+| `GET` | `/clientes` | List customers | `admin` |
+| `GET` | `/clientes/{id}` | Get customer profile | `admin` |
+| `POST` | `/clientes` | Administratively create a customer | `admin` |
+| `GET` / `PUT` | `/clientes/me` | Read or save own verified profile/address | `customer` / `admin` |
+| `GET` | `/catalogo/mouses` | Public product browsing, facets at `/catalogo/filtros` | Public |
+| `GET` | `/ceps/{cep}` | Query Brazilian postal address via ViaCEP | Public |
 
 ---
 
@@ -313,6 +311,14 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE.md)
 The storefront homepage, public catalog at `/catalogo`, product detail pages,
 URL-managed galleries and gaming specifications are implemented. Existing
 administrative routes are preserved. The public API enforces active-product and
-active-brand visibility. Authentication, cart, checkout, orders and payments
-remain later implementation slices. See [public catalog contracts and validation](docs/public-catalog.md)
+active-brand visibility. Authentication is implemented in the third slice;
+cart, checkout, orders and payments remain later implementation slices. See [public catalog contracts and validation](docs/public-catalog.md)
 and the [implementation backlog](docs/implementation-backlog.md).
+
+## Authentication and owned accounts
+
+The third slice adds Keycloak Authorization Code with PKCE, API token validation,
+role enforcement, an owned customer profile and `/admin/**` navigation. Migration
+V4 preserves existing customers and adds a unique identity subject. Public reads
+use `/catalogo/**`; legacy administrative reads now require `admin`.
+See [setup, contracts, recovery and deployment](docs/authentication.md).
