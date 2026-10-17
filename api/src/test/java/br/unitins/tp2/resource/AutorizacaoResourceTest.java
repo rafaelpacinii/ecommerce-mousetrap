@@ -60,6 +60,9 @@ class AutorizacaoResourceTest {
             given().get(path).then().statusCode(401);
         }
         given().contentType("application/json").body(perfil()).put("/clientes/me").then().statusCode(401);
+        given().contentType("application/json")
+                .body(Map.of("identidadeSubject", "customer-a", "email", "customer-a@example.com"))
+                .put("/clientes/1/identidade").then().statusCode(401);
         given().contentType("application/json").body(Map.of("nome", "Bloqueada", "ativo", true))
                 .post("/marcas").then().statusCode(401);
     }
@@ -169,9 +172,73 @@ class AutorizacaoResourceTest {
             @Claim(key = "email", value = "customer-a@example.com"),
             @Claim(key = "email_verified", value = "true", type = ClaimType.BOOLEAN)})
     void naoReivindicaCadastroAntigoApenasPeloEmail() {
-        outroCliente("customer-a@example.com", null);
-        given().contentType("application/json").body(perfil()).put("/clientes/me").then().statusCode(400);
+        long id = outroCliente("customer-a@example.com", null);
+        given().contentType("application/json").body(perfil()).put("/clientes/me").then().statusCode(400)
+                .body("errors.field", hasItem("perfil"))
+                .body("detail", containsString("vinculado à sua conta pela administração"));
+        given().contentType("application/json")
+                .body(Map.of("identidadeSubject", "customer-a", "email", "customer-a@example.com"))
+                .put("/clientes/" + id + "/identidade").then().statusCode(403);
         given().get("/clientes/me").then().statusCode(404);
+    }
+
+    @Test
+    @TestSecurity(user = "operador", roles = "admin")
+    @OidcSecurity(claims = {@Claim(key = "sub", value = "legacy-owner"),
+            @Claim(key = "email", value = "legacy-owner@example.com"),
+            @Claim(key = "email_verified", value = "true", type = ClaimType.BOOLEAN)})
+    void vinculoAdministrativoPreservaCadastroEPermiteSalvarEnderecoSemDuplicarCliente() {
+        var dados = new java.util.HashMap<String, Object>(perfil());
+        dados.put("email", "legacy-owner@example.com");
+        long id = given().contentType("application/json").body(dados).post("/clientes").then()
+                .statusCode(201).extract().jsonPath().getLong("id");
+        criados.add(id);
+        given().get("/clientes/me").then().statusCode(404);
+
+        var vinculo = Map.of("identidadeSubject", "legacy-owner", "email", "legacy-owner@example.com");
+        for (int i = 0; i < 2; i++) {
+            given().contentType("application/json").body(vinculo).put("/clientes/" + id + "/identidade")
+                    .then().statusCode(200).body("id", is((int) id)).body("numero", is("15"));
+        }
+        given().get("/clientes/me").then().statusCode(200).body("id", is((int) id));
+        int idEndereco = given().get("/clientes/me/enderecos").then().statusCode(200)
+                .body("size()", is(1)).body("[0].numero", is("15"))
+                .extract().jsonPath().getInt("[0].id");
+        dados.remove("email");
+        dados.put("numero", "42");
+        given().contentType("application/json").body(dados).put("/clientes/me").then().statusCode(200)
+                .body("id", is((int) id)).body("numero", is("42"));
+        given().get("/clientes/me/enderecos").then().statusCode(200)
+                .body("size()", is(1)).body("[0].id", is(idEndereco)).body("[0].numero", is("42"));
+        var endereco = new java.util.HashMap<String, Object>(dados);
+        endereco.remove("nome"); endereco.put("apelido", "Trabalho"); endereco.put("principal", false);
+        given().contentType("application/json").body(endereco).post("/clientes/me/enderecos").then().statusCode(201);
+        given().get("/clientes/me/enderecos").then().statusCode(200).body("size()", is(2));
+    }
+
+    @Test
+    @TestSecurity(user = "operador", roles = "admin")
+    void vinculoRejeitaEmailDiferenteETrocaDeTitularidade() {
+        long livre = outroCliente("legacy-unlinked@example.com", null);
+        long vinculado = outroCliente("legacy-linked@example.com", "legacy-linked");
+        given().contentType("application/json")
+                .body(Map.of("identidadeSubject", "new-owner", "email", "wrong@example.com"))
+                .put("/clientes/" + livre + "/identidade").then().statusCode(400);
+        given().contentType("application/json")
+                .body(Map.of("identidadeSubject", "new-owner", "email", "legacy-linked@example.com"))
+                .put("/clientes/" + vinculado + "/identidade").then().statusCode(400);
+        given().contentType("application/json")
+                .body(Map.of("identidadeSubject", "legacy-linked", "email", "legacy-unlinked@example.com"))
+                .put("/clientes/" + livre + "/identidade").then().statusCode(400);
+        given().contentType("application/json").body(Map.of("identidadeSubject", " ", "email", "invalido"))
+                .put("/clientes/" + livre + "/identidade").then().statusCode(400);
+        given().contentType("application/json")
+                .body(Map.of("identidadeSubject", "new-owner", "email", "legacy-unlinked@example.com"))
+                .put("/clientes/" + Long.MAX_VALUE + "/identidade").then().statusCode(404);
+        QuarkusTransaction.requiringNew().run(() -> {
+            org.junit.jupiter.api.Assertions.assertNull(clientes.findById(livre).getIdentidadeSubject());
+            org.junit.jupiter.api.Assertions.assertEquals("legacy-linked", clientes.findById(vinculado).getIdentidadeSubject());
+        });
     }
 
     @Test

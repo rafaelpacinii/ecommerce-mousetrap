@@ -4,6 +4,7 @@ import br.unitins.tp2.service.ClienteService;
 import br.unitins.tp2.dto.ClienteDTO;
 import br.unitins.tp2.dto.EnderecoDTO;
 import br.unitins.tp2.dto.PerfilClienteDTO;
+import br.unitins.tp2.dto.VinculoClienteDTO;
 import jakarta.inject.Inject;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
@@ -90,6 +91,13 @@ public class ClienteResource {
     @POST
     public Response create(@NotNull @Valid ClienteDTO dto) {
         return Response.status(Response.Status.CREATED).entity(service.create(dto)).build();
+    }
+
+    @PUT
+    @Path("/{id}/identidade")
+    @RolesAllowed("admin")
+    public Response vincularIdentidade(@PathParam("id") Long id, @NotNull @Valid VinculoClienteDTO dto) {
+        return Response.ok(service.vincularIdentidade(id, dto)).build();
     }
 
     @PUT

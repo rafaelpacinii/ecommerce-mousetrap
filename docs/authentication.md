@@ -86,6 +86,7 @@ these URLs. This file is public and must never contain credentials. On the API,
 | `GET /ceps/{cep}` | Public |
 | `/mouses/**`, `/marcas/**`, administrative `/clientes/**` API operations | `admin` |
 | `GET /clientes/me`, `PUT /clientes/me` | `customer` or `admin` |
+| `PUT /clientes/{id}/identidade` | `admin`, after reviewing the legacy customer and confirmed identity |
 | `/admin/mouses`, `/admin/marcas`, `/admin/clientes` and their forms | Admin guard plus API authorization |
 | `/minha-conta` | Authenticated profile and delivery address |
 | `/login`, `/cadastro`, `/auth/callback` | Unified account entry and callback |
@@ -111,6 +112,36 @@ V4 adds nullable, unique `cliente.identidade_subject`. Existing rows and address
 remain intact and unclaimed. Never infer ownership by matching an email: an
 existing legacy record requires administrative review before any identity
 association or email conflict is resolved. V1/V2/V3 are unchanged.
+
+### Linking a reviewed legacy customer
+
+A legacy customer can already have the same email as a registered identity while
+`identidade_subject` is still null. In that case `/clientes/me` returns 404 and
+profile creation must not insert a duplicate customer. Saving now explains that
+administrative linking is required, rather than reporting a generic duplicate
+email error.
+
+After verifying the enabled identity and its confirmed email in the configured
+identity provider, an authorized administrator can call
+`PUT /clientes/{id}/identidade` with:
+
+```json
+{
+  "identidadeSubject": "reviewed-user-subject",
+  "email": "customer@example.com"
+}
+```
+
+The supplied email must match the existing customer. The operation returns 200,
+keeps the same customer ID, personal data and saved addresses, and is idempotent
+for the same link. It rejects replacing an existing owner or binding an identity
+already assigned to another customer. Row locking and the existing unique subject
+constraint protect concurrent attempts. Customers and anonymous callers cannot
+use this operation. No migration or automatic email-based claiming is introduced.
+
+After linking, reload `/minha-conta`: profile updates and new addresses use the
+existing customer. Do not delete a customer or change their email to bypass this
+conflict, because that would lose or detach their existing data.
 
 `GET /clientes/me` returns only the row identified by the verified token subject,
 or 404 when the customer has not completed a local profile. `PUT /clientes/me`

@@ -4,6 +4,7 @@ import java.util.List;
 import br.unitins.tp2.dto.CepResponseDTO;
 import br.unitins.tp2.dto.ClienteDTO;
 import br.unitins.tp2.dto.PerfilClienteDTO;
+import br.unitins.tp2.dto.VinculoClienteDTO;
 import br.unitins.tp2.dto.ClienteResponseDTO;
 import br.unitins.tp2.dto.EnderecoDTO;
 import br.unitins.tp2.dto.EnderecoResponseDTO;
@@ -20,6 +21,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
+import jakarta.persistence.LockModeType;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ForbiddenException;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -63,6 +65,11 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = repository.findByIdentidadeSubject(subject);
         boolean novo = cliente == null;
         if (novo) {
+            if (repository.findByEmail(dto.comEmail(email).email()) != null) {
+                throw new ValidationException("perfil",
+                        "Seu cadastro já existe e precisa ser vinculado à sua conta pela administração. "
+                        + "Solicite a vinculação antes de salvar seus dados e endereços.");
+            }
             cliente = new Cliente();
             cliente.setIdentidadeSubject(subject);
         }
@@ -71,6 +78,28 @@ public class ClienteServiceImpl implements ClienteService {
             repository.persist(cliente);
         repository.flush();
         sincronizarEnderecoPrincipal(cliente);
+        return ClienteResponseDTO.valueOf(cliente);
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed("admin")
+    public ClienteResponseDTO vincularIdentidade(Long id, VinculoClienteDTO dto) {
+        Cliente cliente = repository.findById(id, LockModeType.PESSIMISTIC_WRITE);
+        if (cliente == null)
+            throw new NotFoundException();
+        if (!cliente.getEmail().equals(dto.email())) {
+            throw new ValidationException("email", "O e-mail confirmado deve corresponder ao cadastro do cliente.");
+        }
+        if (cliente.getIdentidadeSubject() != null && !cliente.getIdentidadeSubject().equals(dto.identidadeSubject())) {
+            throw new ValidationException("identidadeSubject", "Este cliente já está vinculado a outra conta.");
+        }
+        Cliente vinculado = repository.findByIdentidadeSubject(dto.identidadeSubject());
+        if (vinculado != null && !vinculado.getId().equals(cliente.getId())) {
+            throw new ValidationException("identidadeSubject", "Esta conta já está vinculada a outro cliente.");
+        }
+        cliente.setIdentidadeSubject(dto.identidadeSubject());
+        repository.flush();
         return ClienteResponseDTO.valueOf(cliente);
     }
 
