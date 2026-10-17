@@ -131,7 +131,7 @@
 .tag-indisponivel,
 .remove-btn,
 .frete-erro {
-  color: var(--status-danger);
+  color: var(--status-danger-text);
 }
 
 .remove-btn {

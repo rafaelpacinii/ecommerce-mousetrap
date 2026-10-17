@@ -1,10 +1,10 @@
 import { FavoriteButtonComponent } from '../favorite-button/favorite-button';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { CurrencyPipe, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Meta, Title } from '@angular/platform-browser';
+import { SeoService } from '../../../services/seo.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -35,13 +35,10 @@ export class ProductDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly meta = inject(Meta);
-  private readonly title = inject(Title);
-  private readonly document = inject(DOCUMENT);
+  private readonly seo = inject(SeoService);
   private readonly cepService = inject(CepService);
   private readonly snack = inject(MatSnackBar);
   readonly carrinho = inject(CarrinhoService);
-  private script: HTMLScriptElement | null = null;
   readonly resultado = signal<ResultadoProduto>({ produto: null, status: 200 });
   readonly produto = computed(() => this.resultado().produto);
   readonly imagens = computed(() =>
@@ -57,40 +54,9 @@ export class ProductDetailComponent {
       const resultado = data['produto'] as ResultadoProduto;
       this.resultado.set(resultado);
       this.selecionada.set(0);
-      this.script?.remove();
-      const p = resultado.produto;
-      this.title.setTitle(p ? `${p.nome} | MouseTrap` : 'Produto indisponível | MouseTrap');
-      this.meta.updateTag({
-        name: 'description',
-        content: p?.descricao.slice(0, 160) ?? 'Encontre outros mouses no catálogo MouseTrap.',
-      });
-      if (p) {
-        const script = this.document.createElement('script');
-        script.type = 'application/ld+json';
-        script.textContent = JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: p.nome,
-          description: p.descricao,
-          sku: p.sku,
-          brand: { '@type': 'Brand', name: p.marca.nome },
-          image: this.imagens().map((i) => new URL(i.url, this.document.baseURI).href),
-          offers: {
-            '@type': 'Offer',
-            priceCurrency: 'BRL',
-            price: p.preco,
-            availability:
-              p.quantidadeEstoque > 0
-                ? 'https://schema.org/InStock'
-                : 'https://schema.org/OutOfStock',
-            url: new URL(`catalogo/${p.id}`, this.document.baseURI).href,
-          },
-        }).replace(/</g, '\\u003c');
-        this.document.head.appendChild(script);
-        this.script = script;
-      }
+      this.seo.product(resultado.produto);
     });
-    this.destroyRef.onDestroy(() => this.script?.remove());
+    this.destroyRef.onDestroy(() => this.seo.clearProduct());
   }
 
   adicionarAoCarrinho(): void {

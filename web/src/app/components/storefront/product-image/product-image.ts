@@ -11,6 +11,7 @@ import { ImagemMouse } from '../../../models/mouse.model';
       <img
         [src]="imagem()!.url"
         [alt]="imagem()!.textoAlternativo"
+        decoding="async"
         width="800"
         height="600"
         [attr.loading]="prioritaria() ? 'eager' : 'lazy'"

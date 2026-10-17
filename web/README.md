@@ -21,7 +21,7 @@ The full public catalog is at `/catalogo`; product detail is at `/catalogo/:id`.
 
 Public catalog facets, product galleries and gaming specifications are implemented.
 Authentication, owned profiles and role-based administration are implemented.
-Cart, checkout and order tracking remain planned. Missing or
+Cart, transactional checkout, owned order history, administrative fulfillment and persisted wishlist are implemented. Missing or
 failed product images use an accessible fallback. Administrative routes require an authorized account.
 
 See [Homepage implementation](../docs/homepage.md) and the
@@ -30,7 +30,7 @@ See [Homepage implementation](../docs/homepage.md) and the
 
 ## Development
 
-Use a Node.js version compatible with the Angular version in `package.json`,
+Use Node.js 24 with the Angular version pinned in `package.json`,
 npm, and the API running at `http://localhost:8080`. From `web`:
 
 ```sh
@@ -49,6 +49,9 @@ Start the local [identity stack](../docs/authentication.md) before signing in.
 | Homepage | `/` |
 | Catalog preview/search | `/#catalogo`, `/#busca` |
 | Public catalog and product detail | `/catalogo`, `/catalogo/:id` |
+| Cart / checkout | `/carrinho`, `/checkout` |
+| Customer history / wishlist | `/meus-pedidos`, `/meus-pedidos/:id`, `/lista-de-desejos` |
+| Administrative orders | `/admin/pedidos`, `/admin/pedidos/:id` |
 | Grip guide | `/#pegadas` |
 | Brand list/create/edit | `/admin/marcas`, `/admin/marcas/novo`, `/admin/marcas/editar/:id` |
 | Mouse list/create/edit | `/admin/mouses`, `/admin/mouses/novo`, `/admin/mouses/editar/:id` |
@@ -68,7 +71,7 @@ src/app/
 │   ├── marcas/      Brand list and form
 │   ├── mouses/      Mouse list and form
 │   └── clientes/    Customer list and form
-├── layouts/         Storefront and legacy administration layouts
+├── layouts/         Storefront and guarded administration layouts
 ├── models/          Typed contracts
 ├── services/        HTTP communication and error mapping
 ├── resolvers/       Edit data loading
@@ -108,3 +111,18 @@ create/edit operations depend on that service's availability.
 - [Customer and CEP contracts](../api/docs/clientes-cep.md).
 - [Domain planning](../api/docs/modelagem/README.md).
 - [Website icon assets](public/icons/README.md).
+
+## Release verification
+
+`npm run audit` checks all installed dependencies. `npm run e2e` runs Playwright
+against an explicitly isolated stack; use `sh scripts/verify_release.sh` from the
+repository root to create it. Install Chromium first with
+`npx playwright install --with-deps chromium`. Browser tests exercise real PKCE,
+PIX/card checkout, ownership, administration, a second purchase, five viewport
+widths and Axe WCAG checks. Credentials/tokens are not saved in traces or reports.
+
+Route metadata is managed by `SeoService`: public canonical URLs omit filters,
+private routes use `noindex`, social tags follow navigation and Product JSON-LD
+uses current API price/stock. This is a client-rendered SPA; crawlers that do not
+execute JavaScript receive only default HTML metadata. See
+[deployment, runtime configuration and SEO limits](../docs/release-readiness.md).

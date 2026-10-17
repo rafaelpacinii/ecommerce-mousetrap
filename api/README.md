@@ -1,140 +1,86 @@
-# MouseTrap — API
+# MouseTrap API
 
-The authenticated transactional checkout, orders, and local PIX/card payment simulation are implemented. See [checkout contracts and configuration](../docs/transactional-checkout.md). Customer history, administrative fulfillment and wishlist are implemented; see [slice 6](../docs/customer-portal-admin-orders.md).
+Java 17 / Quarkus 3.39 REST API with PostgreSQL 16, Panache repositories,
+transactional services, Java record DTOs, Bean Validation and RFC 7807 errors.
+Resources never bypass the service layer. Flyway migrations V1–V7 create the
+catalog, owned profiles/addresses, transactional orders, events and wishlist.
 
-API REST do MouseTrap, um e-commerce especializado em mouses. O catálogo permite gerenciar marcas e produtos, com especificações técnicas, múltiplos tipos de conexão, preço e estoque.
+## Implemented contracts
 
-## Funcionalidades
+- Public active catalog: `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`.
+- Public postcode and freight: `GET /ceps/{cep}` and `GET /ceps/{cep}/frete`.
+- Protected admin CRUD: `/marcas`, `/mouses`, `/clientes`.
+- Verified identity-owned profile: `GET/PUT /clientes/me`; saved addresses at `/clientes/me/enderecos`.
+- Idempotent transactional checkout, payment attempts, cancellation and expiration at `/pedidos`.
+- Owner-scoped history/details, administrative payment decisions and fulfillment at `/admin/pedidos`.
+- Database-backed admin indicators and subject-owned persistent wishlist at `/desejos`.
 
-- Cadastro, consulta, edição e exclusão de marcas e mouses.
-- Paginação e filtro server-side por nome nas listagens administrativas.
-- Validação de dados e unicidade de nomes de marcas e SKUs.
-- Proteção contra exclusão de marcas vinculadas a produtos.
-- Controle de versão na edição de mouses para detectar alterações concorrentes.
-- Respostas de erro padronizadas e documentação OpenAPI.
+See [catalog](../docs/public-catalog.md), [authentication](../docs/authentication.md),
+[addresses](docs/clientes-cep.md), [checkout](../docs/transactional-checkout.md) and
+[history/fulfillment](../docs/customer-portal-admin-orders.md) for exact methods,
+payloads and status rules. Live payments/refunds/carriers and image uploads remain
+future integrations. Card credentials are never accepted by payment DTOs.
 
-Catalog administration, authentication, owned addresses, cart integration, transactional orders and simulated payments are implemented. Wishlist and fulfillment views are implemented in [slice 6](../docs/customer-portal-admin-orders.md).
+## Development
 
-## Tecnologias e arquitetura
+Set `JAVA_HOME` to your JDK 17 installation. Install curl and unzip for the Maven
+Wrapper; its pinned ZIP distribution checksum is verified on first installation.
+Run a local PostgreSQL and [identity service](../docs/authentication.md), then:
 
-Java 17, Quarkus 3, Hibernate ORM com Panache, PostgreSQL, Flyway, Jackson e Bean Validation. As versões das dependências são definidas no [pom.xml](pom.xml).
-
-O backend organiza as responsabilidades em recursos REST, serviços, repositórios e entidades. DTOs de entrada e resposta usam records; conversores persistem os IDs explícitos dos enums.
-
-```text
-src/main/java/br/unitins/tp2/
-├── model/        Entidades, enums e conversores JPA
-├── repository/   Consultas e persistência com Panache
-├── dto/          Contratos de entrada e resposta
-├── service/      Regras de negócio e transações
-├── resource/     Endpoints REST
-└── exception/    Tratamento centralizado de erros
-```
-
-## Desenvolvimento local
-
-Requisitos: JDK 17 com `JAVA_HOME` configurado e PostgreSQL 16. Os comandos abaixo são executados na pasta `api`.
-
-Crie a configuração local a partir do exemplo, caso ela ainda não exista:
-
-```bash
-test -f src/main/resources/application.properties || cp src/main/resources/application.properties.example src/main/resources/application.properties
-```
-
-Ajuste usuário, senha e URL do banco em `src/main/resources/application.properties`. Esse arquivo é ignorado pelo Git. A configuração de referência está em [application.properties.example](src/main/resources/application.properties.example).
-
-```bash
+```fish
+cd api
+if not test -f src/main/resources/application.properties
+    cp src/main/resources/application.properties.example src/main/resources/application.properties
+end
 ./mvnw quarkus:dev
 ```
 
-A API estará disponível em `http://localhost:8080`. No modo de desenvolvimento, o Swagger UI fica em `/q/swagger-ui` e o Dev UI em `/q/dev`. O CORS permite a origem `http://localhost:4200`, com credenciais e os métodos GET, PUT, POST, DELETE, PATCH e OPTIONS.
+Adjust only the ignored local configuration with your database URL/credentials.
+The API defaults to port 8080; development Swagger and Dev UI are at
+`/q/swagger-ui` and `/q/dev`. Public health checks are `/q/health/live` and
+`/q/health/ready`; readiness includes datasource availability.
 
-## Banco de dados
+Shared operational defaults live in `META-INF/microprofile-config.properties`:
+Flyway migrates, Hibernate validates, SQL/bind logging is off and OIDC validates
+issuer/audience/realm roles. CORS allows only the configured `WEB_ORIGIN`.
+Configuration examples contain mock values; no secret belongs in source control.
 
-O Flyway aplica as migrations de [src/main/resources/db/migration](src/main/resources/db/migration). O Hibernate valida o esquema na inicialização, sem recriar tabelas. A migration inicial cria `marca`, `mouse` e `mouse_conexao`, com chaves, índices e restrições de integridade.
+## Verification
 
-A primeira inicialização deve usar um banco vazio. Para adotar um banco com tabelas existentes, revise sua compatibilidade com as migrations antes de executá-las. Novas mudanças de esquema devem ser versionadas em novas migrations; arquivos já aplicados não devem ser modificados.
+The HTTP suite uses an isolated database on port 55439, independent of port 5432:
 
-## Testes
-
-Os testes HTTP usam `@QuarkusTest` e um PostgreSQL isolado, configurado em [CatalogoTestProfile](src/test/java/br/unitins/tp2/resource/CatalogoTestProfile.java). Com Docker disponível:
-
-```bash
+```fish
 docker run --detach --rm --name ecommerce-mouses-crud-tests --publish 127.0.0.1:55439:5432 --env POSTGRES_USER=ecommerce_test --env POSTGRES_PASSWORD=ecommerce_test --env POSTGRES_DB=ecommerce_test postgres:16-alpine
 docker exec ecommerce-mouses-crud-tests pg_isready -U ecommerce_test -d ecommerce_test
+cd api
+./mvnw -B -Prelease clean verify
 ```
 
-Quando o banco estiver aceitando conexões:
+Wait for `pg_isready` before running tests. Keep the database running during
+Quarkus continuous testing. If it reports `Connection to localhost:55439 refused`,
+recreate the disposable container and rerun. Surefire executes the HTTP tests;
+Failsafe integration tests remain disabled (`skipITs=true`), not silently counted
+as executed. Browser integration has its own [release runner](../docs/release-readiness.md).
 
-```bash
-./mvnw clean verify
-```
+Coverage includes authorization, active catalog filtering, address ownership,
+profile uniqueness, validation, CORS, checkout idempotency/concurrency, stock
+restoration, payment decisions, expiry, history, fulfillment and wishlist ownership.
 
-A suíte cobre operações do catálogo, validações, paginação e filtro de marcas, registros inexistentes, vínculos entre marca e mouse, conflitos de versão e CORS. A configuração atual usa `skipITs=true` para Failsafe; os testes HTTP executam pelo Surefire.
+## Release artifacts and migrations
 
-### Continuous testing and database availability
+Always build deployable artifacts from a clean directory using `-Prelease`:
 
-The HTTP test profile also runs during continuous testing in `./mvnw quarkus:dev`.
-Keep the test database container running while using this mode. It is separate
-from the development database on port 5432.
-
-If startup fails with `Connection to localhost:55439 refused`, check
-`docker ps --filter name=ecommerce-mouses-crud-tests` and start the test database
-with the `docker run` command above if it is missing. Wait until `pg_isready`
-reports that connections are accepted, then press `r` in the Quarkus terminal
-to rerun the tests. The `--rm` option removes the container when it stops, so
-`docker start` cannot restore it afterward; use `docker run` again.
-
-Stop the disposable database only after ending the test session, including
-continuous testing:
-
-```bash
-docker stop ecommerce-mouses-crud-tests
-```
-
-## Build
-
-`./mvnw clean verify` também gera a aplicação em `target/quarkus-app`. O diretório completo é necessário para executá-la:
-
-```bash
+```fish
+./mvnw -B -Prelease clean package -DskipTests
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-## Documentação
+The complete `target/quarkus-app` directory is required. The release profile
+excludes the active local configuration; provide database credentials and OIDC
+settings through the deployment environment. The Docker build applies this
+profile and also excludes the local file from its build context.
 
-- [Catálogo: contratos e regras de negócio](docs/catalogo.md).
-- [Modelo de dados e diagrama de classes](docs/modelagem/README.md).
-
-Administrative endpoints now require the `admin` role. Public clients use
-`/catalogo/**` and `/ceps/{cep}`. Start the identity stack before the API; see
-[authentication setup and contracts](../docs/authentication.md).
-
-## Clientes e consulta por CEP
-
-Cadastro, edição, listagem e exclusão de clientes com endereço estruturado em Município e Estado, preenchimento por ViaCEP e validações nos dois lados. [Contratos, arquitetura, migration e avaliação](docs/clientes-cep.md).
-
-## Public catalog, product images and gaming specifications
-
-The second storefront slice is implemented. Public browsing uses
-`GET /catalogo/mouses`, `GET /catalogo/mouses/{id}` and `GET /catalogo/filtros`.
-It supports active-product/active-brand visibility, combined filters, safe sorting
-and pagination. The existing administrative CRUD contracts are preserved. Mouse
-payloads additionally accept optional `especificacoes` and `imagens` groups.
-
-Migration V3 adds product images and gaming specifications without modifying V1/V2
-or inventing values for existing products. Images are managed by URL and inherit
-entity audit fields; gallery edits use the mouse's optimistic version check.
-Authentication, orders, wishlist and local payment simulation are implemented. The current
-image/gallery behavior supersedes older statements describing images as planned.
-
-See [Public catalog contracts, migration and validation](../docs/public-catalog.md).
-
-## Authentication and owned profiles
-
-OIDC defaults in `META-INF/microprofile-config.properties` also apply to existing
-local configuration files. Set `OIDC_AUTH_SERVER_URL` for another issuer; audience
-`mousetrap-api` and realm roles are validated. `GET /clientes/me` and
-`PUT /clientes/me` use the verified token subject and email, never caller IDs.
-V4 adds the unique identity link without claiming existing customers by email.
-Tests use test-scoped identities and retain the isolated PostgreSQL requirement.
-See [authentication and authorization](../docs/authentication.md).
+Existing Flyway migrations must not be edited. Start new installations with an
+empty database; back up and validate existing installations before upgrading.
+No destructive schema generation or automatic baseline is enabled. See
+[deployment and backups](../docs/release-readiness.md).
