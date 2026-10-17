@@ -1,6 +1,6 @@
 # Modelagem do e-commerce de mouses
 
-Modelo do domínio do MouseTrap. O catálogo de marcas e mouses está implementado; usuários, lista de desejos, pedidos, imagens e pagamentos representam etapas futuras. O carrinho é previsto exclusivamente no frontend.
+MouseTrap domain planning reference. Catalog/images/specifications, external identity with owned customer profiles/addresses, browser-local cart, orders and simulated payments are implemented. Wishlist and fulfillment operations remain planned. The historical diagrams retain planned abstractions; [transactional checkout](../../../docs/transactional-checkout.md) documents the implemented contracts and Cliente/identity integration.
 
 ## Diagramas em PlantUML
 
@@ -28,7 +28,7 @@ Cada `Mouse` é uma unidade comercial identificada por SKU: versões de cores di
 
 `Usuario` atende autenticação e compras. `Perfil` distingue cliente e administrador, sem duplicar credenciais em duas entidades. O administrador também pode comprar. Um cadastro separado `Cliente` só será introduzido se houver dados ou regras próprios que o justifiquem. O cadastro público sempre atribui CLIENTE; o cliente não escolhe privilégios administrativos.
 
-Categorias, cupons, avaliações, fornecedores, múltiplos depósitos, compras sem login, devoluções e integrações financeiras ficam como evoluções. A primeira versão do fluxo de compras utilizará pagamento simulado, sem coleta de CPF ou dados de cartão.
+Categories, coupons, reviews, suppliers, multiple warehouses, guest purchases, returns and financial integrations remain future work. The purchase flow uses local payment simulation. Card fields are validated only in browser memory, never stored or sent to the API; no CPF is collected. PIX QR codes use a fictitious recipient and the confirmed order total.
 
 ## Entidades e responsabilidades
 
@@ -104,7 +104,7 @@ Quantidade mínima de filhos, propriedade do endereço, preço vigente, total de
 
 Os campos históricos do pedido são imutáveis após sua criação. Somente estado, rastreio, auditoria e versão mudam pelos fluxos permitidos. O carrinho pode ser alterado depois do checkout sem afetar o pedido. Uma repetição da chave com conteúdo diferente deve ser rejeitada; sua implementação precisará comparar a requisição com os dados históricos, incluindo os itens e o endereço.
 
-O pagamento simulado deverá ficar identificado na interface e limitado ao ambiente demonstrativo. Integração real exigirá outra revisão: IDs do provedor, webhooks autenticados e deduplicados, conciliação, estornos e tratamento de aprovações tardias.
+Customer checkout uses normal payment terminology and has no simulation outcome controls. The local engine remains opt-in outside development/tests. Customer requests stay pending; approval/refusal requires admin authorization. Full administrative order operations remain slice 6. Real integration requires provider identifiers, authenticated and deduplicated webhooks, reconciliation, refunds and late-approval handling.
 
 ## Organização da implementação
 
@@ -124,4 +124,4 @@ Antes de integrar checkout, testar especialmente concorrência pelo último item
 
 ## Esquema implementado
 
-A migration V1 cria `marca`, `mouse` e `mouse_conexao`. As demais tabelas e regras deste documento representam o domínio planejado. Consulte [Catálogo de produtos](../catalogo.md) para os contratos e comportamentos disponíveis.
+V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. The domain enum IDs above are used in the implementation. Order deadlines/payment processing use UTC Instant/timestamptz; inherited legacy audit timestamps are unchanged. Wishlist and fulfillment screens remain planned. See [checkout](../../../docs/transactional-checkout.md) for the implemented state transitions, configuration and guarantees.

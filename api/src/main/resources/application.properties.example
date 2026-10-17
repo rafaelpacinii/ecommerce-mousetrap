@@ -46,3 +46,10 @@ quarkus.oidc.roles.role-claim-path=realm_access/roles
 quarkus.oidc.token.allow-jwt-introspection=false
 quarkus.oidc.token.allow-opaque-token-introspection=false
 quarkus.security.jaxrs.deny-unannotated-endpoints=true
+
+# Checkout demonstration: explicitly opt in outside development and tests.
+pagamentos.simulacao.habilitada=false
+%dev.pagamentos.simulacao.habilitada=true
+%test.pagamentos.simulacao.habilitada=true
+pedidos.prazo-pagamento-minutos=30
+pedidos.expiracao.intervalo=30s

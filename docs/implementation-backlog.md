@@ -1,6 +1,6 @@
 # MouseTrap Implementation Backlog
 
-Repository audit: **2026-10-16**. This backlog compares the implementation with
+Repository audit: **2026-10-16**. Implementation updated through slice 5 on **2026-10-17**. This backlog compares the implementation with
 `AGENTS.md`, the UI wireframes, and the domain planning documents. An item marked
 implemented was found in source code; this does not establish production readiness
 or replace running its tests. Priorities and implementation slices below are
@@ -8,15 +8,16 @@ proposals, not changes to existing HTTP contracts.
 
 ## Current baseline
 
-| Area | Evidence | Current implementation |
-| --- | --- | --- |
-| Catalog API | [Resources](../api/src/main/java/br/unitins/tp2/resource/), [Mouse service](../api/src/main/java/br/unitins/tp2/service/MouseServiceImpl.java) | Brand and mouse CRUD, input validation, SKU/name uniqueness, paging/name search, prices, stock, active flags, and optimistic locking on mouse edits. |
-| Customer API | [Customer service](../api/src/main/java/br/unitins/tp2/service/ClienteServiceImpl.java), [CEP service](../api/src/main/java/br/unitins/tp2/service/CepServiceImpl.java) | Customer CRUD, one address stored on each customer, shared municipalities/states, ViaCEP lookup and server-side address validation. |
-| Database | [Migrations](../api/src/main/resources/db/migration/) | V1: catalog; V2: customers, municipalities, states; V3: images/specifications; V4: unique customer identity link. No orders, payments or wishlists. |
-| Administrative UI | [Routes](../web/src/app/app.routes.ts), [components](../web/src/app/components/) | Nine guarded CRUD routes under `/admin/**` for brands, mice, and customers; standalone Material components, reactive forms and edit resolvers. Brand/mouse lists have paging and name filters; customer list is unpaged. |
-| Branding | [Public assets](../web/public/), [global styles](../web/src/styles.css) | SVG/PNG/ICO icons, manifest, brand color variables. `Hero.jpg` is retained as source; the homepage uses responsive WebP exports. |
-| Theme and layout | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html) | Brand colors are mapped to Material M3. Storefront and legacy administrative layouts are separate; the responsive admin sidebar is implemented. |
-| Tests | [Backend tests](../api/src/test/), frontend `*.spec.ts` files | Catalog/customer/CEP tests plus public catalog, gallery and compatibility tests; frontend form/list/resolver, URL-filter and gallery coverage. No purchase-flow suite exists yet. |
+| Area              | Evidence                                                                                                                                                                | Current implementation                                                                                                                                                                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog API       | [Resources](../api/src/main/java/br/unitins/tp2/resource/), [Mouse service](../api/src/main/java/br/unitins/tp2/service/MouseServiceImpl.java)                          | Brand and mouse CRUD, input validation, SKU/name uniqueness, paging/name search, prices, stock, active flags, and optimistic locking on mouse edits.                                                                                                                 |
+| Customer API      | [Customer service](../api/src/main/java/br/unitins/tp2/service/ClienteServiceImpl.java), [CEP service](../api/src/main/java/br/unitins/tp2/service/CepServiceImpl.java) | Customer CRUD, identity-scoped profiles and multiple saved addresses, shared municipalities/states, ViaCEP lookup and server-side validation.                                                                                                                        |
+| Orders API        | [Order service](../api/src/main/java/br/unitins/tp2/service/PedidoServiceImpl.java), [contracts](transactional-checkout.md)                                             | Owned review/create/read/payment/cancellation, authoritative totals, snapshots, stock locks, UUID idempotency, and scheduled expiry.                                                                                                                                 |
+| Database          | [Migrations](../api/src/main/resources/db/migration/)                                                                                                                   | V1: catalog; V2: customers, municipalities, states; V3: images/specifications; V4: unique customer identity link; V5: owned delivery addresses; V6: orders, historical line/address snapshots, and simulated payment attempts. Wishlist persistence remains pending. |
+| Administrative UI | [Routes](../web/src/app/app.routes.ts), [components](../web/src/app/components/)                                                                                        | Nine guarded CRUD routes under `/admin/**` for brands, mice, and customers; standalone Material components, reactive forms and edit resolvers. Brand/mouse lists have paging and name filters; customer list is unpaged.                                             |
+| Branding          | [Public assets](../web/public/), [global styles](../web/src/styles.css)                                                                                                 | SVG/PNG/ICO icons, manifest, brand color variables. `Hero.jpg` is retained as source; the homepage uses responsive WebP exports.                                                                                                                                     |
+| Theme and layout  | [Material theme](../web/src/material-theme.scss), [application template](../web/src/app/app.html)                                                                       | Brand colors are mapped to Material M3. Storefront and legacy administrative layouts are separate; the responsive admin sidebar is implemented.                                                                                                                      |
+| Tests             | [Backend tests](../api/src/test/), frontend `*.spec.ts` files                                                                                                           | Catalog/customer/CEP tests plus public catalog, gallery and compatibility tests; frontend form/list/resolver, URL-filter and gallery coverage. Checkout ownership/concurrency/idempotency, payment, expiry and browser-recovery coverage are included in slice 5.    |
 
 The `/` route now renders the storefront homepage; unknown routes redirect to it.
 Legacy CRUD URLs redirect to guarded `/admin/**` screens under their own layout. The visible storefront
@@ -28,20 +29,20 @@ header/footer and administrative header use the SVG brand mark. See
 Source of visual requirements: [wireframe index](ui-wireframes/README.md).
 There are **12 SVGs: one design-system sheet and 11 screen wireframes**.
 
-| Reference | Status | Remaining work |
-| --- | --- | --- |
-| 00 — Design system | Foundation implemented | Brand colors mapped to Material M3, reusable surface/radius/button tokens, typography and numerical alignment. Continue applying them to future screens. |
-| 01 — Homepage `/` | Implemented for current scope | Responsive hero/header/footer, grip guide and searchable public-product preview with real gallery covers. Account navigation is implemented; curated weekly highlights and cart remain later work. |
-| 02 — Public catalog | Implemented at `/catalogo` | Combined facets, safe sorting, server paging, URL state and mobile filters. `/mouses` remains administrative for compatibility. |
-| 03 — Product detail | Implemented at `/catalogo/:id` | Gallery, specs, current price, availability, image/error/missing states and metadata. Purchase and freight controls await their corresponding slices. |
-| 04 — Cart `/carrinho` | Missing | Local persistence, quantities, removal, totals, delivery estimate, empty and stale-product states. |
-| 05 — Checkout `/checkout` | Missing | Authenticated address selection, purchase review, payment selection, transactional order placement and result handling. |
-| 06 — Customer portal `/meus-pedidos` | Missing | Personal orders and status timeline, details/tracking, account/logout, saved addresses and wishlist views. |
-| 07 — Login `/login` | Implemented | Unified entry, branded identity forms, recovery by email, PKCE, role-aware returns and session handling. |
-| 08 — Registration `/cadastro` | Implemented for account scope | Public identity registration and verification, followed by owned profile/address completion. Multiple saved addresses remain in slice 4. |
-| 09 — Admin orders `/admin/pedidos` | Missing | Admin shell/sidebar exists; order metrics, table, details and permitted transitions await orders. |
-| 10 — Admin catalog | Images/specs implemented | The `/admin/mouses` table includes images/specifications and uses the protected admin shell. Broader administrative sorting remains later work. |
-| 11 — Admin product form | Implemented for catalog scope | Validated form, version checks, URL gallery with ordering/cover/removal, sensor, polling rate, grip and switch fields. Binary upload is not part of this slice. |
+| Reference                            | Status                         | Remaining work                                                                                                                                                                                                 |
+| ------------------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 00 — Design system                   | Foundation implemented         | Brand colors mapped to Material M3, reusable surface/radius/button tokens, typography and numerical alignment. Continue applying them to future screens.                                                       |
+| 01 — Homepage `/`                    | Implemented for current scope  | Responsive hero/header/footer, grip guide and searchable public-product preview with real gallery covers. Account and cart navigation are implemented; curated weekly highlights remain later work.            |
+| 02 — Public catalog                  | Implemented at `/catalogo`     | Combined facets, safe sorting, server paging, URL state and mobile filters. `/mouses` remains administrative for compatibility.                                                                                |
+| 03 — Product detail                  | Implemented at `/catalogo/:id` | Gallery, specs, current price, availability, image/error/missing states and metadata. Purchase and freight controls integrate with the implemented cart/checkout slices.                                       |
+| 04 — Cart `/carrinho`                | Implemented                    | Local persistence, quantities, removal, totals, delivery estimates, stale-product handling, and confirmed-purchase receipts.                                                                                   |
+| 05 — Checkout `/checkout`            | Implemented                    | Owned address selection, authoritative server review, transactional orders, PIX QR Code, local card validation, pending payments, retries, cancellation and expiry. See [checkout](transactional-checkout.md). |
+| 06 — Customer portal `/meus-pedidos` | Missing                        | Personal orders and status timeline, details/tracking and wishlist views. Account/logout and owned saved addresses are already implemented.                                                                    |
+| 07 — Login `/login`                  | Implemented                    | Unified entry, branded identity forms, recovery by email, PKCE, role-aware returns and session handling.                                                                                                       |
+| 08 — Registration `/cadastro`        | Implemented for account scope  | Public identity registration and verification, followed by owned profile/address completion. Owned saved addresses are implemented in slice 4.                                                                 |
+| 09 — Admin orders `/admin/pedidos`   | Missing                        | Admin shell/sidebar exists; order metrics, table, details and permitted transitions await orders.                                                                                                              |
+| 10 — Admin catalog                   | Images/specs implemented       | The `/admin/mouses` table includes images/specifications and uses the protected admin shell. Broader administrative sorting remains later work.                                                                |
+| 11 — Admin product form              | Implemented for catalog scope  | Validated form, version checks, URL gallery with ordering/cover/removal, sensor, polling rate, grip and switch fields. Binary upload is not part of this slice.                                                |
 
 Brand and customer CRUD are integrated into the guarded admin shell, although
 they do not have dedicated screen wireframes. Separate wireframes are still
@@ -53,18 +54,18 @@ order-detail screens selected for implementation.
 Resolve these decisions before implementing the dependent backend features;
 they do not block starting the theme, shared layout, and homepage structure.
 
-| Topic | Conflicting or incomplete evidence | Proposed direction / required decision |
-| --- | --- | --- |
-| Identity | Keycloak owns credentials; V4 links `Cliente` by token subject. | Implemented without local password storage. Legacy rows remain unclaimed; email matching never grants ownership. |
-| Roles | Canonical `admin` and `customer` realm roles are enforced. | Administrators can also maintain an owned shopping profile; no technical role names appear in customer screens. |
-| Frontend routes | Public browsing uses `/catalogo`; administration uses guarded `/admin/**`. | Legacy CRUD paths redirect, including create/edit routes. Edit resolvers execute after guards. |
-| Public catalog contract | Existing reads return administrative records, including inactive products; paging/name search are the only query capabilities. | Define an additive public read contract with active-brand/product rules, combined filters, safe sorting and image/spec projections. Preserve existing admin clients. |
-| CEP route | Actual API/client use `/ceps/{cep}`; master/root documentation mention `/cep/**`. | Document the implemented plural path; do not rename it silently. |
-| Customer/address model | V2 stores one address directly on `Cliente`; the purchase plan expects reusable, owned `Endereco` records. | Add owned addresses and a migration/backfill strategy preserving current customers and contracts. |
-| Categories | Master roadmap includes categories; domain MVP explicitly defers them. | Confirm whether categories belong to v1 before adding entity, migration, API and screens. |
-| Payments/freight | Domain MVP specifies simulated payments and configurable freight; wireframes show installments, PIX QR code and delivery promises. | Confirm the demonstration scope and simulation behavior before selecting a provider/mock. Do not promise live payment approval or delivery dates without implementation. |
-| Order states | Master lists five English states; domain plan adds expiration and Portuguese enum names. | Agree on canonical API values, labels, transitions and expiration before persisting order status. |
-| Merchandising | Wireframes show weekly highlights and “best selling” sorting; neither data source exists. | Define explicit featured-product selection. Only implement best-selling order when supported by actual sales data. |
+| Topic                   | Conflicting or incomplete evidence                                                                                             | Proposed direction / required decision                                                                                                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity                | Keycloak owns credentials; V4 links `Cliente` by token subject.                                                                | Implemented without local password storage. Legacy rows remain unclaimed; email matching never grants ownership.                                                                                                                  |
+| Roles                   | Canonical `admin` and `customer` realm roles are enforced.                                                                     | Administrators can also maintain an owned shopping profile; no technical role names appear in customer screens.                                                                                                                   |
+| Frontend routes         | Public browsing uses `/catalogo`; administration uses guarded `/admin/**`.                                                     | Legacy CRUD paths redirect, including create/edit routes. Edit resolvers execute after guards.                                                                                                                                    |
+| Public catalog contract | Existing reads return administrative records, including inactive products; paging/name search are the only query capabilities. | Define an additive public read contract with active-brand/product rules, combined filters, safe sorting and image/spec projections. Preserve existing admin clients.                                                              |
+| CEP route               | Actual API/client use `/ceps/{cep}`; master/root documentation mention `/cep/**`.                                              | Document the implemented plural path; do not rename it silently.                                                                                                                                                                  |
+| Customer/address model  | V5 adds owned addresses while preserving legacy customer fields.                                                               | V6 snapshots the selected owned address; later edits/deletion do not alter historical orders.                                                                                                                                     |
+| Categories              | Master roadmap includes categories; domain MVP explicitly defers them.                                                         | Confirm whether categories belong to v1 before adding entity, migration, API and screens.                                                                                                                                         |
+| Payments/freight        | PIX and card simulation approved for slice 5; configurable freight already exists.                                             | Local payment engine; realistic customer UI, ephemeral card validation and PIX BR Code with final total and a fictitious recipient. No stored card data, installments or live provider. Simulation defaults off outside dev/test. |
+| Order states            | The domain plan defines six Portuguese states with stable IDs.                                                                 | Implemented as AGUARDANDO_PAGAMENTO, PAGO, ENVIADO, ENTREGUE, CANCELADO, EXPIRADO; fulfillment operations remain slice 6.                                                                                                         |
+| Merchandising           | Wireframes show weekly highlights and “best selling” sorting; neither data source exists.                                      | Define explicit featured-product selection. Only implement best-selling order when supported by actual sales data.                                                                                                                |
 
 ## Proposed delivery sequence
 
@@ -72,17 +73,17 @@ they do not block starting the theme, shared layout, and homepage structure.
 
 - [x] Map the approved brand palette to Material M3; keep existing CRUD usable.
 - [x] Create reusable storefront layout, brand link, responsive navigation,
-  footer, content containers, product card and loading/empty/error states.
+      footer, content containers, product card and loading/empty/error states.
 - [x] Introduce a homepage at `/`; keep the existing CRUD paths reachable during
-  the route transition.
+      the route transition.
 - [x] Integrate `Hero.jpg` with the “Precisão absoluta…” copy in HTML,
-  readable text overlay, mobile crop rules and optimized image exports.
+      readable text overlay, mobile crop rules and optimized image exports.
 - [x] Use the new SVG mark in the visible header/footer.
 - [x] Connect catalog links/search to implemented behavior; do not ship purchase,
-  account, stock or promotional claims as nonfunctional controls.
+      account, stock or promotional claims as nonfunctional controls.
 - [x] Show a documented selection of real active products and a labeled image
-  fallback using available API fields. Curated weekly highlights remain a
-  future merchandising capability; no stock, polling-rate or sales claims are invented.
+      fallback using available API fields. Curated weekly highlights remain a
+      future merchandising capability; no stock, polling-rate or sales claims are invented.
 
 Acceptance: homepage loads directly and on refresh, works on mobile/desktop,
 supports keyboard navigation, and provides a functional route into product browsing.
@@ -91,16 +92,16 @@ Dynamic merchandising is complete only after its data source is connected.
 ### 2. Catalog data, images and public browsing
 
 - [x] Add sensor, polling rate, switch type and grip fields across migration,
-  entity, DTOs, services, Angular models/forms and tests. Weight, DPI,
-  connectivity, price and stock already exist.
+      entity, DTOs, services, Angular models/forms and tests. Weight, DPI,
+      connectivity, price and stock already exist.
 - [x] Implement ordered product images with accessible descriptions and cover
-  selection. Decide URL management versus upload/storage before promising upload.
+      selection. Decide URL management versus upload/storage before promising upload.
 - [x] Define public active-product/active-brand rules and out-of-stock behavior.
 - [x] Add combined brand/spec/price/weight/connectivity filters, supported sorts
-  and paginated results at the API level.
+      and paginated results at the API level.
 - [x] Build catalog cards, filter drawer, result count and shareable URL state.
 - [x] Build product details/gallery with loading, missing-image, invalid-ID,
-  inactive/unavailable and out-of-stock handling.
+      inactive/unavailable and out-of-stock handling.
 - [x] Adapt administrative list/form to manage the expanded catalog.
 
 Acceptance: public results match the combined filters, inactive records are not
@@ -110,10 +111,10 @@ exposed as purchasable, and product detail reflects current API values.
 
 - [x] Configure the `mousetrap` realm, SPA client and backend token validation.
 - [x] Implement Authorization Code with PKCE, login/logout/session handling,
-  HTTP authorization interceptor and role guards.
+      HTTP authorization interceptor and role guards.
 - [x] Enforce roles and customer ownership in backend services/resources.
 - [x] Link authenticated identity to the local customer profile and addresses;
-  add authenticated self-service contracts such as `/clientes/me` as agreed.
+      add authenticated self-service contracts such as `/clientes/me` as agreed.
 - [x] Deliver the unified login, public registration and password-recovery flows.
 - [x] Move administrative screens into the approved `/admin/**` routing scheme.
 
@@ -126,7 +127,7 @@ guards alone do not satisfy access control. Complete before public deployment.
 - [x] Implement cart state with Angular services/signals and local storage.
 - [x] Add/remove/update quantities, badge count and BRL totals.
 - [x] Revalidate current products, prices and availability; handle invalid stored
-  data and changed/deleted products. A cart does not reserve stock.
+      data and changed/deleted products. A cart does not reserve stock.
 - [x] Add owned address list/create/edit/delete and reuse ViaCEP validation.
 - [x] Define backend freight policy and show estimates consistently.
 - [x] Preserve cart and intended checkout destination through authentication.
@@ -136,18 +137,19 @@ remain estimates until validated by the order service.
 
 ### 5. Transactional checkout, orders and simulated payments
 
-- [ ] Add `Pedido`, `ItemPedido`, delivery-address snapshot, status enums,
-  payment attempts and incremental migrations after contract alignment.
-- [ ] Calculate authoritative prices/freight/totals on the server; snapshot
-  purchase details and validate address ownership and active products.
-- [ ] Implement atomic stock commitment, concurrency control and checkout
-  idempotency. Reject insufficient stock without partial orders or deductions.
-- [ ] Implement simulated payment outcomes, attempt idempotency and permitted
-  order/payment transitions without storing card credentials.
-- [ ] Expire unpaid orders periodically and restore stock exactly once on
-  eligible cancellation/expiration; avoid racing payment approval.
-- [ ] Build checkout review/result/retry flows. Clear purchased cart items only
-  after confirmed order creation and preserve retries after ambiguous failures.
+- [x] Add `Pedido`, `ItemPedido`, delivery-address snapshot, status enums,
+      payment attempts and incremental migrations after contract alignment.
+- [x] Calculate authoritative prices/freight/totals on the server; snapshot
+      purchase details and validate address ownership and active products.
+- [x] Implement atomic stock commitment, concurrency control and checkout
+      idempotency. Reject insufficient stock without partial orders or deductions.
+- [x] Implement simulated payment outcomes, attempt idempotency and permitted
+      order/payment transitions without storing card credentials. Customer requests remain pending; approval/refusal requires admin authorization.
+- [x] Expire unpaid orders periodically and restore stock exactly once on
+      eligible cancellation/expiration; avoid racing payment approval.
+- [x] Generate a local PIX QR Code/Copia e Cola with the confirmed total and fictitious recipient; validate card fields locally without persisting or transmitting them.
+- [x] Build checkout review/result/retry flows. Clear purchased cart items only
+      after confirmed order creation and preserve retries after ambiguous failures.
 
 Acceptance: concurrent purchases of the last item cannot oversell; repeated
 checkout/payment requests cannot duplicate orders or charges; historical product
@@ -157,12 +159,12 @@ and delivery data survive later catalog/address edits.
 
 - [ ] Build owner-scoped order history, details, status timeline and tracking.
 - [ ] Build admin order list/details, search/status filters and allowed shipping
-  and delivery actions. Use explicit business operations rather than arbitrary
-  status/history overwrites.
+      and delivery actions, including administrative payment confirmation/refusal. Use explicit business operations rather than arbitrary
+      status/history overwrites.
 - [ ] Calculate dashboard totals and counts from real backend data.
 - [ ] Implement persisted user wishlist and its UI after confirming v1 scope.
 - [ ] Complete customer-list paging/search, Material sorting and consistent
-  accessible confirmation dialogs; existing deletes use `window.confirm`.
+      accessible confirmation dialogs; existing deletes use `window.confirm`.
 - [ ] Protect historical dependencies when deactivating/deleting records.
 
 Acceptance: personal and administrative views reflect the same order states,
@@ -172,18 +174,18 @@ without leaking customer data or allowing invalid transitions.
 
 - [x] Centralize API and identity URLs in public runtime configuration; keep credentials out of the frontend.
 - [ ] Add route descriptions, OpenGraph metadata and accurate Product structured
-  data; route titles and a skip link already exist.
+      data; route titles and a skip link already exist.
 - [ ] Verify responsive layouts, keyboard/focus behavior, contrast, accessible
-  validation, image alternatives and loading announcements in a browser.
+      validation, image alternatives and loading announcements in a browser.
 - [ ] Optimize hero/product images, reserve image dimensions and verify bundle
-  budgets. Revisit Google Fonts fetching for reproducible builds.
+      budgets. Revisit Google Fonts fetching for reproducible builds.
 - [ ] Add focused authorization, public filtering, address-ownership, checkout
-  concurrency/idempotency, payment/expiration and end-to-end purchase tests.
+      concurrency/idempotency, payment/expiration and end-to-end purchase tests.
 - [ ] Define CI checks and deployment settings for the SPA, API, PostgreSQL,
-  identity server, secrets and migrations. Backend Dockerfiles and the local identity/email Compose stack exist;
-  repository CI and a complete deployment stack remain pending.
+      identity server, secrets and migrations. Backend Dockerfiles and the local identity/email Compose stack exist;
+      repository CI and a complete deployment stack remain pending.
 - [ ] Synchronize READMEs with actual endpoints and implemented features; remove
-  stale packaging references and distinguish planned capabilities clearly.
+      stale packaging references and distinguish planned capabilities clearly.
 - [ ] Validate submission exclusions when generating an academic release package.
 
 ## First implementation slice — completed
@@ -237,4 +239,8 @@ claiming or password storage is introduced. Multiple saved addresses remain
 part of slice 4. Credentials, verification and recovery stay with the branded
 identity provider forms.
 
-The next implementation slice is cart persistence and multiple saved addresses.
+## Fourth and fifth implementation slices — completed
+
+Cart persistence, stock revalidation, configurable shipping estimates and owned saved addresses are implemented. [Transactional checkout](transactional-checkout.md) adds V6, authoritative order totals, immutable purchase snapshots, stock commitment, checkout/payment idempotency, PIX/card simulation, cancellation and scheduled expiry. Its UI follows wireframe 05 and preserves the homepage hero.
+
+The next implementation slice is the customer portal, administrative order operations and the remaining agreed wishlist/CRUD improvements. Payment simulation is a local demonstration, with no real financial integration.
