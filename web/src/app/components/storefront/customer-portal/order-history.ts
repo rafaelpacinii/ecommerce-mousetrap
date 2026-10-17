@@ -9,19 +9,11 @@ import { Pedido, dataPedido } from '../../../models/pedido.model';
 import { PedidoService } from '../../../services/pedido.service';
 import { mensagemErro } from '../../../services/erro-api';
 import { paginacaoPortugues } from '../../../services/paginator-intl';
-import { AccountNavComponent } from './account-nav';
 import { OrderDetailsComponent } from '../../shared/order-details/order-details';
 @Component({
   selector: 'app-order-history',
   standalone: true,
-  imports: [
-    CurrencyPipe,
-    RouterLink,
-    MatIconModule,
-    MatPaginatorModule,
-    AccountNavComponent,
-    OrderDetailsComponent,
-  ],
+  imports: [CurrencyPipe, RouterLink, MatIconModule, MatPaginatorModule, OrderDetailsComponent],
   providers: [{ provide: MatPaginatorIntl, useFactory: paginacaoPortugues }],
   templateUrl: './order-history.html',
   styleUrl: './customer-portal.css',

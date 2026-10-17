@@ -354,7 +354,7 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
       'realm',
     ]);
     expect((await request.get(web + '/missing-release-chunk.js')).status()).toBe(404);
-    expect((await request.get(web + '/minha-conta')).headers()['x-robots-tag']).toBe(
+    expect((await request.get(web + '/meus-dados')).headers()['x-robots-tag']).toBe(
       'noindex, nofollow',
     );
     expect((await request.get(api + '/q/health/ready')).status()).toBe(200);

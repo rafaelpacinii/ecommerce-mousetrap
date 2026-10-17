@@ -58,7 +58,7 @@ mandatory; guards only improve navigation.
 | Checkout / payments | `/pedidos`; [transactional contracts](docs/transactional-checkout.md) |
 | History / fulfillment / wishlist | `/pedidos/me`, `/admin/pedidos`, `/desejos`; [operations](docs/customer-portal-admin-orders.md) |
 | Storefront | `/`, `/catalogo`, `/catalogo/:id`, `/carrinho`, `/checkout` |
-| Customer area | `/minha-conta`, `/meus-pedidos`, `/meus-pedidos/:id`, `/lista-de-desejos` |
+| Customer area | `/meus-dados`, `/enderecos`, `/meus-pedidos`, `/meus-pedidos/:id`, `/lista-de-desejos` |
 | Administration | `/admin/pedidos`, `/admin/mouses`, `/admin/marcas`, `/admin/clientes` |
 
 See [implementation status](docs/implementation-backlog.md),

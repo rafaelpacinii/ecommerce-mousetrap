@@ -1,5 +1,6 @@
 import { MatIconModule } from '@angular/material/icon';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -20,6 +21,7 @@ import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
   standalone: true,
   imports: [
     MatIconModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
@@ -44,6 +46,10 @@ export class ClienteFormComponent {
   readonly returnUrl = safeReturnUrl(this.route.snapshot.queryParamMap?.get('returnUrl'));
   readonly carregando = signal(false);
   readonly erroPerfil = signal('');
+  readonly perfilSalvo = signal(false);
+  readonly paginaEnderecos = signal(false);
+  readonly avisoPerfil = signal('');
+  readonly nomeOriginal = signal('');
   readonly cliente: Cliente | undefined = this.route.snapshot.data['cliente'];
   readonly salvando = signal(false);
   readonly consultando = signal(false);
@@ -54,6 +60,7 @@ export class ClienteFormComponent {
 
   readonly enderecos = signal<Endereco[]>([]);
   readonly carregandoEnderecos = signal(false);
+  readonly erroEnderecos = signal('');
   readonly exibindoFormEndereco = signal(false);
   readonly enderecoEditandoId = signal<number | null>(null);
   readonly salvandoEndereco = signal(false);
@@ -62,6 +69,13 @@ export class ClienteFormComponent {
   readonly municipioEndereco = signal('');
   readonly estadoEndereco = signal('');
   readonly erroCepEndereco = signal('');
+  readonly enderecosBloqueados = computed(
+    () =>
+      this.salvando() ||
+      this.salvandoEndereco() ||
+      this.carregandoEnderecos() ||
+      !!this.erroEnderecos(),
+  );
 
   readonly form = this.fb.nonNullable.group({
     nome: [
@@ -91,7 +105,12 @@ export class ClienteFormComponent {
   });
 
   constructor() {
-    if (this.selfService) this.carregarPerfil();
+    if (this.selfService) {
+      this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+        this.paginaEnderecos.set(params.get('secao') === 'enderecos');
+      });
+      this.carregarPerfil();
+    }
     if (this.cliente) {
       this.form.patchValue(this.cliente);
       this.cepConfirmado.set(this.cliente.cep);
@@ -118,6 +137,13 @@ export class ClienteFormComponent {
       });
   }
 
+  private abrirPagina(enderecos: boolean): void {
+    this.paginaEnderecos.set(enderecos);
+    void this.router.navigate([enderecos ? '/enderecos' : '/meus-dados'], {
+      queryParamsHandling: 'preserve',
+    });
+  }
+
   carregarPerfil(): void {
     this.carregando.set(true);
     this.erroPerfil.set('');
@@ -129,6 +155,8 @@ export class ClienteFormComponent {
       )
       .subscribe({
         next: (cliente) => {
+          this.perfilSalvo.set(true);
+          this.nomeOriginal.set(cliente.nome);
           this.form.patchValue({ ...cliente, email: this.auth.email() }, { emitEvent: false });
           this.cepConfirmado.set(cliente.cep);
           this.municipio.set(cliente.municipio.nome);
@@ -137,6 +165,8 @@ export class ClienteFormComponent {
         },
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse && error.status === 404) {
+            this.perfilSalvo.set(false);
+            this.nomeOriginal.set(this.auth.nome());
             this.form.patchValue({ nome: this.auth.nome(), email: this.auth.email() });
           } else this.erroPerfil.set(mensagemErro(error));
         },
@@ -145,6 +175,7 @@ export class ClienteFormComponent {
 
   carregarEnderecos(): void {
     this.carregandoEnderecos.set(true);
+    this.erroEnderecos.set('');
     this.service
       .listarMeusEnderecos()
       .pipe(
@@ -152,8 +183,27 @@ export class ClienteFormComponent {
         finalize(() => this.carregandoEnderecos.set(false)),
       )
       .subscribe({
-        next: (lista) => this.enderecos.set(lista),
-        error: () => this.enderecos.set([]),
+        next: (lista) => {
+          this.enderecos.set(lista);
+          const principal = lista.find((endereco) => endereco.principal);
+          if (principal) {
+            this.form.patchValue(
+              {
+                cep: principal.cep,
+                logradouro: principal.logradouro,
+                bairro: principal.bairro,
+                numero: principal.numero,
+                complemento: principal.complemento,
+              },
+              { emitEvent: false },
+            );
+            this.cepConfirmado.set(principal.cep);
+            this.municipio.set(principal.municipio.nome);
+            this.estado.set(principal.municipio.estado.sigla);
+          }
+        },
+        error: () =>
+          this.erroEnderecos.set('Não foi possível atualizar seus endereços. Tente novamente.'),
       });
   }
 
@@ -235,7 +285,7 @@ export class ClienteFormComponent {
   }
 
   salvarEndereco(): void {
-    if (this.salvandoEndereco() || this.consultandoCepEndereco()) return;
+    if (this.enderecosBloqueados() || this.consultandoCepEndereco()) return;
     const dados = this.formEndereco.getRawValue();
     this.formEndereco.patchValue(
       {
@@ -284,10 +334,14 @@ export class ClienteFormComponent {
   }
 
   definirPrincipal(endereco: Endereco): void {
-    if (endereco.principal || this.salvandoEndereco()) return;
+    if (endereco.principal || this.enderecosBloqueados()) return;
+    this.salvandoEndereco.set(true);
     this.service
       .definirMeuEnderecoPrincipal(endereco.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.salvandoEndereco.set(false)),
+      )
       .subscribe({
         next: () => {
           this.snack.open(`${endereco.apelido} definido como endereço principal.`, 'Fechar', {
@@ -300,10 +354,14 @@ export class ClienteFormComponent {
   }
 
   removerEndereco(endereco: Endereco): void {
-    if (this.salvandoEndereco()) return;
+    if (this.enderecosBloqueados()) return;
+    this.salvandoEndereco.set(true);
     this.service
       .removerMeuEndereco(endereco.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.salvandoEndereco.set(false)),
+      )
       .subscribe({
         next: () => {
           this.snack.open('Endereço removido.', 'Fechar', { duration: 3500 });
@@ -362,8 +420,26 @@ export class ClienteFormComponent {
     return 'Revise este campo.';
   }
 
+  dadosAlterados(): boolean {
+    return this.form.controls.nome.value !== this.nomeOriginal();
+  }
+
+  cancelarAlteracoes(): void {
+    if (
+      !this.selfService ||
+      this.paginaEnderecos() ||
+      !this.dadosAlterados() ||
+      this.enderecosBloqueados() ||
+      this.consultando()
+    )
+      return;
+    this.form.controls.nome.reset(this.nomeOriginal());
+    this.avisoPerfil.set('');
+  }
+
   salvar(): void {
     if (this.salvando() || this.consultando() || this.carregando() || this.erroPerfil()) return;
+    if (this.selfService && this.enderecosBloqueados()) return;
     const dados = this.form.getRawValue();
     this.form.patchValue({
       nome: dados.nome.trim(),
@@ -376,8 +452,18 @@ export class ClienteFormComponent {
     if (this.form.invalid || this.cepConfirmado() !== dados.cep.replace('-', '')) {
       this.form.markAllAsTouched();
       if (!this.cepConfirmado()) this.erroCep.set('Consulte o CEP antes de salvar.');
+      if (this.selfService) {
+        const dadosInvalidos = this.form.controls.nome.invalid || this.form.controls.email.invalid;
+        this.abrirPagina(!dadosInvalidos);
+        this.avisoPerfil.set(
+          dadosInvalidos
+            ? 'Revise seus dados pessoais antes de salvar.'
+            : 'Complete seu primeiro endereço para concluir o cadastro.',
+        );
+      }
       return;
     }
+    this.avisoPerfil.set('');
     const cliente = { ...this.form.getRawValue(), cep: dados.cep.replace('-', '') };
     const { email: _email, ...perfil } = cliente;
     const requisicao = this.selfService
@@ -396,7 +482,9 @@ export class ClienteFormComponent {
         }),
       )
       .subscribe({
-        next: () => {
+        next: (resposta) => {
+          this.nomeOriginal.set(resposta.nome ?? perfil.nome);
+          this.form.controls.nome.reset(this.nomeOriginal(), { emitEvent: false });
           this.snack.open(
             this.selfService ? 'Seus dados foram salvos.' : 'Cliente salvo com sucesso.',
             'Fechar',
@@ -406,6 +494,9 @@ export class ClienteFormComponent {
             void this.router.navigate(['/admin/clientes']);
           } else if (this.returnUrl) {
             void this.router.navigateByUrl(this.returnUrl);
+          } else {
+            this.perfilSalvo.set(true);
+            this.carregarEnderecos();
           }
         },
         error: (erro: unknown) => this.snack.open(mensagemErro(erro), 'Fechar', { duration: 7000 }),

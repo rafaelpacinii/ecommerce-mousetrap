@@ -122,6 +122,35 @@ form {
   color: var(--status-danger-text);
   font-size: 13px;
 }
+.account-form {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 28px;
+  border: 1px solid var(--neutral-200);
+  box-shadow: var(--shadow-card);
+}
+.account-form h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+}
+.account-form > p {
+  color: var(--neutral-500);
+}
+.account-content {
+  padding-block: 24px 8px;
+}
+.account-form .enderecos-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.profile-notice {
+  padding: 16px;
+  background: var(--light-cyan);
+  color: var(--prussian-blue);
+  border-radius: var(--radius-sm);
+}
 
 .profile-form {
   display: grid;

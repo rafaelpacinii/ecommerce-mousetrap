@@ -13,6 +13,8 @@ administration.
 - Separate storefront and legacy administration layouts. The storefront includes
   SVG branding, responsive navigation, a mobile menu and footer. Existing CRUD
   routes and edit resolvers retain their paths and HTTP contracts.
+- Header and footer navigation link to standalone destinations. The grip guide
+  stays within the homepage content and is not repeated in either navigation.
 - Hero with the supplied mouse image, HTML heading and CTA, a dark overlay for
   readability and a stacked composition on mobile.
 - Three expandable guides for Claw, Palm and Fingertip grips. These explain grip
@@ -119,8 +121,14 @@ current behavior is specified in [Public catalog](public-catalog.md).
 
 ## Third-slice update
 
-The header now offers account access and logout. Administration links are visible
+The signed-in header opens account options from the user's first name. The label
+is limited to 16 characters, including a trailing `...` for longer first names;
+the full identity remains available to assistive technology. The dropdown groups
+orders, personal settings, addresses, wishlist and logout. Its personal-settings
+link opens `/meus-dados`. The menu closes on selection and Escape and remains
+usable on mobile, including with long names.
+Administration links are visible
 only to authorized operators and open `/admin/**`. Legacy administrative URLs
-redirect through guards. The owned profile/address form is at `/minha-conta`.
+redirect through guards. Personal settings are at `/meus-dados`; delivery addresses are at `/enderecos`.
 See [authentication and account ownership](authentication.md) for runtime
 configuration, local identity/email setup and public versus protected API reads.

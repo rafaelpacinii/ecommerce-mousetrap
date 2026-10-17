@@ -37,9 +37,8 @@
           routerLinkActive="active"
           ariaCurrentWhenActive="page"
           (click)="menuAberto.set(false)"
-          >Mouses</a
+          >Catálogo</a
         >
-        <a routerLink="/" fragment="pegadas" (click)="menuAberto.set(false)">Guia de pegadas</a>
       </nav>
       <form
         class="header-search"
@@ -71,27 +70,40 @@
           ><span class="cart-badge">{{ carrinho.quantidadeTotal() }}</span>
         </a>
         @if (auth.authenticated()) {
-          <details class="account-menu" #accountMenu>
-            <summary>
-              <mat-icon aria-hidden="true">account_circle</mat-icon><span>Minha conta</span
-              ><mat-icon aria-hidden="true">expand_more</mat-icon>
+          <details class="account-menu" #accountMenu (keydown.escape)="accountMenu.open = false">
+            <summary [attr.aria-label]="'Opções da conta de ' + (auth.nome().trim() || 'usuário')">
+              <mat-icon aria-hidden="true">account_circle</mat-icon>
+              <span class="account-name" [title]="primeiroNome()">{{ nomeUsuario() }}</span>
+              <mat-icon aria-hidden="true">expand_more</mat-icon>
             </summary>
             <div class="account-links">
-              <a routerLink="/meus-pedidos" (click)="accountMenu.open = false"
-                ><mat-icon aria-hidden="true">receipt_long</mat-icon>Meus pedidos</a
+              <a
+                routerLink="/meus-pedidos"
+                (click)="accountMenu.open = false; menuAberto.set(false)"
               >
-              <a routerLink="/lista-de-desejos" (click)="accountMenu.open = false"
-                ><mat-icon aria-hidden="true">favorite_border</mat-icon>Lista de desejos</a
+                <mat-icon aria-hidden="true">receipt_long</mat-icon>Meus pedidos
+              </a>
+              <a routerLink="/meus-dados" (click)="accountMenu.open = false; menuAberto.set(false)">
+                <mat-icon aria-hidden="true">person</mat-icon>Meus dados
+              </a>
+              <a routerLink="/enderecos" (click)="accountMenu.open = false; menuAberto.set(false)">
+                <mat-icon aria-hidden="true">location_on</mat-icon>Endereços
+              </a>
+              <a
+                routerLink="/lista-de-desejos"
+                (click)="accountMenu.open = false; menuAberto.set(false)"
               >
-              <a routerLink="/minha-conta" (click)="accountMenu.open = false"
-                ><mat-icon aria-hidden="true">person</mat-icon>Minha conta</a
-              >
+                <mat-icon aria-hidden="true">favorite_border</mat-icon>Lista de desejos
+              </a>
               @if (auth.admin()) {
-                <a routerLink="/admin/pedidos" (click)="accountMenu.open = false"
-                  ><mat-icon aria-hidden="true">settings</mat-icon>Administrar</a
+                <a
+                  routerLink="/admin/pedidos"
+                  (click)="accountMenu.open = false; menuAberto.set(false)"
                 >
+                  <mat-icon aria-hidden="true">settings</mat-icon>Administrar
+                </a>
               }
-              <button type="button" (click)="auth.logout()">
+              <button type="button" (click)="accountMenu.open = false; auth.logout()">
                 <mat-icon aria-hidden="true">logout</mat-icon>Sair
               </button>
             </div>
@@ -117,16 +129,13 @@
       </div>
       <nav aria-label="Navegação do rodapé">
         <a routerLink="/catalogo"><mat-icon aria-hidden="true">mouse</mat-icon>Mouses</a>
-        <a routerLink="/" fragment="pegadas"
-          ><mat-icon aria-hidden="true">pan_tool</mat-icon>Guia de pegadas</a
-        >
         @if (auth.admin()) {
           <a routerLink="/admin/pedidos"
             ><mat-icon aria-hidden="true">settings</mat-icon>Administração</a
           >
         }
-        <a routerLink="/minha-conta"
-          ><mat-icon aria-hidden="true">account_circle</mat-icon>Minha conta</a
+        <a routerLink="/meus-dados"
+          ><mat-icon aria-hidden="true">account_circle</mat-icon>Meus dados</a
         >
       </nav>
     </div>

@@ -58,7 +58,7 @@ describe('authentication session', () => {
 
   it('prevents concurrent clicks from starting multiple sign-in transactions', async () => {
     const auth = TestBed.inject(AuthService);
-    await Promise.all([auth.login('/minha-conta'), auth.login('/minha-conta')]);
+    await Promise.all([auth.login('/meus-dados'), auth.login('/meus-dados')]);
     expect(adapter.login).toHaveBeenCalledTimes(1);
     expect(auth.redirecting()).toBe(false);
   });

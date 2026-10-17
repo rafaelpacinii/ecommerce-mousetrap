@@ -27,6 +27,12 @@ export class StorefrontLayoutComponent {
   );
   readonly busca = signal('');
   readonly auth = inject(AuthService);
+  readonly primeiroNome = computed(() => this.auth.nome().trim().split(/\s+/)[0] || 'Sua conta');
+  readonly nomeUsuario = computed(() => {
+    const primeiroNome = this.primeiroNome();
+    const caracteres = Array.from(primeiroNome);
+    return caracteres.length > 16 ? caracteres.slice(0, 13).join('') + '...' : primeiroNome;
+  });
   readonly carrinho = inject(CarrinhoService);
   readonly menuAberto = signal(false);
   buscar(event: Event): void {

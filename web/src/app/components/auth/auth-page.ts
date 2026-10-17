@@ -23,7 +23,7 @@ export class AuthPageComponent implements OnInit {
       void this.router.navigateByUrl(
         this.mode === 'auth/callback'
           ? this.auth.destination()
-          : (this.returnUrl ?? (this.auth.admin() ? '/admin/mouses' : '/minha-conta')),
+          : (this.returnUrl ?? (this.auth.admin() ? '/admin/mouses' : '/meus-dados')),
         { replaceUrl: true },
       );
     }

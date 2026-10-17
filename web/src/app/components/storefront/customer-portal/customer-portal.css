@@ -1,13 +1,6 @@
 :host {
   display: block;
 }
-.portal-grid {
-  display: grid;
-  grid-template-columns: 268px minmax(0, 1fr);
-  gap: 40px;
-  padding-block: 40px 64px;
-  align-items: start;
-}
 .portal-content {
   min-width: 0;
 }
@@ -116,23 +109,11 @@ mat-paginator {
   border-radius: 12px;
 }
 @media (max-width: 1100px) {
-  .portal-grid {
-    gap: 24px;
-    grid-template-columns: 240px minmax(0, 1fr);
-  }
   .history-card {
     flex-wrap: wrap;
   }
 }
-@media (max-width: 900px) {
-  .portal-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 @media (max-width: 600px) {
-  .portal-grid {
-    padding-block: 24px 40px;
-  }
   .history-card {
     padding: 20px;
     gap: 12px;

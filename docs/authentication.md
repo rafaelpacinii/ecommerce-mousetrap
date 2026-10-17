@@ -88,7 +88,7 @@ these URLs. This file is public and must never contain credentials. On the API,
 | `GET /clientes/me`, `PUT /clientes/me`                                   | `customer` or `admin`                                               |
 | `PUT /clientes/{id}/identidade`                                          | `admin`, after reviewing the legacy customer and confirmed identity |
 | `/admin/mouses`, `/admin/marcas`, `/admin/clientes` and their forms      | Admin guard plus API authorization                                  |
-| `/minha-conta`                                                           | Authenticated profile and delivery address                          |
+| `/meus-dados`, `/enderecos`                                                           | Authenticated profile and delivery address                          |
 | `/login`, `/cadastro`, `/auth/callback`                                  | Unified account entry and callback                                  |
 
 Administrative API read payloads include inactive records and are now protected
@@ -139,7 +139,7 @@ already assigned to another customer. Row locking and the existing unique subjec
 constraint protect concurrent attempts. Customers and anonymous callers cannot
 use this operation. No migration or automatic email-based claiming is introduced.
 
-After linking, reload `/minha-conta`: profile updates and new addresses use the
+After linking, reload `/meus-dados`: profile updates and new addresses use the
 existing customer. Do not delete a customer or change their email to bypass this
 conflict, because that would lose or detach their existing data.
 
@@ -153,8 +153,12 @@ database constraints also protect concurrent first-time provisioning.
 
 Email and credentials are managed through the identity provider's account page.
 An administrator cannot change an owned profile's email through the legacy CRUD.
-The profile currently retains one address, as in V2. Multiple saved addresses,
-cart, orders, local payments, customer history, administrative fulfillment and wishlist are implemented in subsequent slices. See [slice 6](customer-portal-admin-orders.md).
+The profile retains legacy principal-address fields for API compatibility. V5
+provides multiple saved addresses. The account UI separates **Meus dados** at
+`/meus-dados` from **Endereços** at `/enderecos`, while the
+shared customer sidebar remains available across account, order and wishlist
+screens. Initial registration still requires both name and address under the
+existing profile DTO. See [the customer portal](customer-portal-admin-orders.md).
 
 ## Tests and deployment limits
 
