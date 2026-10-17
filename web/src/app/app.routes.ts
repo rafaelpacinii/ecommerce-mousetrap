@@ -16,6 +16,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/storefront/catalog/catalog').then((m) => m.CatalogComponent),
         title: 'Catálogo de mouses | MouseTrap',
+        data: {
+          description:
+            'Compare mouses gamer por marca, sensor, peso, conexão, pegada e preço. Encontre o desempenho ideal para o seu jogo.',
+        },
       },
       {
         path: 'catalogo/:id',
@@ -31,6 +35,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/storefront/cart/cart').then((m) => m.CartComponent),
         title: 'Seu carrinho | MouseTrap',
+        data: {
+          description:
+            'Confira os itens do seu carrinho e calcule a entrega antes de finalizar a compra.',
+        },
       },
       {
         path: 'checkout',
@@ -38,6 +46,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/storefront/checkout/checkout').then((m) => m.CheckoutComponent),
         title: 'Checkout | MouseTrap',
+        data: {
+          description:
+            'Revise sua compra, escolha o endereço de entrega e informe a forma de pagamento.',
+        },
       },
       {
         path: 'meus-pedidos',
@@ -52,11 +64,15 @@ export const routes: Routes = [
             (m) => m.WishlistComponent,
           ),
         title: 'Lista de desejos | MouseTrap',
+        data: { description: 'Guarde e consulte seus mouses favoritos na MouseTrap.' },
       },
       {
         path: 'minha-conta',
         canActivate: [authGuard],
-        data: { selfService: true },
+        data: {
+          selfService: true,
+          description: 'Consulte seus dados e gerencie seus endereços na MouseTrap.',
+        },
         loadComponent: () =>
           import('./components/clientes/cliente-form/cliente-form').then(
             (m) => m.ClienteFormComponent,
@@ -65,7 +81,10 @@ export const routes: Routes = [
       },
       ...['login', 'cadastro', 'auth/callback', 'acesso-negado'].map((path) => ({
         path,
-        data: { mode: path },
+        data: {
+          mode: path,
+          description: 'Acesse sua conta MouseTrap para acompanhar compras e gerenciar seus dados.',
+        },
         loadComponent: () => import('./components/auth/auth-page').then((m) => m.AuthPageComponent),
         title:
           path === 'cadastro'
@@ -85,6 +104,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    data: { description: 'Gerencie o catálogo, os clientes e os pedidos da MouseTrap.' },
     canActivateChild: [adminGuard],
     loadComponent: () =>
       import('./layouts/admin-layout/admin-layout').then((m) => m.AdminLayoutComponent),

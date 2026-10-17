@@ -352,6 +352,16 @@ export class ClienteFormComponent {
     return 'Revise este campo.';
   }
 
+  mensagemCampoEndereco(campo: keyof typeof this.formEndereco.controls): string {
+    const controle = this.formEndereco.controls[campo];
+    if (controle.hasError('required')) return 'Campo obrigatório.';
+    if (controle.hasError('pattern')) return 'Informe um CEP com oito dígitos.';
+    if (controle.hasError('minlength')) return 'Informe pelo menos dois caracteres.';
+    if (controle.hasError('maxlength'))
+      return `Use no máximo ${controle.errors?.['maxlength'].requiredLength} caracteres.`;
+    return 'Revise este campo.';
+  }
+
   salvar(): void {
     if (this.salvando() || this.consultando() || this.carregando() || this.erroPerfil()) return;
     const dados = this.form.getRawValue();

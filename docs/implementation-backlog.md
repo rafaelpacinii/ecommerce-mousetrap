@@ -49,15 +49,14 @@ they do not have dedicated screen wireframes. Wishlist and order details extend 
 
 ## Scope and contract alignment
 
-Resolve these decisions before implementing the dependent backend features;
-they do not block starting the theme, shared layout, and homepage structure.
+These decisions document the implemented contracts and the remaining optional scope.
 
 | Topic                   | Conflicting or incomplete evidence                                                                                             | Proposed direction / required decision                                                                                                                                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Identity                | Keycloak owns credentials; V4 links `Cliente` by token subject.                                                                | Implemented without local password storage. Legacy rows remain unclaimed; email matching never grants ownership.                                                                                                                  |
 | Roles                   | Canonical `admin` and `customer` realm roles are enforced.                                                                     | Administrators can also maintain an owned shopping profile; no technical role names appear in customer screens.                                                                                                                   |
 | Frontend routes         | Public browsing uses `/catalogo`; administration uses guarded `/admin/**`.                                                     | Legacy CRUD paths redirect, including create/edit routes. Edit resolvers execute after guards.                                                                                                                                    |
-| Public catalog contract | Existing reads return administrative records, including inactive products; paging/name search are the only query capabilities. | Define an additive public read contract with active-brand/product rules, combined filters, safe sorting and image/spec projections. Preserve existing admin clients.                                                              |
+| Public catalog contract | Legacy reads remain administrative; the additive public contract is implemented. | Implemented with active-brand/product visibility, combined filters, safe sorting, gallery/spec projections and preserved admin clients.                                                              |
 | CEP route               | Actual API/client use `/ceps/{cep}`; master/root documentation mention `/cep/**`.                                              | Document the implemented plural path; do not rename it silently.                                                                                                                                                                  |
 | Customer/address model  | V5 adds owned addresses while preserving legacy customer fields.                                                               | V6 snapshots the selected owned address; later edits/deletion do not alter historical orders.                                                                                                                                     |
 | Categories              | Master roadmap includes categories; domain MVP explicitly defers them.                                                         | Confirm whether categories belong to v1 before adding entity, migration, API and screens.                                                                                                                                         |
@@ -171,20 +170,20 @@ without leaking customer data or allowing invalid transitions.
 ### 7. Release readiness across all slices
 
 - [x] Centralize API and identity URLs in public runtime configuration; keep credentials out of the frontend.
-- [ ] Add route descriptions, OpenGraph metadata and accurate Product structured
+- [x] Add route descriptions, OpenGraph metadata and accurate Product structured
       data; route titles and a skip link already exist.
-- [ ] Verify responsive layouts, keyboard/focus behavior, contrast, accessible
+- [x] Verify responsive layouts, keyboard/focus behavior, contrast, accessible
       validation, image alternatives and loading announcements in a browser.
-- [ ] Optimize hero/product images, reserve image dimensions and verify bundle
+- [x] Optimize hero/product images, reserve image dimensions and verify bundle
       budgets. Revisit Google Fonts fetching for reproducible builds.
-- [ ] Add focused authorization, public filtering, address-ownership, checkout
+- [x] Add focused authorization, public filtering, address-ownership, checkout
       concurrency/idempotency, payment/expiration and end-to-end purchase tests.
-- [ ] Define CI checks and deployment settings for the SPA, API, PostgreSQL,
-      identity server, secrets and migrations. Backend Dockerfiles and the local identity/email Compose stack exist;
-      repository CI and a complete deployment stack remain pending.
-- [ ] Synchronize READMEs with actual endpoints and implemented features; remove
+- [x] Define CI checks and deployment settings for the SPA, API, PostgreSQL,
+      identity server, secrets and migrations. The repository now includes four CI jobs,
+      a complete isolated local release stack and public deployment guidance.
+- [x] Synchronize READMEs with actual endpoints and implemented features; remove
       stale packaging references and distinguish planned capabilities clearly.
-- [ ] Validate submission exclusions when generating an academic release package.
+- [x] Validate submission exclusions when generating an academic release package.
 
 ## First implementation slice — completed
 
@@ -245,4 +244,28 @@ Cart persistence, stock revalidation, configurable shipping estimates and owned 
 
 See [Customer portal and administrative orders](customer-portal-admin-orders.md). V7 adds recorded order events, shipping details and account-scoped wishlist persistence. Customers browse owned order history, details and tracking and can resume a pending payment. Administrators confirm/refuse payments for any customer, ship paid orders and confirm delivery using guarded, versioned operations. Store indicators use real database queries. Customer paging/search, server sorting across CRUD lists, accessible confirmations and historical deletion protection are implemented.
 
-The next slice is release readiness. Real payment/transport integrations and refunds remain future work; the current financial engine is local.
+## Seventh implementation slice — release readiness
+
+See [release operations and verification](release-readiness.md). The final slice
+adds centralized route/social metadata and accurate Product JSON-LD, private-page
+indexing rules, local-font/image/bundle checks, repeatable Playwright/Axe browser
+verification, four CI jobs, runtime-safe containers and a complete isolated local
+release stack. Source packaging is versioned, deterministic and verified for
+mandatory files, integrity and secret/dependency exclusions. READMEs and setup
+instructions describe the implemented contracts and current limitations.
+
+Public hosting still requires actual domains/TLS, production Keycloak/SMTP,
+managed secrets and backup/restore rehearsal. Remote GitHub Actions runs after an
+authorized push; no deployment or publication is performed by this slice.
+Real payment/transport integrations, refunds, categories, image upload and
+sales-based merchandising remain future scope. The financial engine remains local.
+
+### Release validation
+
+- `JAVA_HOME=<JDK_17> ./mvnw -B -Prelease clean verify` in `api`: **46 tests passed**, all seven migrations validated; release classes/application JAR exclude active local configuration. Failsafe integration tests remain disabled.
+- `npm ci`, `npm run audit`, `npm test -- --watch=false`, `npm run build` in `web`: clean installation, **zero known npm vulnerabilities**, **98 tests across 24 files passed**, **344.53 kB initial production bundle** within budgets.
+- `sh scripts/verify_release.sh`: real Docker/Keycloak/PostgreSQL purchase/fulfillment flow passed, including privacy, ownership, PIX/card retry and a second purchase. **100 viewport containment checks** across 20 screen states and **21 Axe audits** (including invalid saved-address fields) passed. The runner removed its own containers/volumes; existing development services were preserved.
+- `python3 -m unittest discover -s scripts -p 'test_*.py' -v`: **3 tests passed** covering deterministic archives, secret/dependency/symlink exclusion, unsafe/incomplete packages and non-destructive credential generation.
+- Compose schema, actionlint 1.7.12, shell syntax and `git diff --check` passed. Browser tests also verified runtime JSON contains only public keys, HTML/config caching, private-route HTTP noindex, missing-asset 404 and API readiness.
+- Submission ZIP integrity, mandatory files, exclusions and repeated-build SHA256 are verified by `scripts/package_release.py`; the generated delivery report records the actual archive metrics.
+- No public deployment, remote Actions run, container/JVM vulnerability scan, additional browser-engine audit or complete manual screen-reader certification is claimed.

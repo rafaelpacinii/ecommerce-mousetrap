@@ -119,7 +119,7 @@ form {
   font-size: 14px;
 }
 .erro-cep {
-  color: var(--status-danger);
+  color: var(--status-danger-text);
   font-size: 13px;
 }
 

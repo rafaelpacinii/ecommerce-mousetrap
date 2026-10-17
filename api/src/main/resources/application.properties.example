@@ -1,43 +1,34 @@
-# ===================================================================
-# Conexão com o Banco de Dados PostgreSQL
-# ===================================================================
+# Local development only. Copy to application.properties and adjust privately.
+# Never commit the active file. Release builds must use -Prelease with clean.
 quarkus.datasource.db-kind=postgresql
 quarkus.datasource.username=dbuser
 quarkus.datasource.password=dbpasswd
 quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/db
 
-# Flyway cria o catálogo uma vez; Hibernate apenas verifica o esquema.
+# Flyway applies incremental migrations; Hibernate only validates the schema.
 quarkus.flyway.migrate-at-start=true
 quarkus.hibernate-orm.schema-management.strategy=validate
 quarkus.hibernate-orm.sql-load-script=no-file
-
-# Desabilita o DevServices (pois usamos container Docker ou PostgreSQL local explícito)
 quarkus.devservices.enabled=false
-
-# Exibir comandos SQL no console para depuração
-quarkus.hibernate-orm.log.sql=true
+quarkus.hibernate-orm.log.sql=false
 quarkus.hibernate-orm.log.bind-parameters=false
 
-# ===================================================================
-# Configuração de CORS (comunicação com Angular em localhost:4200)
-# ===================================================================
+# Public browser origin. For releases, shared defaults read WEB_ORIGIN.
 quarkus.http.cors.enabled=true
 quarkus.http.cors.origins=http://localhost:4200
 quarkus.http.cors.methods=GET,PUT,POST,DELETE,PATCH,OPTIONS
-quarkus.http.cors.headers=accept, authorization, content-type, x-requested-with
-quarkus.http.cors.exposed-headers=Authorization, Content-Disposition, X-Page, X-Page-Size, X-Total-Count
-quarkus.http.cors.access-control-max-age=24H
+quarkus.http.cors.headers=accept,authorization,content-type,x-requested-with
+quarkus.http.cors.exposed-headers=X-Page,X-Page-Size,X-Total-Count,Content-Disposition
 quarkus.http.cors.access-control-allow-credentials=true
-
-# Base URL para RFC-7807 (Tratamento de problemas e erros)
+quarkus.http.limits.max-body-size=1M
 %dev.problem.base-url=http://localhost:8080
 
-# Consulta externa de CEP (timeout: conexão 5s, requisição 8s) e política de frete.
+# External postcode lookup and configurable delivery estimates.
 viacep.url=https://viacep.com.br/ws/
 frete.valor-padrao=29.90
 frete.prazo-dias-uteis=5
 
-# Identity provider. Defaults are also defined in META-INF/microprofile-config.properties.
+# Identity defaults also apply through META-INF/microprofile-config.properties.
 quarkus.oidc.auth-server-url=${OIDC_AUTH_SERVER_URL:http://localhost:8180/realms/mousetrap}
 quarkus.oidc.client-id=mousetrap-api
 quarkus.oidc.application-type=service
@@ -47,7 +38,7 @@ quarkus.oidc.token.allow-jwt-introspection=false
 quarkus.oidc.token.allow-opaque-token-introspection=false
 quarkus.security.jaxrs.deny-unannotated-endpoints=true
 
-# Checkout demonstration: explicitly opt in outside development and tests.
+# Explicit opt-in outside dev/test; never enable for actual financial settlement.
 pagamentos.simulacao.habilitada=false
 %dev.pagamentos.simulacao.habilitada=true
 %test.pagamentos.simulacao.habilitada=true

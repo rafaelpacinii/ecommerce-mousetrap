@@ -8,6 +8,7 @@ export const customerOrderRoutes: Routes = [
         (m) => m.OrderHistoryComponent,
       ),
     title: 'Meus pedidos | MouseTrap',
+    data: { description: 'Acompanhe seus pedidos e o andamento das entregas na MouseTrap.' },
   },
   {
     path: ':id',
@@ -18,6 +19,7 @@ export const customerOrderRoutes: Routes = [
         (m) => m.CustomerOrderComponent,
       ),
     title: 'Seu pedido | MouseTrap',
+    data: { description: 'Consulte o andamento da sua compra e acompanhe a entrega.' },
   },
 ];
 export const adminOrderRoutes: Routes = [
