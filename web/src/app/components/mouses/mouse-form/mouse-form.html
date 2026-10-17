@@ -4,8 +4,8 @@
       <p class="sobretitulo">Catálogo / Mouses</p>
       <h1 id="titulo-form">{{ mouse ? 'Editar mouse' : 'Cadastrar mouse' }}</h1>
       <p class="descricao-pagina">
-        Cada SKU representa um produto com preço e estoque próprios. Todos os campos são
-        obrigatórios.
+        Cada SKU representa um produto com preço e estoque próprios. Preencha os dados obrigatórios
+        e as especificações disponíveis.
       </p>
     </div>
   </div>
@@ -123,7 +123,138 @@
         </mat-select>
         <mat-error>Selecione a situação.</mat-error>
       </mat-form-field>
+      <div class="linha-inteira" formGroupName="especificacoes">
+        <h2>Especificações para jogos</h2>
+        <p class="descricao-pagina">
+          Complete as informações disponíveis para ajudar na escolha do produto.
+        </p>
+        <div class="campos">
+          <mat-form-field appearance="outline"
+            ><mat-label>Sensor</mat-label
+            ><input matInput formControlName="sensor" maxlength="100" /><mat-icon
+              matSuffix
+              aria-hidden="true"
+              >track_changes</mat-icon
+            ><mat-error>Use até 100 caracteres.</mat-error></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Polling rate</mat-label
+            ><mat-select formControlName="pollingRate"
+              ><mat-option [value]="null">Não informado</mat-option>
+              @for (p of pollingRates; track p) {
+                <mat-option [value]="p">{{ p }} Hz</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Tipo de switch</mat-label
+            ><mat-select formControlName="tipoSwitch"
+              ><mat-option [value]="null">Não informado</mat-option>
+              @for (s of tiposSwitch; track s.id) {
+                <mat-option [value]="s.id">{{ s.label }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Modelo do switch</mat-label
+            ><input matInput formControlName="modeloSwitch" maxlength="100" /><mat-icon
+              matSuffix
+              aria-hidden="true"
+              >touch_app</mat-icon
+            ><mat-error>Use até 100 caracteres.</mat-error></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>Pegadas recomendadas</mat-label
+            ><mat-select formControlName="pegadas" multiple>
+              @for (p of pegadas; track p.id) {
+                <mat-option [value]="p.id">{{ p.label }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+        </div>
+      </div>
     </fieldset>
+    <section class="gallery-editor" aria-labelledby="gallery-title">
+      <h2 id="gallery-title">Fotos do produto</h2>
+      <p>
+        Adicione até 12 imagens por endereço. A primeira será a capa. Use fotos do produto e
+        descreva cada vista.
+      </p>
+      <div formArrayName="imagens">
+        @for (imagem of imagens.controls; track imagem; let indice = $index) {
+          <div class="image-editor" [formGroupName]="indice">
+            <div class="image-preview">
+              <app-product-image
+                [imagem]="imagem.valid ? imagem.getRawValue() : undefined"
+                [nome]="form.controls.nome.value"
+                [compacta]="true"
+              />
+            </div>
+            <div>
+              <p class="image-label">
+                {{ indice === 0 ? 'Capa do produto' : 'Imagem ' + (indice + 1) }}
+              </p>
+              <mat-form-field appearance="outline"
+                ><mat-label>Endereço da imagem</mat-label
+                ><input
+                  matInput
+                  formControlName="url"
+                  placeholder="https://exemplo.com/mouse.webp"
+                  maxlength="2048"
+                /><mat-icon matSuffix aria-hidden="true">image</mat-icon
+                ><mat-error
+                  >Informe um endereço HTTP(S) ou um caminho iniciado por /.</mat-error
+                ></mat-form-field
+              >
+              <mat-form-field appearance="outline"
+                ><mat-label>Descrição da imagem</mat-label
+                ><input matInput formControlName="textoAlternativo" maxlength="200" /><mat-error
+                  >Descreva a imagem em até 200 caracteres.</mat-error
+                ></mat-form-field
+              >
+              <div class="image-actions">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [disabled]="indice === 0 || salvando() || carregandoMarcas()"
+                  [attr.aria-label]="'Mover imagem ' + (indice + 1) + ' para antes'"
+                  (click)="moverImagem(indice, -1)"
+                >
+                  <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [disabled]="indice === imagens.length - 1 || salvando() || carregandoMarcas()"
+                  [attr.aria-label]="'Mover imagem ' + (indice + 1) + ' para depois'"
+                  (click)="moverImagem(indice, 1)"
+                >
+                  <mat-icon aria-hidden="true">arrow_downward</mat-icon>
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="salvando() || carregandoMarcas()"
+                  (click)="removerImagem(indice)"
+                >
+                  <mat-icon aria-hidden="true">delete</mat-icon>Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <p>Nenhuma imagem adicionada.</p>
+        }
+      </div>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="imagens.length >= 12 || salvando() || carregandoMarcas()"
+        (click)="adicionarImagem()"
+      >
+        <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>Adicionar imagem
+      </button>
+    </section>
     <div class="acoes-formulario">
       <button
         mat-raised-button

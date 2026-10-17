@@ -1,1 +1,5 @@
-<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a> <router-outlet />
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+@if (navegando()) {
+  <progress class="route-progress" aria-label="Carregando página"></progress>
+}
+<router-outlet />

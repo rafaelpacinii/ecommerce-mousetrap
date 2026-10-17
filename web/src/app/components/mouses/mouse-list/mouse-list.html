@@ -51,14 +51,37 @@
         <ng-container matColumnDef="nome">
           <th mat-header-cell *matHeaderCellDef>Nome</th>
           <td mat-cell *matCellDef="let registro">
-            <strong>{{ registro.nome }}</strong
-            ><span class="sku">{{ registro.sku }}</span>
+            <div class="product-row">
+              <div class="product-thumbnail">
+                <app-product-image
+                  [imagem]="registro.imagens?.[0]"
+                  [nome]="registro.nome"
+                  [compacta]="true"
+                />
+              </div>
+              <div>
+                <strong>{{ registro.nome }}</strong
+                ><span class="sku">{{ registro.sku }}</span>
+              </div>
+            </div>
           </td>
         </ng-container>
         <ng-container matColumnDef="marca">
           <th mat-header-cell *matHeaderCellDef>Marca</th>
           <td mat-cell *matCellDef="let registro">{{ registro.marca.nome }}</td>
         </ng-container>
+        <ng-container matColumnDef="especificacoes"
+          ><th mat-header-cell *matHeaderCellDef>Especificações</th>
+          <td mat-cell *matCellDef="let registro">
+            <span>{{ registro.pesoGramas }} g · {{ registro.dpiMaximo }} DPI</span
+            ><small class="sku"
+              >{{ registro.especificacoes?.sensor || 'Sensor não informado' }}
+              @if (registro.especificacoes?.pollingRate) {
+                · {{ registro.especificacoes.pollingRate }} Hz
+              }
+            </small>
+          </td></ng-container
+        >
         <ng-container matColumnDef="preco">
           <th mat-header-cell *matHeaderCellDef>Preço</th>
           <td mat-cell *matCellDef="let registro">{{ registro.preco | currency: 'BRL' }}</td>

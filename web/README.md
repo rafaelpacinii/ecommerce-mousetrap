@@ -2,7 +2,8 @@
 
 Angular frontend for the MouseTrap gaming mouse store. The homepage includes a
 responsive hero, grip guide and searchable preview of real catalog products.
-Separate administrative screens manage brands, mice and customers.
+Separate administrative screens manage brands, mice, images, specifications and customers.
+The full public catalog is at `/catalogo`; product detail is at `/catalogo/:id`.
 
 ## Features
 
@@ -18,12 +19,13 @@ Separate administrative screens manage brands, mice and customers.
 - Customer registration/address editing with ViaCEP lookup and validation.
 - BRL formatting, semantic navigation and keyboard focus styles.
 
-Product galleries, full catalog facets, cart, checkout, authentication and order
-tracking remain planned. Preview cards use a labeled illustration until product
-images are implemented. Administrative routes are not authenticated yet.
+Public catalog facets, product galleries and gaming specifications are implemented.
+Cart, checkout, authentication and order tracking remain planned. Missing or
+failed product images use an accessible fallback. Administrative routes are not authenticated yet.
 
 See [Homepage implementation](../docs/homepage.md) and the
-[implementation backlog](../docs/implementation-backlog.md).
+[implementation backlog](../docs/implementation-backlog.md), and
+[public catalog contracts and behavior](../docs/public-catalog.md).
 
 ## Development
 
@@ -44,20 +46,21 @@ environment configuration remains planned.
 | --- | --- |
 | Homepage | `/` |
 | Catalog preview/search | `/#catalogo`, `/#busca` |
+| Public catalog and product detail | `/catalogo`, `/catalogo/:id` |
 | Grip guide | `/#pegadas` |
 | Brand list/create/edit | `/marcas`, `/marcas/novo`, `/marcas/editar/:id` |
 | Mouse list/create/edit | `/mouses`, `/mouses/novo`, `/mouses/editar/:id` |
 | Customer list/create/edit | `/clientes`, `/clientes/novo`, `/clientes/editar/:id` |
 
 The footer links to administration. The existing CRUD paths remain unchanged;
-`/mouses` still opens the administrative list, not the future public catalog.
+`/mouses` still opens the administrative list. The public catalog is `/catalogo`.
 
 ## Structure
 
 ```text
 src/app/
 ├── components/
-│   ├── storefront/  Homepage and reusable product card
+│   ├── storefront/  Homepage, catalog, detail, product cards and image fallback
 │   ├── marcas/      Brand list and form
 │   ├── mouses/      Mouse list and form
 │   └── clientes/    Customer list and form

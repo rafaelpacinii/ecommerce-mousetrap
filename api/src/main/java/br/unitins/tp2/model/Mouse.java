@@ -3,6 +3,8 @@ package br.unitins.tp2.model;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import jakarta.persistence.*;
 
 @Entity
@@ -51,6 +53,33 @@ public class Mouse extends DefaultEntity {
             uniqueConstraints = @UniqueConstraint(columnNames = {"mouse_id", "tipo_conexao"}))
     @Column(name = "tipo_conexao", nullable = false)
     private Set<TipoConexao> tiposConexao = new HashSet<>();
+
+    @Column(length = 100)
+    private String sensor;
+    @Column(name = "polling_rate")
+    private Integer pollingRate;
+    @Column(name = "tipo_switch")
+    private TipoSwitch tipoSwitch;
+    @Column(name = "modelo_switch", length = 100)
+    private String modeloSwitch;
+    @ElementCollection
+    @CollectionTable(name = "mouse_pegada", joinColumns = @JoinColumn(name = "mouse_id"))
+    @Column(name = "pegada", nullable = false)
+    private Set<Pegada> pegadas = new HashSet<>();
+    @OneToMany(mappedBy = "mouse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("ordem ASC, id ASC")
+    private List<ImagemMouse> imagens = new ArrayList<>();
+
+    public String getSensor() { return sensor; }
+    public void setSensor(String sensor) { this.sensor = sensor; }
+    public Integer getPollingRate() { return pollingRate; }
+    public void setPollingRate(Integer pollingRate) { this.pollingRate = pollingRate; }
+    public TipoSwitch getTipoSwitch() { return tipoSwitch; }
+    public void setTipoSwitch(TipoSwitch tipoSwitch) { this.tipoSwitch = tipoSwitch; }
+    public String getModeloSwitch() { return modeloSwitch; }
+    public void setModeloSwitch(String modeloSwitch) { this.modeloSwitch = modeloSwitch; }
+    public Set<Pegada> getPegadas() { return pegadas; }
+    public List<ImagemMouse> getImagens() { return imagens; }
 
     public String getSku() { return sku; }
     public void setSku(String sku) { this.sku = sku; }

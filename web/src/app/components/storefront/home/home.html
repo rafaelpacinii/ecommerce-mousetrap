@@ -20,7 +20,7 @@
         Encontre o mouse que acompanha<br class="desktop-break" />
         o seu jeito de jogar.
       </p>
-      <a class="store-button store-button-gold" href="#catalogo"
+      <a class="store-button store-button-gold" routerLink="/catalogo"
         >Explorar mouses <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
       >
     </div>
@@ -59,7 +59,9 @@
         <p class="section-label">ENCONTRE SEU PRÓXIMO MOUSE</p>
         <h2 id="catalog-title">Conheça o catálogo</h2>
       </div>
-      <p>Compare os detalhes. Escolha o seu ritmo.</p>
+      <a class="store-button store-button-dark" routerLink="/catalogo"
+        >Ver catálogo completo <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
+      >
     </div>
     <form id="busca" class="catalog-search" role="search" (ngSubmit)="buscar()">
       <label for="mouse-search">Buscar por nome</label>

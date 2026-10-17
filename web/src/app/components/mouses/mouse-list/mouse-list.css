@@ -18,3 +18,18 @@ table {
   font-size: 0.8rem;
   margin-top: 4px;
 }
+
+.product-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 12px;
+}
+.product-thumbnail {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  background: var(--alice-blue);
+  border-radius: 8px;
+  overflow: hidden;
+}

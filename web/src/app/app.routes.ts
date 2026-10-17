@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { marcaResolver } from './resolvers/marca.resolver';
 import { mouseResolver } from './resolvers/mouse.resolver';
 
+import { produtoResolver } from './resolvers/produto.resolver';
 import { clienteResolver } from './resolvers/cliente.resolver';
 
 export const routes: Routes = [
@@ -12,6 +13,22 @@ export const routes: Routes = [
         (m) => m.StorefrontLayoutComponent,
       ),
     children: [
+      {
+        path: 'catalogo',
+        loadComponent: () =>
+          import('./components/storefront/catalog/catalog').then((m) => m.CatalogComponent),
+        title: 'Catálogo de mouses | MouseTrap',
+      },
+      {
+        path: 'catalogo/:id',
+        loadComponent: () =>
+          import('./components/storefront/product-detail/product-detail').then(
+            (m) => m.ProductDetailComponent,
+          ),
+        resolve: { produto: produtoResolver },
+        runGuardsAndResolvers: 'always',
+      },
+
       {
         path: '',
         pathMatch: 'full',

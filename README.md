@@ -307,3 +307,12 @@ Configured according to GitHub's findings from analyzing 2,500+ agent configurat
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE.md) file for details.
 
+
+## Current Public Catalog Implementation
+
+The storefront homepage, public catalog at `/catalogo`, product detail pages,
+URL-managed galleries and gaming specifications are implemented. Existing
+administrative routes are preserved. The public API enforces active-product and
+active-brand visibility. Authentication, cart, checkout, orders and payments
+remain later implementation slices. See [public catalog contracts and validation](docs/public-catalog.md)
+and the [implementation backlog](docs/implementation-backlog.md).

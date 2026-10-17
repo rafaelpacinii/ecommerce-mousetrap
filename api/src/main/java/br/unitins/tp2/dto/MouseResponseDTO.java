@@ -9,12 +9,15 @@ import br.unitins.tp2.model.TipoConexao;
 public record MouseResponseDTO(
         Long id, String sku, String nome, String descricao, String cor, BigDecimal preco,
         Integer quantidadeEstoque, Integer dpiMaximo, Integer quantidadeBotoes, BigDecimal pesoGramas,
-        Boolean ativo, Long versao, MarcaResponseDTO marca, List<TipoConexao> tiposConexao) {
+        Boolean ativo, Long versao, MarcaResponseDTO marca, List<TipoConexao> tiposConexao,
+        EspecificacoesMouseResponseDTO especificacoes, List<ImagemMouseResponseDTO> imagens) {
     public static MouseResponseDTO valueOf(Mouse mouse) {
         return new MouseResponseDTO(mouse.getId(), mouse.getSku(), mouse.getNome(), mouse.getDescricao(),
                 mouse.getCor(), mouse.getPreco(), mouse.getQuantidadeEstoque(), mouse.getDpiMaximo(),
                 mouse.getQuantidadeBotoes(), mouse.getPesoGramas(), mouse.getAtivo(), mouse.getVersao(),
                 MarcaResponseDTO.valueOf(mouse.getMarca()),
-                mouse.getTiposConexao().stream().sorted(Comparator.comparing(tipo -> tipo.getId())).toList());
+                mouse.getTiposConexao().stream().sorted(Comparator.comparing(tipo -> tipo.getId())).toList(),
+                EspecificacoesMouseResponseDTO.valueOf(mouse),
+                mouse.getImagens().stream().sorted(Comparator.comparing(i -> i.getOrdem())).map(ImagemMouseResponseDTO::valueOf).toList());
     }
 }

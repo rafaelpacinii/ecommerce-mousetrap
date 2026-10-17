@@ -19,14 +19,34 @@
   border-radius: var(--radius-sm);
   background: var(--alice-blue);
 }
-.product-placeholder {
-  width: 90px;
-  height: 112px;
-  font-size: 90px;
-  line-height: 112px;
+.product-photo {
+  display: block;
+  width: 100%;
+  height: 160px;
+  color: inherit;
+}
+h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+h3 a:hover,
+.details-link:hover {
+  color: var(--slate-blue);
+}
+.details-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--prussian-blue);
-  transform: rotate(-18deg);
-  opacity: 0.8;
+  text-decoration: none;
+}
+.details-link mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }
 .spec-pills {
   position: absolute;

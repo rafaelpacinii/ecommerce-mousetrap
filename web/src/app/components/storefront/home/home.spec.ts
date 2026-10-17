@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -28,49 +29,45 @@ describe('HomeComponent catalog preview', () => {
     totalItems: items.length,
     totalPages,
   });
-  const initialUrl = 'http://localhost:8080/mouses?page=0&pageSize=12';
+  const initialUrl = 'http://localhost:8080/catalogo/mouses?page=0&pageSize=3';
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
 
-  it('shows real fields, limits the preview and excludes inactive products and brands', () => {
+  it('shows the public preview with real fields and unavailable stock', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
     http
       .expectOne(initialUrl)
       .flush(
         page([
-          { ...mouse, id: 10, ativo: false, nome: 'Produto inativo' },
-          { ...mouse, id: 11, marca: { ...mouse.marca, ativo: false }, nome: 'Marca inativa' },
           mouse,
           { ...mouse, id: 2, nome: 'Sem estoque', quantidadeEstoque: 0 },
           { ...mouse, id: 3 },
-          { ...mouse, id: 4 },
         ]),
       );
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelectorAll('app-product-card')).toHaveLength(3);
-    expect(element.textContent).not.toContain('Produto inativo');
-    expect(element.textContent).not.toContain('Marca inativa');
     expect(element.textContent).toContain('Indisponível');
-    expect(element.textContent).toContain('Imagem ilustrativa');
+    expect(element.textContent).toContain('Imagem indisponível');
     expect(element.querySelector('.spec-pills')?.textContent).toContain('16,000 DPI');
   });
 
-  it('continues paging when inactive records would otherwise hide available products', () => {
+  it('uses the public contract rather than querying administrative records', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
-    http.expectOne(initialUrl).flush(page([{ ...mouse, ativo: false }], 2));
-    http.expectOne('http://localhost:8080/mouses?page=1&pageSize=12').flush(page([mouse]));
+    http.expectOne(initialUrl).flush(page([mouse]));
+    http.expectNone((request) => request.url === 'http://localhost:8080/mouses');
     fixture.detectChanges();
     expect(fixture.componentInstance.produtos()).toEqual([mouse]);
+    expect(fixture.nativeElement.querySelector('a[href="/catalogo/1"]')).not.toBeNull();
   });
 
   it('cancels stale search requests and lets visitors clear an empty search', () => {
@@ -81,7 +78,7 @@ describe('HomeComponent catalog preview', () => {
     fixture.componentInstance.buscar();
     expect(initial.cancelled).toBe(true);
     http
-      .expectOne('http://localhost:8080/mouses/nome/Sem%20fio?page=0&pageSize=12')
+      .expectOne('http://localhost:8080/catalogo/mouses?page=0&pageSize=3&nome=Sem%20fio')
       .flush(page([]));
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Nenhum mouse encontrado');
