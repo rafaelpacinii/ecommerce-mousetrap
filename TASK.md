@@ -2,70 +2,60 @@
 
 ## Current objective
 
-Resolve PR #35 (`feature/restructure-ai-config` → `develop`) locally, preserving
-AI governance, monorepo CI/CD scope detection and upstream fixes/dependency updates.
-Publish only with explicit user authorization.
+Record the exact post-merge checkpoint on `develop` (`d42c88f`) after completing PR #35
+(`feature/restructure-ai-config` → `develop`), and track pending verification,
+dependency maintenance, `v1.1.0` release preparation and backlog items.
 
-## Context and relevant files
+## Where we stopped (checkpoint on 2026-11-05)
 
-- Branch was clean and synchronized at `d5e7aed` before integration.
-- Current integration base: `origin/develop` at `dae0043`; merge base `04721be`.
-- Conflicts: `.github/workflows/cd.yml`, `.github/workflows/verify.yml` and the
-  renamed `docs/others/release-readiness.md`.
-- Governance/conventions: `AGENTS.md`, `docs/CONVENTIONS.md`, ADR 0001.
-- GitHub confirms PR #35 conflicts with `develop`. No existing local merge/work
-  was discarded. Original conflict stages were saved under `/tmp/mousetrap-pr35-merge`.
+- Active branch: `develop` at `d42c88f`, synchronized with `origin/develop`.
+- Stable baseline: `main` and tag `v1.0.0` remain at `fbcabb6`; manifests (`api/pom.xml`,
+  `web/package.json`, `web/package-lock.json`) stay at `1.0.0` until release preparation.
+- Completed on `develop` since `v1.0.0`:
+  - Four-banner homepage campaign carousel (`feature/homepage-banner-carousel`, PR #19).
+  - Storefront navigation, catalog search and `/enderecos` WCAG contrast fixes (PRs #20, #24).
+  - Cloudflare R2 catalog image/brand logo uploads and Flyway `V8` (`feature/r2-catalog-images`, PR #21).
+  - Incremental setup procedures and environment guides (`feature/setup-agent`, PR #22; `docs/ai/setup-*.md`).
+  - Dependabot configuration and merged dependency updates across Maven, npm, Actions,
+    Docker and Compose (`feature/configure-dependabot`, PR #23, PRs #25–#34).
+  - Path-based monorepo scope detection in `.github/workflows/verify.yml` and
+    `.github/workflows/cd.yml`, Trivy container scans, GHCR publishing and conditional
+    SSH Compose deployment (`fix/ci-cd-pipeline`, PR #24; `feature/restructure-ai-config`, PR #35).
+  - Repository AI governance restructuring (`AGENTS.md`, `CLAUDE.md`, `.codex/config.toml`,
+    `.agents/project.toml`, 13 skills in `.agents/skills/`, rules/personas, ADR 0001,
+    `scripts/ai_checks.py`, `scripts/check_ai_governance.py`, and `docs/others/` layout, PR #35).
 
-## Step-by-step execution checklist
+## Step-by-step checklist (completed vs. remaining)
 
-- [x] Fetch origin and reproduce the PR conflict locally.
-- [x] Combine scope-aware workflows with upstream action versions and release docs.
-- [x] Preserve upstream application/dependency fixes and update current inventory.
-- [x] Validate workflows, governance, Python scripts and affected application builds.
-- [x] Stage the resolved integration and prepare its local merge commit.
-- [x] Prepare validation evidence and the separate remote push command.
+- [x] Restructure AI governance, 13 canonical skills, runner presets and `docs/others/` layout.
+- [x] Add path-based monorepo scope detection to `verify.yml` and `cd.yml`.
+- [x] Resolve PR #35 conflicts with `origin/develop` (`dae0043`), align Angular 22.2.4 /
+      Material & CDK 22.2.5 manifests, push `ea27489` and merge PR #35 into `develop` (`d42c88f`).
+- [x] Update `TASK.md` and `docs/SYSTEM_STATE.md` with the post-merge checkpoint and remaining work.
+- [ ] Review and validate the two pending Maven Dependabot branches rebased on `d42c88f`:
+  - `origin/dependabot/maven/api/develop/maven-plugins-efb2ace15a` (`8547d6d`: Surefire/Failsafe `3.5.6` → `3.6.1`).
+  - `origin/dependabot/maven/api/develop/org.apache.maven-apache-maven-3.10.0` (`9d12c24`: Maven Wrapper `3.9.16` → `3.10.0`).
+- [ ] Clean up superseded remote branches (`github-actions-073acec55a`, `angular-1b495c61cd` and merged feature branches) when authorized.
+- [ ] Execute Docker-backed checks (`cd api && ./mvnw -B -Prelease clean verify` against PostgreSQL on `localhost:55439` and `sh scripts/verify_release.sh` for Playwright/Axe E2E) on a Docker-enabled host or confirm remote CI on `develop`.
+- [ ] Prepare release `v1.1.0` when requested: branch `release/v1.1.0` from `develop`, align manifest versions to `1.1.0` per [versioning policy](docs/others/versioning.md), open PR to `main`, tag `v1.1.0` and back-merge to `develop`.
+- [ ] Complete external production readiness before public hosting: HTTPS domains/proxy, production Keycloak/SMTP, `DEPLOY_*` and R2 secrets, and database/identity backup-restore rehearsal.
+- [ ] Scope and approve future backlog slices before implementation: categories (`V9+`), live payment gateway/webhooks/refunds, carrier shipping APIs, curated/sales-based merchandising, R2 orphan cleanup, and integer-cent client/JSON price migration.
 
-## Acceptance criteria
+## Acceptance criteria for current checkpoint
 
-- No unmerged index entries, conflict markers or whitespace errors remain.
-- CI/CD scope detection and always-run package/governance checks survive.
-- Action references match upstream accepted updates; application fixes are retained.
-- Documentation remains in `docs/others/` with working local links and current
-  deployment secret names. No migrations, private settings or production state change.
-- Actual validation results and skipped prerequisites are recorded; no remote
-  push, PR mutation or deployment occurs without explicit authorization.
+- `TASK.md` and `docs/SYSTEM_STATE.md` accurately reflect `develop` at `d42c88f` and distinguish completed work, blocked local checks, release steps and planned features.
+- Governance verification (`python3 scripts/ai_checks.py verify --scope governance`) and Python unit tests pass within the 180-line / 12,000-character entrypoint budget.
+- No remote push, branch deletion or release creation is executed without explicit user authorization.
 
 ## Session decisions
 
-- Merge `origin/develop` into the existing PR branch instead of rewriting history.
-- Resolve workflow conflicts semantically: retain feature scope conditions and
-  use upstream action refs throughout, including feature-only checkout steps.
-- Retain the existing partial-build deployment behavior and document digest/latest
-  fallback accurately; changing that policy is outside this conflict resolution.
-- Upstream Angular dependency declarations did not match resolved lock versions,
-  making `npm ci` fail with ERESOLVE. Align the manifest to the already resolved
-  Angular 22.2.4 / Material/CDK 22.2.5 versions and regenerate lock metadata via npm.
-- Previous AI restructuring is committed in `d5e7aed`; its usage guide remains
-  `docs/ai-governance.md`. Do not reuse its historical test/package evidence here.
+- Keep application manifests at `1.0.0` on `develop`; version bumps happen exclusively on `release/v1.1.0` per `docs/others/versioning.md`.
+- Preserve partial-build CD fallback (`latest` for unchanged service images) and non-blocking Trivy exit code (`0`) until an explicit policy change is requested.
+- Record Docker-dependent backend/E2E checks as pending environment prerequisites rather than skipping or removing tests.
 
 ## Validation evidence
 
-- Governance checks and all 11 Python tests passed.
-- Both workflows passed actionlint 1.7.12. Their upstream action refs and three
-  embedded Python blocks validated; 16 CI/CD scope scenarios passed.
-- `npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, then
-  `npm ci`: passed, zero reported vulnerabilities. No forced peer overrides.
-- Web TypeScript check and 127 tests across 26 files passed.
-- `cd web && npm run build`: passed; initial production bundle 347.36 kB.
-- API `./mvnw -B -Prelease clean compile`: passed, 118 Java 17 source files;
-  active local configuration absent from generated classes. JAVA_HOME was set
-  only for the command to the already installed JDK 17.
-- Docker is unavailable in this WSL distribution. PostgreSQL-dependent backend
-  tests, full browser E2E, container scans and deployment were not executed.
-- Ten upstream application/infrastructure files match origin/develop exactly;
-  manifest/lockfile roots agree and canonical documentation relocation survives.
-- Workflow/AI Markdown formatting, source package integrity and whitespace passed.
-- Final local merge result and publication commands will be recorded in
-  `dist/pr35-merge-delivery.md`; updating the GitHub PR still requires a push.
-- Resolved paths are staged; `git ls-files -u` is empty and the staged whitespace
-  check passes. Publication command: `git push origin feature/restructure-ai-config`.
+- `python3 scripts/ai_checks.py verify --scope governance`: passed (entrypoints, 13 skills, links, TOML and context budgets).
+- `python3 -m unittest discover -s scripts -p 'test_*.py' -v`: 11 Python unit tests passed.
+- Previous integration checks on `ea27489`/`d42c88f`: actionlint 1.7.12 passed on `verify.yml` and `cd.yml`; `npm ci`, `npm run audit` (0 vulnerabilities), web `tsc --noEmit`, 127 Vitest tests across 26 files, `npm run build` (347.36 kB initial bundle), API `./mvnw -B -Prelease clean compile` (118 Java 17 source files) and deterministic `scripts/package_release.py` passed.
+- Pending Docker-dependent checks in this WSL environment: `cd api && ./mvnw -B -Prelease clean verify` (requires PostgreSQL on `localhost:55439`) and `sh scripts/verify_release.sh` (requires Docker Compose).
