@@ -17,7 +17,7 @@
         <skipITs>true</skipITs>
         <local.configuration.exclude>__none__</local.configuration.exclude>
         <argLine></argLine>
-        <aws-sdk.version>2.56.0</aws-sdk.version>
+        <aws-sdk.version>2.57.8</aws-sdk.version>
         <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>
 
