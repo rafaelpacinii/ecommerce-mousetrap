@@ -11,7 +11,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve application via Nginx
-FROM nginx:1.30.5-alpine AS runtime
+FROM nginx:1.31.8-alpine AS runtime
 
 # Remove default static files
 RUN apk add --no-cache jq && rm -rf /usr/share/nginx/html/*
