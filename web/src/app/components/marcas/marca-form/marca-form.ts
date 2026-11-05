@@ -12,11 +12,15 @@ import { finalize } from 'rxjs';
 import { Marca } from '../../../models/marca.model';
 import { MarcaService } from '../../../services/marca.service';
 import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
+import { ImageUploadComponent } from '../../shared/image-upload/image-upload';
+import { ProductImageComponent } from '../../storefront/product-image/product-image';
 
 @Component({
   selector: 'app-marca-form',
   standalone: true,
   imports: [
+    ImageUploadComponent,
+    ProductImageComponent,
     MatIconModule,
     ReactiveFormsModule,
     RouterLink,
@@ -36,20 +40,23 @@ export class MarcaFormComponent {
   private readonly fb = inject(FormBuilder);
   readonly marca: Marca | undefined = inject(ActivatedRoute).snapshot.data['marca'];
   readonly salvando = signal(false);
+  readonly enviandoImagem = signal(false);
   readonly form = this.fb.nonNullable.group({
     nome: [
       '',
       [Validators.required, textoObrigatorio, Validators.minLength(2), Validators.maxLength(100)],
     ],
     ativo: [true, Validators.required],
+    logomarcaUrl: ['', [Validators.maxLength(2048), Validators.pattern(/^https:\/\/[^\s]+$/)]],
   });
 
   constructor() {
-    if (this.marca) this.form.patchValue(this.marca);
+    if (this.marca)
+      this.form.patchValue({ ...this.marca, logomarcaUrl: this.marca.logomarcaUrl ?? '' });
   }
 
   salvar(): void {
-    if (this.salvando()) return;
+    if (this.salvando() || this.enviandoImagem()) return;
     this.form.controls.nome.setValue(this.form.controls.nome.value.trim());
     if (this.form.invalid) {
       this.form.markAllAsTouched();

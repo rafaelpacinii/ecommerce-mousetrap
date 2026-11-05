@@ -128,7 +128,7 @@ export class AuthService {
         await this.initialize();
       }
       if (!this.client || this.error()) return;
-      const target = safeReturnUrl(returnUrl) ?? (register ? '/minha-conta' : '');
+      const target = safeReturnUrl(returnUrl) ?? (register ? '/meus-dados' : '');
       if (target) sessionStorage.setItem('mousetrap.returnUrl', target);
       else sessionStorage.removeItem('mousetrap.returnUrl');
       try {

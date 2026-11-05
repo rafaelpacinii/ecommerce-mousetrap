@@ -1,0 +1,136 @@
+# Version updates follow Gitflow. Security updates use GitHub's default branch.
+# See docs/others/dependency-updates.md for activation and the review policy.
+version: 2
+
+updates:
+  - package-ecosystem: "maven"
+    directory: "/api"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      quarkus:
+        patterns:
+          - "io.quarkus:*"
+          - "io.quarkus.platform:*"
+      aws-sdk:
+        patterns:
+          - "software.amazon.awssdk:*"
+      maven-plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+        update-types: ["minor", "patch"]
+    # Major upgrades require a planned migration, including Java compatibility.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/web"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      # Keep framework, CLI, build tools, Material and CDK in the same PR.
+      angular:
+        patterns:
+          - "@angular/*"
+      frontend-runtime:
+        dependency-type: "production"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@angular/*"
+        update-types: ["minor", "patch"]
+      frontend-tooling:
+        dependency-type: "development"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@angular/*"
+        update-types: ["minor", "patch"]
+    # Angular major upgrades also need ng update migrations and toolchain review.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directories:
+      - "/api"
+      - "/api/src/main/docker"
+      - "/web"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      container-build-runtime:
+        patterns:
+          - "*"
+        update-types: ["minor", "patch"]
+    # Preserve runtime major lines such as Node 24 and UBI 9.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "docker-compose"
+    directories:
+      - "/"
+      - "/infra/identity"
+      - "/infra/testing"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      compose-services:
+        patterns:
+          - "*"
+        update-types: ["minor", "patch"]
+    # PostgreSQL and Keycloak major migrations must be planned explicitly.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

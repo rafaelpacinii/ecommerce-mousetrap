@@ -2,8 +2,8 @@ package br.unitins.tp2.dto;
 
 import br.unitins.tp2.model.Marca;
 
-public record MarcaResponseDTO(Long id, String nome, Boolean ativo) {
+public record MarcaResponseDTO(Long id, String nome, Boolean ativo, String logomarcaUrl) {
     public static MarcaResponseDTO valueOf(Marca marca) {
-        return new MarcaResponseDTO(marca.getId(), marca.getNome(), marca.getAtivo());
+        return new MarcaResponseDTO(marca.getId(), marca.getNome(), marca.getAtivo(), marca.getLogomarcaUrl());
     }
 }

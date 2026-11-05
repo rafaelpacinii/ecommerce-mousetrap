@@ -1,7 +1,7 @@
 # Add only to disposable test stacks. Never include in public deployments.
 services:
   viacep:
-    image: python:3.13-alpine
+    image: python:3.15-alpine
     command: [python, /fixture/viacep.py]
     volumes:
       - ./infra/testing/viacep.py:/fixture/viacep.py:ro

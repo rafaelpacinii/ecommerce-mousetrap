@@ -49,7 +49,22 @@
           <ng-container matColumnDef="nome">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
             <td mat-cell *matCellDef="let registro">
-              <strong>{{ registro.nome }}</strong>
+              <div class="brand-cell">
+                @if (registro.logomarcaUrl) {
+                  <div class="brand-logo">
+                    <app-product-image
+                      [imagem]="{
+                        url: registro.logomarcaUrl,
+                        textoAlternativo: 'Logomarca de ' + registro.nome,
+                        ordem: 0,
+                      }"
+                      [nome]="registro.nome"
+                      [compacta]="true"
+                    />
+                  </div>
+                }
+                <strong>{{ registro.nome }}</strong>
+              </div>
             </td>
           </ng-container>
           <ng-container matColumnDef="ativo">

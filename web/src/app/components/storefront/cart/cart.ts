@@ -176,7 +176,7 @@ export class CartComponent implements OnInit {
             this.snack.open('Cadastre um endereço de entrega para concluir sua compra.', 'Fechar', {
               duration: 4500,
             });
-            void this.router.navigate(['/minha-conta'], {
+            void this.router.navigate(['/enderecos'], {
               queryParams: { returnUrl: '/checkout' },
             });
             return;

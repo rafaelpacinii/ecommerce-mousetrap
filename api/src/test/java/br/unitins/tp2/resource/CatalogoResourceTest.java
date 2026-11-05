@@ -27,6 +27,24 @@ class CatalogoResourceTest {
     }
     private String unico() { return UUID.randomUUID().toString(); }
 
+    @Test void preservesReplacesAndRemovesSingleBrandLogo() {
+        String name = "Logo " + unico();
+        long id = given().contentType("application/json")
+                .body(Map.of("nome", name, "ativo", true, "logomarcaUrl", "https://images.example.com/marcas/a.png"))
+                .post("/marcas").then().statusCode(201).extract().jsonPath().getLong("id");
+        marcasCriadas.add(id);
+        given().contentType("application/json").body(Map.of("nome", name, "ativo", false))
+                .put("/marcas/" + id).then().statusCode(200).body("logomarcaUrl", is("https://images.example.com/marcas/a.png"));
+        given().contentType("application/json")
+                .body(Map.of("nome", name, "ativo", true, "logomarcaUrl", "https://images.example.com/marcas/b.webp"))
+                .put("/marcas/" + id).then().statusCode(200).body("logomarcaUrl", is("https://images.example.com/marcas/b.webp"));
+        given().get("/marcas/" + id).then().statusCode(200).body("logomarcaUrl", is("https://images.example.com/marcas/b.webp"));
+        given().contentType("application/json").body(Map.of("nome", name, "ativo", true, "logomarcaUrl", "javascript:alert(1)"))
+                .put("/marcas/" + id).then().statusCode(400);
+        given().contentType("application/json").body(Map.of("nome", name, "ativo", true, "logomarcaUrl", ""))
+                .put("/marcas/" + id).then().statusCode(200).body("logomarcaUrl", nullValue());
+    }
+
     private long criarMarca(String nome) {
         long id = given().contentType("application/json").body(Map.of("nome", nome, "ativo", true))
                 .post("/marcas").then().statusCode(201).body("nome", equalTo(nome))

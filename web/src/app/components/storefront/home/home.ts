@@ -7,14 +7,15 @@ import { Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
 import { Produto } from '../../../models/catalogo.model';
 import { CatalogoService } from '../../../services/catalogo.service';
 import { RouterLink } from '@angular/router';
+import { HeroCarouselComponent } from '../hero-carousel/hero-carousel';
 import { ProductCardComponent } from '../product-card/product-card';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatIconModule, FormsModule, ProductCardComponent, RouterLink],
+  imports: [MatIconModule, FormsModule, ProductCardComponent, RouterLink, HeroCarouselComponent],
   templateUrl: './home.html',
-  styleUrls: ['./home.css', './home-hero.css'],
+  styleUrl: './home.css',
 })
 export class HomeComponent implements OnInit {
   private readonly service = inject(CatalogoService);

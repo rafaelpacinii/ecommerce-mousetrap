@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../services/auth.service';
 @Component({
@@ -14,14 +16,28 @@ import { AuthService } from '../../../services/auth.service';
         ><small>{{ auth.email() }}</small>
       </div>
     </div>
-    <nav aria-label="Minha conta">
+    <nav aria-label="Área do cliente">
       <a routerLink="/meus-pedidos" routerLinkActive="active" ariaCurrentWhenActive="page"
         ><mat-icon aria-hidden="true">receipt_long</mat-icon>Meus pedidos</a
-      ><a routerLink="/lista-de-desejos" routerLinkActive="active" ariaCurrentWhenActive="page"
+      >
+      <a
+        routerLink="/meus-dados"
+        [queryParams]="{ returnUrl: retornoConta() }"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        ><mat-icon aria-hidden="true">person</mat-icon>Meus dados</a
+      >
+      <a
+        routerLink="/enderecos"
+        [queryParams]="{ returnUrl: retornoConta() }"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        ><mat-icon aria-hidden="true">location_on</mat-icon>Endereços</a
+      >
+      <a routerLink="/lista-de-desejos" routerLinkActive="active" ariaCurrentWhenActive="page"
         ><mat-icon aria-hidden="true">favorite_border</mat-icon>Lista de desejos</a
-      ><a routerLink="/minha-conta"
-        ><mat-icon aria-hidden="true">location_on</mat-icon>Meus dados e endereços</a
-      ><button type="button" (click)="auth.logout()">
+      >
+      <button type="button" (click)="auth.logout()">
         <mat-icon aria-hidden="true">logout</mat-icon>Sair da conta
       </button>
     </nav>
@@ -113,4 +129,13 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class AccountNavComponent {
   readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.parseUrl(this.router.url)),
+    ),
+    { initialValue: this.router.parseUrl(this.router.url) },
+  );
+  readonly retornoConta = computed(() => this.url().queryParams['returnUrl'] ?? null);
 }

@@ -39,6 +39,37 @@ describe('MouseFormComponent', () => {
 
   afterEach(() => http.verify());
 
+  it('blocks saving while uploading and appends uploaded photos with a cover and accessible descriptions', () => {
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(MouseFormComponent);
+    fixture.detectChanges();
+    http
+      .expectOne('http://localhost:8080/marcas?page=0&pageSize=10')
+      .flush({ items: [marca], page: 0, pageSize: 10, totalItems: 1, totalPages: 1 });
+    const c = fixture.componentInstance;
+    c.enviandoImagem.set(true);
+    c.salvar();
+    http.expectNone('http://localhost:8080/mouses/9');
+    c.imagemEnviada('https://images.example.com/mouses/a.png');
+    c.imagemEnviada('https://images.example.com/mouses/b.png');
+    c.enviandoImagem.set(false);
+    c.salvar();
+    const saved = http.expectOne('http://localhost:8080/mouses/9');
+    expect(saved.request.body.imagens).toEqual([
+      {
+        url: 'https://images.example.com/mouses/a.png',
+        textoAlternativo: 'Mouse original',
+        ordem: 0,
+      },
+      {
+        url: 'https://images.example.com/mouses/b.png',
+        textoAlternativo: 'Mouse original',
+        ordem: 1,
+      },
+    ]);
+    saved.flush(mouse);
+  });
+
   it('mapeia marca e conexões na edição e envia IDs com a versão lida', () => {
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const fixture = TestBed.createComponent(MouseFormComponent);

@@ -23,6 +23,7 @@ import { Mouse, MouseDTO, TIPOS_CONEXAO } from '../../../models/mouse.model';
 import { MarcaService } from '../../../services/marca.service';
 import { MouseService } from '../../../services/mouse.service';
 import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
+import { ImageUploadComponent } from '../../shared/image-upload/image-upload';
 
 type ImagemForm = FormGroup<{
   url: FormControl<string>;
@@ -34,6 +35,7 @@ type ImagemForm = FormGroup<{
   selector: 'app-mouse-form',
   standalone: true,
   imports: [
+    ImageUploadComponent,
     MatIconModule,
     ProductImageComponent,
     ReactiveFormsModule,
@@ -58,6 +60,7 @@ export class MouseFormComponent implements OnInit {
   readonly carregandoMarcas = signal(true);
   readonly erroMarcas = signal('');
   readonly salvando = signal(false);
+  readonly enviandoImagem = signal(false);
   readonly tiposConexao = TIPOS_CONEXAO;
   readonly pegadas = PEGADAS;
   readonly pollingRates = POLLING_RATES;
@@ -158,6 +161,14 @@ export class MouseFormComponent implements OnInit {
   get imagens() {
     return this.form.controls.imagens;
   }
+  imagemEnviada(url: string): void {
+    this.adicionarImagem({
+      url,
+      textoAlternativo: this.form.controls.nome.value.trim() || 'Foto do produto',
+      ordem: this.imagens.length,
+    });
+    this.imagens.markAsDirty();
+  }
   adicionarImagem(imagem?: ImagemMouse): void {
     if (this.imagens.length >= 12) return;
     this.imagens.push(
@@ -224,7 +235,13 @@ export class MouseFormComponent implements OnInit {
   }
 
   salvar(): void {
-    if (this.salvando() || this.carregandoMarcas() || this.erroMarcas() || !this.marcas().length)
+    if (
+      this.salvando() ||
+      this.enviandoImagem() ||
+      this.carregandoMarcas() ||
+      this.erroMarcas() ||
+      !this.marcas().length
+    )
       return;
     for (const campo of ['sku', 'nome', 'descricao', 'cor'] as const) {
       this.form.controls[campo].setValue(this.form.controls[campo].value.trim());

@@ -1,6 +1,6 @@
 # Modelagem do e-commerce de mouses
 
-MouseTrap domain planning reference. Catalog/images/specifications, external identity with owned customer profiles/addresses, browser-local cart, orders and simulated payments are implemented. Wishlist and fulfillment operations are implemented in [slice 6](../../../docs/customer-portal-admin-orders.md). The historical diagrams retain planned abstractions; [transactional checkout](../../../docs/transactional-checkout.md) documents the implemented contracts and Cliente/identity integration.
+MouseTrap domain planning reference. Catalog/images/specifications, external identity with owned customer profiles/addresses, browser-local cart, orders and simulated payments are implemented. Wishlist and fulfillment operations are implemented in [slice 6](../../../docs/others/customer-portal-admin-orders.md). The historical diagrams retain planned abstractions; [transactional checkout](../../../docs/others/transactional-checkout.md) documents the implemented contracts and Cliente/identity integration.
 
 ## Diagramas em PlantUML
 
@@ -124,4 +124,4 @@ Antes de integrar checkout, testar especialmente concorrência pelo último item
 
 ## Esquema implementado
 
-V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. The domain enum IDs above are used in the implementation. Order deadlines/payment processing use UTC Instant/timestamptz; inherited legacy audit timestamps are unchanged. V7 adds shipping details, order events and persisted wishlist; customer and administrative fulfillment screens are implemented. See [checkout](../../../docs/transactional-checkout.md) for the implemented state transitions, configuration and guarantees.
+V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. The domain enum IDs above are used in the implementation. Order deadlines/payment processing use UTC Instant/timestamptz; inherited legacy audit timestamps are unchanged. V7 adds shipping details, order events and persisted wishlist; customer and administrative fulfillment screens are implemented. See [checkout](../../../docs/others/transactional-checkout.md) for the implemented state transitions, configuration and guarantees.

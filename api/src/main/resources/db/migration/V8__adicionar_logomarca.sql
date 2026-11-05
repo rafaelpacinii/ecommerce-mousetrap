@@ -1,0 +1,1 @@
+ALTER TABLE marca ADD COLUMN logomarca_url VARCHAR(2048);

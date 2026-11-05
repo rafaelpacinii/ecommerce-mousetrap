@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { ClienteFormComponent } from './cliente-form';
 import { AuthService } from '../../../services/auth.service';
+import { of } from 'rxjs';
 
 const cep = {
   cep: '01001000',
@@ -23,7 +24,13 @@ describe('ClienteFormComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { data: {} } } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { data: {} },
+            paramMap: of(convertToParamMap({ secao: 'meus-dados' })),
+          },
+        },
       ],
     });
     http = TestBed.inject(HttpTestingController);
@@ -51,6 +58,7 @@ describe('ClienteFormComponent', () => {
     expect(request.request.body.email).toBeUndefined();
     expect(request.request.body.id).toBeUndefined();
     request.flush({ id: 4 });
+    http.expectOne('http://localhost:8080/clientes/me/enderecos').flush([]);
   });
   it('blocks profile writes when loading fails and offers a retry', () => {
     TestBed.inject(ActivatedRoute).snapshot.data = { selfService: true };
@@ -220,19 +228,16 @@ describe('ClienteFormComponent', () => {
     postReq.flush({ ...enderecoInicial, id: 12, apelido: 'Trabalho', principal: false });
 
     const segundo = { ...enderecoInicial, id: 12, apelido: 'Trabalho', principal: false };
-    http
-      .expectOne('http://localhost:8080/clientes/me/enderecos')
-      .flush([enderecoInicial, segundo]);
+    http.expectOne('http://localhost:8080/clientes/me/enderecos').flush([enderecoInicial, segundo]);
 
     c.definirPrincipal(segundo);
-    const putPrincipal = http.expectOne(
-      'http://localhost:8080/clientes/me/enderecos/12/principal',
-    );
+    const putPrincipal = http.expectOne('http://localhost:8080/clientes/me/enderecos/12/principal');
     expect(putPrincipal.request.method).toBe('PUT');
     putPrincipal.flush({ ...segundo, principal: true });
-    http
-      .expectOne('http://localhost:8080/clientes/me/enderecos')
-      .flush([{ ...segundo, principal: true }, { ...enderecoInicial, principal: false }]);
+    http.expectOne('http://localhost:8080/clientes/me/enderecos').flush([
+      { ...segundo, principal: true },
+      { ...enderecoInicial, principal: false },
+    ]);
 
     c.removerEndereco(enderecoInicial);
     const delReq = http.expectOne('http://localhost:8080/clientes/me/enderecos/11');

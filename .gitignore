@@ -68,7 +68,9 @@ nb-configuration.xml
 !.vscode/mcp.json
 .history/
 .gemini/
-.codex/
+.codex/*
+!.codex/config.toml
+!.codex/skills
 
 # --- OS & Temporary Files ---
 .DS_Store
@@ -86,6 +88,10 @@ __pycache__/
 !/scripts/test_release.py
 !/scripts/configure_stack.py
 !/scripts/verify_release.sh
+!/scripts/export_hero_images.py
+!/scripts/ai_checks.py
+!/scripts/check_ai_governance.py
+!/scripts/test_ai_governance.py
 /.local/
 web/test-results/
 web/playwright-report/

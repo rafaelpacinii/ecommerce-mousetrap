@@ -1,0 +1,226 @@
+:host {
+  display: block;
+}
+.hero {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--prussian-blue);
+}
+.hero-slides {
+  display: grid;
+}
+.hero-slide {
+  grid-area: 1 / 1;
+  position: relative;
+  min-height: 480px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.hero-slide.is-active {
+  visibility: visible;
+  opacity: 1;
+}
+.hero-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.hero-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 57%;
+}
+.hero-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(10, 18, 42, 0.95), rgba(10, 18, 42, 0.8) 38%, transparent 75%),
+    linear-gradient(0deg, rgba(10, 18, 42, 0.75), transparent 25%);
+}
+.hero-content {
+  padding: 56px 56px 100px;
+  max-width: 650px;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--light-cyan);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 1.5px;
+  line-height: 1.7;
+}
+.hero-eyebrow mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: var(--golden-glow);
+}
+h1 {
+  margin: 24px 0 18px;
+  color: var(--surface-pure);
+  font-family: var(--font-heading);
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -1.8px;
+}
+.hero-content p {
+  margin: 0 0 28px;
+  color: var(--neutral-300);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.hero .store-button {
+  gap: 20px;
+}
+.hero .store-button mat-icon {
+  font-size: 20px;
+}
+.rotation-control,
+.hero-navigation button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(209, 245, 255, 0.45);
+  border-radius: 50%;
+  background: rgba(10, 18, 42, 0.8);
+  color: var(--surface-pure);
+  cursor: pointer;
+}
+.rotation-control {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  right: 20px;
+}
+.hero-controls {
+  position: absolute;
+  z-index: 2;
+  bottom: 20px;
+  left: 56px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.hero-indicators,
+.hero-navigation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.hero-indicators button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  width: 36px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.hero-indicators span {
+  width: 16px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--light-cyan);
+  opacity: 0.55;
+  transition: width 250ms ease;
+}
+.hero-indicators .is-active span {
+  width: 30px;
+  background: var(--golden-glow);
+  opacity: 1;
+}
+.hero-counter {
+  min-width: 42px;
+  text-align: center;
+  color: var(--light-cyan);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+button:hover {
+  background-color: rgba(209, 245, 255, 0.15);
+}
+.hero button:focus-visible,
+.hero a:focus-visible {
+  outline-color: var(--golden-glow);
+  outline-offset: 3px;
+}
+@media (max-width: 1000px) {
+  .hero-content {
+    padding: 52px 36px 100px;
+    max-width: 620px;
+  }
+  .hero-controls {
+    left: 36px;
+  }
+}
+@media (max-width: 700px) {
+  .hero-slide {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .hero-content {
+    padding: 48px 24px 8px;
+  }
+  .hero-eyebrow {
+    padding-right: 16px;
+    letter-spacing: 1px;
+  }
+  h1 {
+    letter-spacing: -1px;
+    margin-top: 20px;
+  }
+  .hero-content p {
+    margin-bottom: 22px;
+    font-size: 14px;
+  }
+  .hero .store-button {
+    gap: 10px;
+    padding-inline: 14px;
+  }
+  .hero-art {
+    position: relative;
+    height: 240px;
+    flex: 0 0 240px;
+    order: 2;
+    margin-top: auto;
+  }
+  .hero-art img {
+    object-position: 82% 62%;
+  }
+  .hero-art::after {
+    background:
+      linear-gradient(180deg, var(--prussian-blue), transparent 45%),
+      linear-gradient(0deg, rgba(10, 18, 42, 0.85), transparent 50%);
+  }
+  .hero-controls {
+    left: 20px;
+    right: 20px;
+    bottom: 16px;
+    gap: 8px;
+  }
+  .hero-indicators button {
+    width: 28px;
+  }
+  .hero-indicators .is-active span {
+    width: 24px;
+  }
+  .rotation-control {
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+  }
+}

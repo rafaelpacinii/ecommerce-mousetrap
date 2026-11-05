@@ -244,7 +244,7 @@
       <div class="saved-addresses-header">
         <h3>Endereço de Entrega</h3>
         <a
-          [routerLink]="['/minha-conta']"
+          [routerLink]="['/enderecos']"
           [queryParams]="{ returnUrl: checkoutMode() ? '/checkout' : '/carrinho' }"
         >
           Gerenciar endereços
@@ -256,7 +256,7 @@
         <p class="address-hint">Você ainda não cadastrou um endereço de entrega.</p>
         <a
           class="store-button store-button-dark address-cta"
-          [routerLink]="['/minha-conta']"
+          [routerLink]="['/enderecos']"
           [queryParams]="{ returnUrl: checkoutMode() ? '/checkout' : '/carrinho' }"
         >
           <mat-icon aria-hidden="true">add_location_alt</mat-icon>Cadastrar endereço

@@ -1,13 +1,23 @@
-<section class="formulario">
-  <h1>{{ selfService ? 'Minha conta' : cliente ? 'Editar cliente' : 'Cadastrar cliente' }}</h1>
+<section class="formulario" [class.account-form]="selfService">
+  <h1>
+    {{
+      selfService
+        ? paginaEnderecos()
+          ? 'Endereços'
+          : 'Meus dados'
+        : cliente
+          ? 'Editar cliente'
+          : 'Cadastrar cliente'
+    }}
+  </h1>
   @if (selfService) {
-    <p>Confira seus dados e complete seu endereço de entrega.</p>
-    <button mat-button type="button" (click)="auth.manageAccount()">
-      <mat-icon aria-hidden="true">manage_accounts</mat-icon>Alterar e-mail ou senha
-    </button>
-    @if (auth.error()) {
-      <p role="alert">{{ auth.error() }}</p>
-    }
+    <p>
+      {{
+        paginaEnderecos()
+          ? 'Gerencie seus endereços de entrega.'
+          : 'Confira e atualize seus dados pessoais.'
+      }}
+    </p>
   }
   @if (carregando()) {
     <p role="status">Carregando seus dados…</p>
@@ -15,7 +25,41 @@
     <p role="alert">{{ erroPerfil() }}</p>
     <button mat-button type="button" (click)="carregarPerfil()">Tentar novamente</button>
   } @else {
-    <form class="profile-form" [formGroup]="form" (ngSubmit)="salvar()">
+    @if (erroEnderecos()) {
+      <p role="alert">{{ erroEnderecos() }}</p>
+      <button mat-button type="button" (click)="carregarEnderecos()">Tentar novamente</button>
+    }
+    @if (avisoPerfil()) {
+      <p class="profile-notice" role="alert">{{ avisoPerfil() }}</p>
+    }
+    @if (selfService) {
+      <div class="account-content">
+        @if (paginaEnderecos()) {
+          @if (perfilSalvo()) {
+            <ng-container [ngTemplateOutlet]="enderecosForm" />
+          } @else {
+            <p>Complete seu primeiro endereço para concluir o cadastro.</p>
+            <ng-container [ngTemplateOutlet]="perfilForm" />
+          }
+        } @else {
+          <button mat-button type="button" (click)="auth.manageAccount()">
+            <mat-icon aria-hidden="true">manage_accounts</mat-icon>Alterar e-mail ou senha
+          </button>
+          @if (auth.error()) {
+            <p role="alert">{{ auth.error() }}</p>
+          }
+          <ng-container [ngTemplateOutlet]="perfilForm" />
+        }
+      </div>
+    } @else {
+      <ng-container [ngTemplateOutlet]="perfilForm" />
+    }
+  }
+</section>
+
+<ng-template #perfilForm>
+  <form class="profile-form" [formGroup]="form" (ngSubmit)="salvar()">
+    @if (!selfService || !paginaEnderecos()) {
       <h2 class="form-section-title">Dados pessoais</h2>
       <mat-form-field appearance="outline"
         ><mat-label>Nome</mat-label><mat-icon aria-hidden="true" matSuffix>person</mat-icon>
@@ -33,6 +77,8 @@
         />
         <mat-error>{{ mensagemCampo('email') }}</mat-error></mat-form-field
       >
+    }
+    @if (!selfService || (paginaEnderecos() && !perfilSalvo())) {
       <h2 class="form-section-title address-title">Endereço principal</h2>
       <mat-form-field appearance="outline"
         ><mat-label>CEP</mat-label><mat-icon aria-hidden="true" matSuffix>location_on</mat-icon>
@@ -91,173 +137,213 @@
         <input matInput formControlName="complemento" maxlength="100" />
         <mat-error>{{ mensagemCampo('complemento') }}</mat-error></mat-form-field
       >
-      <div class="acoes form-wide">
+    }
+    <div class="acoes form-wide">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="enderecosBloqueados() || consultando()"
+      >
+        <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
+        >{{
+          salvando()
+            ? 'Salvando…'
+            : selfService
+              ? paginaEnderecos()
+                ? 'Salvar endereço e concluir cadastro'
+                : 'Salvar meus dados'
+              : cliente
+                ? 'Salvar Alterações'
+                : 'Cadastrar'
+        }}
+      </button>
+      @if (selfService && !paginaEnderecos()) {
         <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          [disabled]="salvando() || consultando()"
+          class="profile-cancel"
+          mat-button
+          type="button"
+          (click)="cancelarAlteracoes()"
+          [disabled]="!dadosAlterados() || enderecosBloqueados() || consultando()"
         >
-          <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
-          >{{
-            salvando()
-              ? 'Salvando…'
-              : selfService
-                ? 'Salvar meus dados'
-                : cliente
-                  ? 'Salvar Alterações'
-                  : 'Cadastrar'
-          }}
+          <mat-icon aria-hidden="true">close</mat-icon>Cancelar
         </button>
+        @if (returnUrl) {
+          <a mat-button [routerLink]="returnUrl">Voltar para a compra</a>
+        }
+      } @else {
         <a mat-button [routerLink]="returnUrl ?? (selfService ? '/' : '/admin/clientes')"
           ><mat-icon aria-hidden="true">close</mat-icon
           >{{ returnUrl ? 'Voltar para a compra' : 'Cancelar' }}</a
         >
+      }
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #enderecosForm>
+  <section class="enderecos-section" aria-label="Endereços de entrega">
+    <div class="enderecos-header">
+      <div>
+        <h2>Meus endereços de entrega</h2>
+        <p>Gerencie os endereços disponíveis para receber seus pedidos.</p>
       </div>
-    </form>
+      @if (!exibindoFormEndereco()) {
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="iniciarNovoEndereco()"
+          [disabled]="enderecosBloqueados()"
+        >
+          <mat-icon aria-hidden="true">add_location_alt</mat-icon>Novo endereço
+        </button>
+      }
+    </div>
 
-    @if (selfService) {
-      <section class="enderecos-section" aria-label="Endereços de entrega">
-        <div class="enderecos-header">
-          <div>
-            <h2>Meus endereços de entrega</h2>
-            <p>Gerencie os endereços disponíveis para receber seus pedidos.</p>
-          </div>
-          @if (!exibindoFormEndereco()) {
-            <button mat-raised-button color="primary" type="button" (click)="iniciarNovoEndereco()">
-              <mat-icon aria-hidden="true">add_location_alt</mat-icon>Novo endereço
-            </button>
-          }
+    @if (exibindoFormEndereco()) {
+      <form class="form-endereco" [formGroup]="formEndereco" (ngSubmit)="salvarEndereco()">
+        <h3>{{ enderecoEditandoId() ? 'Editar endereço' : 'Novo endereço de entrega' }}</h3>
+        <div class="grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Identificação (ex.: Casa, Trabalho)</mat-label>
+            <input matInput formControlName="apelido" maxlength="60" />
+            <mat-error>{{ mensagemCampoEndereco('apelido') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Destinatário</mat-label>
+            <input matInput formControlName="destinatario" maxlength="100" />
+            <mat-error>{{ mensagemCampoEndereco('destinatario') }}</mat-error>
+          </mat-form-field>
         </div>
-
-        @if (exibindoFormEndereco()) {
-          <form class="form-endereco" [formGroup]="formEndereco" (ngSubmit)="salvarEndereco()">
-            <h3>{{ enderecoEditandoId() ? 'Editar endereço' : 'Novo endereço de entrega' }}</h3>
-            <div class="grid-2">
-              <mat-form-field appearance="outline">
-                <mat-label>Identificação (ex.: Casa, Trabalho)</mat-label>
-                <input matInput formControlName="apelido" maxlength="60" />
-                <mat-error>{{ mensagemCampoEndereco('apelido') }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Destinatário</mat-label>
-                <input matInput formControlName="destinatario" maxlength="100" />
-                <mat-error>{{ mensagemCampoEndereco('destinatario') }}</mat-error>
-              </mat-form-field>
-            </div>
-            <div class="cep-row">
-              <mat-form-field appearance="outline">
-                <mat-label>CEP</mat-label>
-                <input
-                  matInput
-                  formControlName="cep"
-                  maxlength="9"
-                  inputmode="numeric"
-                  placeholder="00000-000"
-                  (blur)="consultarCepEndereco()"
-                />
-                <mat-error>{{ mensagemCampoEndereco('cep') }}</mat-error>
-              </mat-form-field>
-              <button
-                mat-button
-                type="button"
-                (click)="consultarCepEndereco()"
-                [disabled]="consultandoCepEndereco() || salvandoEndereco()"
-              >
-                <mat-icon aria-hidden="true">location_on</mat-icon>
-                {{ consultandoCepEndereco() ? 'Consultando…' : 'Consultar CEP' }}
-              </button>
-            </div>
-            @if (erroCepEndereco()) {
-              <p role="alert" class="erro-cep">{{ erroCepEndereco() }}</p>
-            }
-            <p class="municipio-info" aria-live="polite">
-              Município: {{ municipioEndereco() || 'Consulte o CEP' }} · Estado:
-              {{ estadoEndereco() || '—' }}
-            </p>
-            <mat-form-field appearance="outline">
-              <mat-label>Logradouro</mat-label>
-              <input matInput formControlName="logradouro" maxlength="200" />
-              <mat-error>{{ mensagemCampoEndereco('logradouro') }}</mat-error>
-            </mat-form-field>
-            <div class="grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>Bairro</mat-label>
-                <input matInput formControlName="bairro" maxlength="100" />
-                <mat-error>{{ mensagemCampoEndereco('bairro') }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Número (ou S/N)</mat-label>
-                <input matInput formControlName="numero" maxlength="20" />
-                <mat-error>{{ mensagemCampoEndereco('numero') }}</mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Complemento</mat-label>
-                <input matInput formControlName="complemento" maxlength="100" />
-                <mat-error>{{ mensagemCampoEndereco('complemento') }}</mat-error>
-              </mat-form-field>
-            </div>
-            <label class="checkbox-principal">
-              <input type="checkbox" formControlName="principal" />
-              Definir como endereço principal de entrega
-            </label>
-            <div class="acoes form-wide">
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="salvandoEndereco() || consultandoCepEndereco()"
-              >
-                <mat-icon aria-hidden="true">save</mat-icon>
-                {{ salvandoEndereco() ? 'Salvando…' : 'Salvar endereço' }}
-              </button>
-              <button mat-button type="button" (click)="cancelarEdicaoEndereco()">Cancelar</button>
-            </div>
-          </form>
+        <div class="cep-row">
+          <mat-form-field appearance="outline">
+            <mat-label>CEP</mat-label>
+            <input
+              matInput
+              formControlName="cep"
+              maxlength="9"
+              inputmode="numeric"
+              placeholder="00000-000"
+              (blur)="consultarCepEndereco()"
+            />
+            <mat-error>{{ mensagemCampoEndereco('cep') }}</mat-error>
+          </mat-form-field>
+          <button
+            mat-button
+            type="button"
+            (click)="consultarCepEndereco()"
+            [disabled]="consultandoCepEndereco() || salvandoEndereco()"
+          >
+            <mat-icon aria-hidden="true">location_on</mat-icon>
+            {{ consultandoCepEndereco() ? 'Consultando…' : 'Consultar CEP' }}
+          </button>
+        </div>
+        @if (erroCepEndereco()) {
+          <p role="alert" class="erro-cep">{{ erroCepEndereco() }}</p>
         }
-
-        @if (carregandoEnderecos()) {
-          <p role="status">Carregando endereços salvos…</p>
-        } @else if (enderecos().length === 0) {
-          <p class="sem-enderecos">
-            Salve seus dados acima ou adicione um endereço de entrega para usar no carrinho.
-          </p>
-        } @else {
-          <div class="lista-enderecos">
-            @for (end of enderecos(); track end.id) {
-              <article class="card-endereco" [class.principal]="end.principal">
-                <div class="card-endereco-topo">
-                  <div>
-                    <strong>{{ end.apelido }}</strong>
-                    @if (end.principal) {
-                      <span class="pill-principal">Principal</span>
-                    }
-                  </div>
-                  <div class="card-endereco-acoes">
-                    @if (!end.principal) {
-                      <button mat-button type="button" (click)="definirPrincipal(end)">
-                        Tornar principal
-                      </button>
-                    }
-                    <button mat-button type="button" (click)="editarEndereco(end)">Editar</button>
-                    <button mat-button type="button" (click)="removerEndereco(end)">Remover</button>
-                  </div>
-                </div>
-                <p>
-                  {{ end.destinatario }} — {{ end.logradouro }}, {{ end.numero }}
-                  @if (end.complemento) {
-                    ({{ end.complemento }})
-                  }
-                </p>
-                <small
-                  >{{ end.bairro }} · {{ end.municipio.nome }}/{{ end.municipio.estado.sigla }} ·
-                  CEP {{ end.cep }}</small
-                >
-              </article>
-            }
-          </div>
-        }
-      </section>
+        <p class="municipio-info" aria-live="polite">
+          Município: {{ municipioEndereco() || 'Consulte o CEP' }} · Estado:
+          {{ estadoEndereco() || '—' }}
+        </p>
+        <mat-form-field appearance="outline">
+          <mat-label>Logradouro</mat-label>
+          <input matInput formControlName="logradouro" maxlength="200" />
+          <mat-error>{{ mensagemCampoEndereco('logradouro') }}</mat-error>
+        </mat-form-field>
+        <div class="grid-3">
+          <mat-form-field appearance="outline">
+            <mat-label>Bairro</mat-label>
+            <input matInput formControlName="bairro" maxlength="100" />
+            <mat-error>{{ mensagemCampoEndereco('bairro') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Número (ou S/N)</mat-label>
+            <input matInput formControlName="numero" maxlength="20" />
+            <mat-error>{{ mensagemCampoEndereco('numero') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Complemento</mat-label>
+            <input matInput formControlName="complemento" maxlength="100" />
+            <mat-error>{{ mensagemCampoEndereco('complemento') }}</mat-error>
+          </mat-form-field>
+        </div>
+        <label class="checkbox-principal">
+          <input type="checkbox" formControlName="principal" />
+          Definir como endereço principal de entrega
+        </label>
+        <div class="acoes form-wide">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="enderecosBloqueados() || consultandoCepEndereco()"
+          >
+            <mat-icon aria-hidden="true">save</mat-icon>
+            {{ salvandoEndereco() ? 'Salvando…' : 'Salvar endereço' }}
+          </button>
+          <button mat-button type="button" (click)="cancelarEdicaoEndereco()">Cancelar</button>
+        </div>
+      </form>
     }
-  }
-</section>
+
+    @if (carregandoEnderecos()) {
+      <p role="status">Carregando endereços salvos…</p>
+    } @else if (enderecos().length === 0) {
+      <p class="sem-enderecos">Adicione um endereço de entrega para receber seus pedidos.</p>
+    } @else {
+      <div class="lista-enderecos">
+        @for (end of enderecos(); track end.id) {
+          <article class="card-endereco" [class.principal]="end.principal">
+            <div class="card-endereco-topo">
+              <div>
+                <strong>{{ end.apelido }}</strong>
+                @if (end.principal) {
+                  <span class="pill-principal">Principal</span>
+                }
+              </div>
+              <div class="card-endereco-acoes">
+                @if (!end.principal) {
+                  <button
+                    mat-button
+                    type="button"
+                    (click)="definirPrincipal(end)"
+                    [disabled]="enderecosBloqueados()"
+                  >
+                    Tornar principal
+                  </button>
+                }
+                <button
+                  mat-button
+                  type="button"
+                  (click)="editarEndereco(end)"
+                  [disabled]="enderecosBloqueados()"
+                >
+                  Editar
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  (click)="removerEndereco(end)"
+                  [disabled]="enderecosBloqueados()"
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
+            <p>
+              {{ end.destinatario }} — {{ end.logradouro }}, {{ end.numero }}
+              @if (end.complemento) {
+                ({{ end.complemento }})
+              }
+            </p>
+            <small
+              >{{ end.bairro }} · {{ end.municipio.nome }}/{{ end.municipio.estado.sigla }} · CEP
+              {{ end.cep }}</small
+            >
+          </article>
+        }
+      </div>
+    }
+  </section>
+</ng-template>

@@ -34,7 +34,22 @@
       </section>
       <section class="product-info" aria-labelledby="product-title">
         <div class="brand-stock">
-          <p class="section-label">{{ p.marca.nome }}</p>
+          <div class="brand">
+            @if (p.marca.logomarcaUrl) {
+              <div class="brand-logo">
+                <app-product-image
+                  [imagem]="{
+                    url: p.marca.logomarcaUrl,
+                    textoAlternativo: 'Logomarca de ' + p.marca.nome,
+                    ordem: 0,
+                  }"
+                  [nome]="p.marca.nome"
+                  [compacta]="true"
+                />
+              </div>
+            }
+            <p class="section-label">{{ p.marca.nome }}</p>
+          </div>
           <span class="stock" [class.unavailable]="p.quantidadeEstoque <= 0"
             ><mat-icon aria-hidden="true">{{
               p.quantidadeEstoque > 0 ? 'check_circle' : 'remove_circle_outline'

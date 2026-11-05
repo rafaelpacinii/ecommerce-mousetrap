@@ -1,0 +1,38 @@
+# Repository runner data; NOT Codex config.toml options or a sandbox policy.
+version = 1
+max_entrypoint_lines = 180
+include_patterns = [
+  "AGENTS.md", "CLAUDE.md", "TASK.md", "README.md",
+  "api/**", "web/**", "infra/**", "scripts/**", "docs/**", ".agents/**",
+  ".codex/config.toml", ".github/**",
+]
+exclude_patterns = [
+  ".env*", "**/.env*", "*.env", "**/*.env", "**/application.properties",
+  "*.pem", "**/*.pem", "*.key", "**/*.key", "*.p12", "**/*.p12",
+  "*.pfx", "**/*.pfx", "*.jks", "**/*.jks", ".local/**", ".certs/**",
+  ".aws/**", "**/.aws/**", ".git/**", "**/.git/**", "**/node_modules/**",
+  "dist/**", "**/dist/**", "target/**", "**/target/**", "**/.angular/**",
+  "**/coverage/**", "**/test-results/**", "**/playwright-report/**",
+  "**/__pycache__/**", "**/package-lock.json", "**/*.lock", "**/*-lock.json", "**/*-lock.yaml", ".codex/skills/**",
+]
+
+[working_directories]
+governance = "."
+web = "web"
+api = "api"
+
+[setup_commands]
+governance = []
+web = [["npm", "ci"]]
+api = [["./mvnw", "-B", "-Prelease", "dependency:go-offline"]]
+
+[verify_commands]
+governance = [
+  ["python3", "scripts/check_ai_governance.py"],
+  ["python3", "-m", "unittest", "discover", "-s", "scripts", "-p", "test_ai_*.py", "-v"],
+]
+web = [
+  ["npm", "exec", "--", "tsc", "--noEmit", "-p", "tsconfig.app.json"],
+  ["npm", "test", "--", "--watch=false"],
+]
+api = [["./mvnw", "-B", "-Prelease", "test"]]

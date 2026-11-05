@@ -7,6 +7,12 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "marca")
 public class Marca extends DefaultEntity {
+    @Column(name = "logomarca_url", length = 2048)
+    private String logomarcaUrl;
+
+    public String getLogomarcaUrl() { return logomarcaUrl; }
+    public void setLogomarcaUrl(String logomarcaUrl) { this.logomarcaUrl = logomarcaUrl; }
+
     @Column(nullable = false, length = 100, unique = true)
     private String nome;
 

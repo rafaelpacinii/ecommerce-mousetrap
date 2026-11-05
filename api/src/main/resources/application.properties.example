@@ -20,7 +20,7 @@ quarkus.http.cors.methods=GET,PUT,POST,DELETE,PATCH,OPTIONS
 quarkus.http.cors.headers=accept,authorization,content-type,x-requested-with
 quarkus.http.cors.exposed-headers=X-Page,X-Page-Size,X-Total-Count,Content-Disposition
 quarkus.http.cors.access-control-allow-credentials=true
-quarkus.http.limits.max-body-size=1M
+quarkus.http.limits.max-body-size=6M
 %dev.problem.base-url=http://localhost:8080
 
 # External postcode lookup and configurable delivery estimates.
@@ -44,3 +44,11 @@ pagamentos.simulacao.habilitada=false
 %test.pagamentos.simulacao.habilitada=true
 pedidos.prazo-pagamento-minutos=30
 pedidos.expiracao.intervalo=30s
+
+# Catalog uploads: credentials stay on the API. Public URLs are served directly by R2.
+storage.r2.enabled=${R2_ENABLED:false}
+storage.r2.endpoint=${R2_ENDPOINT:}
+storage.r2.bucket=${R2_BUCKET:}
+storage.r2.access-key-id=${R2_ACCESS_KEY_ID:}
+storage.r2.secret-access-key=${R2_SECRET_ACCESS_KEY:}
+storage.r2.public-url=${R2_PUBLIC_URL:}

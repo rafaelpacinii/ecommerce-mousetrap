@@ -8,17 +8,19 @@ import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-ROOT_FILES = {'README.md', 'SETUP_DO_ZERO.md', 'AGENTS.md', 'LICENSE.md',
+ROOT_FILES = {'README.md', 'AGENTS.md', 'LICENSE.md',
               'docker-compose.yml', '.env.example'}
 ROOT_DIRS = {'api', 'web', 'infra', 'docs', 'scripts'}
 EXCLUDED_DIRS = {'.git', '.github', '.agents', '.codex', '.gemini', '.vscode', '.idea',
                  '.angular', '.local', '.certs', 'node_modules', 'target', 'dist',
                  'build', 'tmp', 'out-tsc', 'coverage', '__pycache__', 'test-results',
                  'playwright-report', '__screenshots__'}
-SCRIPT_FILES = {'package_release.py', 'test_release.py', 'configure_stack.py', 'verify_release.sh'}
+SCRIPT_FILES = {'package_release.py', 'test_release.py', 'configure_stack.py', 'verify_release.sh',
+                'export_hero_images.py'}
 EXCLUDED_SUFFIXES = {'.zip', '.tar', '.gz', '.tgz', '.class', '.jar', '.war', '.log',
                      '.pyc', '.pem', '.key', '.p12', '.pfx', '.jks', '.env', '.swp', '.orig'}
-REQUIRED = {'README.md', 'docs/release-readiness.md', 'docker-compose.yml',
+REQUIRED = {'README.md', 'docs/others/release-readiness.md',
+            'docs/ai/setup-environment.md', 'docs/ai/setup-integrations.md', 'docker-compose.yml',
             'api/pom.xml', 'api/mvnw', 'api/mvnw.cmd',
             'api/.mvn/wrapper/maven-wrapper.properties',
             'api/src/main/resources/application.properties.example',

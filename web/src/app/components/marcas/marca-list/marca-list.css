@@ -12,3 +12,17 @@ table {
   width: 120px;
   white-space: nowrap;
 }
+
+.brand-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-logo {
+  width: 56px;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--alice-blue);
+}

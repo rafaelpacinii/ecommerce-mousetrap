@@ -1,5 +1,5 @@
 # Stage 1: Build Quarkus application using Maven
-FROM maven:3.9.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-26 AS build
 WORKDIR /project
 RUN apt-get update && apt-get install -y --no-install-recommends unzip \
     && rm -rf /var/lib/apt/lists/*

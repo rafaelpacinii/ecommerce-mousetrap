@@ -115,6 +115,17 @@ nav a.active {
   color: white;
   cursor: pointer;
   list-style: none;
+  max-width: 232px;
+}
+.account-name {
+  min-width: 0;
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.account-menu summary > mat-icon {
+  flex-shrink: 0;
 }
 .account-menu summary::-webkit-details-marker {
   display: none;
@@ -216,11 +227,11 @@ main {
     order: 4;
     width: 100%;
   }
-  .account-menu summary span {
-    display: none;
-  }
   .account-menu summary {
-    padding: 10px;
+    padding: 8px 10px;
+  }
+  .account-name {
+    max-width: 100px;
   }
 }
 @media (max-width: 420px) {
@@ -247,9 +258,6 @@ main {
   }
   .cart-nav-link {
     gap: 4px;
-  }
-  .account-menu summary > mat-icon:last-child {
-    display: none;
   }
   .auth-header .header-content {
     flex-wrap: nowrap;

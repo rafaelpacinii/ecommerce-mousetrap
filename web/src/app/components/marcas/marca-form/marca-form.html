@@ -3,11 +3,11 @@
     <div>
       <p class="sobretitulo">Catálogo / Marcas</p>
       <h1 id="titulo-form">{{ marca ? 'Editar marca' : 'Cadastrar marca' }}</h1>
-      <p class="descricao-pagina">Os campos abaixo são obrigatórios.</p>
+      <p class="descricao-pagina">Informe o nome, a situação e, se desejar, a logomarca.</p>
     </div>
   </div>
   <form class="formulario" [formGroup]="form" (ngSubmit)="salvar()">
-    <fieldset [disabled]="salvando()">
+    <fieldset [disabled]="salvando() || enviandoImagem()">
       <mat-form-field appearance="outline">
         <mat-label>Nome</mat-label><mat-icon aria-hidden="true" matSuffix>label</mat-icon>
         <input matInput formControlName="nome" maxlength="100" autocomplete="off" />
@@ -23,12 +23,53 @@
         <mat-error>Selecione a situação.</mat-error>
       </mat-form-field>
     </fieldset>
+    <section aria-labelledby="logo-title">
+      <h2 id="logo-title">Logomarca</h2>
+      <p>Uma imagem por marca. Ao enviar outra imagem, a atual será substituída após salvar.</p>
+      @if (form.controls.logomarcaUrl.value) {
+        <div class="logo-preview">
+          <app-product-image
+            [imagem]="{
+              url: form.controls.logomarcaUrl.value,
+              textoAlternativo: 'Logomarca de ' + form.controls.nome.value,
+              ordem: 0,
+            }"
+            [nome]="form.controls.nome.value"
+            [compacta]="true"
+          />
+        </div>
+        <button
+          mat-button
+          type="button"
+          [disabled]="salvando() || enviandoImagem()"
+          (click)="
+            form.controls.logomarcaUrl.setValue(''); form.controls.logomarcaUrl.markAsDirty()
+          "
+        >
+          <mat-icon aria-hidden="true">delete</mat-icon>Remover logomarca
+        </button>
+      }
+      <app-image-upload
+        destino="marcas"
+        [rotulo]="form.controls.logomarcaUrl.value ? 'Substituir logomarca' : 'Enviar logomarca'"
+        [desabilitado]="salvando()"
+        (ocupado)="enviandoImagem.set($event)"
+        (enviada)="
+          form.controls.logomarcaUrl.setValue($event); form.controls.logomarcaUrl.markAsDirty()
+        "
+      />
+    </section>
     <div class="acoes-formulario">
-      <button mat-raised-button color="primary" type="submit" [disabled]="salvando()">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="salvando() || enviandoImagem()"
+      >
         <mat-icon aria-hidden="true">{{ salvando() ? 'hourglass_empty' : 'save' }}</mat-icon
         >{{ salvando() ? 'Salvando…' : marca ? 'Salvar Alterações' : 'Cadastrar' }}
       </button>
-      <a mat-button routerLink="/admin/marcas" [disabled]="salvando()"
+      <a mat-button routerLink="/admin/marcas" [disabled]="salvando() || enviandoImagem()"
         ><mat-icon aria-hidden="true">close</mat-icon>Cancelar</a
       >
     </div>

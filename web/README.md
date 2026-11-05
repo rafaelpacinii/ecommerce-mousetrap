@@ -24,9 +24,9 @@ Authentication, owned profiles and role-based administration are implemented.
 Cart, transactional checkout, owned order history, administrative fulfillment and persisted wishlist are implemented. Missing or
 failed product images use an accessible fallback. Administrative routes require an authorized account.
 
-See [Homepage implementation](../docs/homepage.md) and the
-[implementation backlog](../docs/implementation-backlog.md), and
-[public catalog contracts and behavior](../docs/public-catalog.md).
+See [Homepage implementation](../docs/others/homepage.md) and the
+[implementation backlog](../docs/others/implementation-backlog.md), and
+[public catalog contracts and behavior](../docs/others/public-catalog.md).
 
 ## Development
 
@@ -42,7 +42,7 @@ Open `http://localhost:4200`. The homepage works without catalog data and shows
 an empty/error state as appropriate. Create a brand before the first mouse in
 administration after signing in with an admin account. Public runtime settings
 are defined in `public/config.json`; no credentials belong in this file.
-Start the local [identity stack](../docs/authentication.md) before signing in.
+Start the local [identity stack](../docs/others/authentication.md) before signing in.
 
 | Page | Route |
 | --- | --- |
@@ -59,7 +59,7 @@ Start the local [identity stack](../docs/authentication.md) before signing in.
 
 Administration links appear for authorized operators. Legacy CRUD paths redirect
 to `/admin/**`. Login and registration are at `/login` and `/cadastro`; the owned
-profile/address form is at `/minha-conta`. Credentials and recovery are handled by
+profile and address forms are at `/meus-dados` and `/enderecos`. Credentials and recovery are handled by
 the branded identity provider forms.
 
 ## Structure
@@ -92,9 +92,9 @@ npm run build
 
 Tests use Vitest. The production output is in `dist/web/browser`. Font inlining
 is disabled, so builds do not require Google Fonts access. Material interface icons use a local font and do not require Google Fonts
-at runtime; see [Material Icons](../docs/material-icons.md). Configure hosting
+at runtime; see [Material Icons](../docs/others/material-icons.md). Configure hosting
 to serve `index.html` for SPA routes, and align the API URL and CORS with the
-hosting environment. See [authentication and deployment requirements](../docs/authentication.md).
+hosting environment. See [authentication and deployment requirements](../docs/others/authentication.md).
 
 ## Customer addresses
 
@@ -125,4 +125,4 @@ Route metadata is managed by `SeoService`: public canonical URLs omit filters,
 private routes use `noindex`, social tags follow navigation and Product JSON-LD
 uses current API price/stock. This is a client-rendered SPA; crawlers that do not
 execute JavaScript receive only default HTML metadata. See
-[deployment, runtime configuration and SEO limits](../docs/release-readiness.md).
+[deployment, runtime configuration and SEO limits](../docs/others/release-readiness.md).
