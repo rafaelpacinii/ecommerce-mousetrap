@@ -108,19 +108,40 @@ Prepare these concrete environment changes before exposing a host:
    switching traffic. Database rollback requires a compatible backup/forward fix;
    do not edit V1–V7 or run Flyway clean against an installation.
 6. Pin approved container image digests for the deployment and scan those images
-   in its registry. CI currently audits npm dependencies and runs application
-   checks; a full OS/JVM/container vulnerability audit is not claimed.
+   in its registry. CI (`verify.yml`) and CD (`cd.yml`) scan built `mousetrap-api`
+   and `mousetrap-web` container images with Trivy for `HIGH` and `CRITICAL` OS and
+   library vulnerabilities alongside `npm run audit`.
 
 The local setup guide is [SETUP_DO_ZERO.md](../SETUP_DO_ZERO.md).
 
-## Repeatable verification
+## Repeatable verification and continuous delivery
 
-GitHub Actions `.github/workflows/verify.yml` defines four independent jobs:
+GitHub Actions `.github/workflows/verify.yml` defines five independent jobs:
 Java 17 + PostgreSQL tests and release packaging checks; Node 24 audit/unit/build;
+Trivy container vulnerability scanning (`mousetrap-api` and `mousetrap-web`);
 Docker + Chromium browser tests; and deterministic source packaging. Permissions
-are read-only; no deploy, push, PR creation or secret upload is performed. The
-browser job creates generated credentials and isolated volumes rather than using
-repository credentials. Remote Actions execution occurs after an authorized push.
+are read-only; no deploy, push, PR creation or secret upload is performed in PR
+verification. The browser job creates generated credentials and isolated volumes
+rather than using repository credentials.
+
+GitHub Actions `.github/workflows/cd.yml` runs on pushes to `main`, semantic
+version tags (`v*.*.*`), and manual dispatch:
+
+- `prepare-release`: verifies that `api/pom.xml`, `web/package.json` and
+  `web/package-lock.json` share the same version (and match the `vMAJOR.MINOR.PATCH`
+  tag when tagging), runs the Python packaging test suite, and generates
+  `dist/mousetrap_submission.zip` and `dist/mousetrap_submission.zip.sha256`.
+- `publish-images`: builds, scans with Trivy, and pushes
+  `ghcr.io/<owner>/mousetrap-api` and `ghcr.io/<owner>/mousetrap-web` to GitHub
+  Container Registry using `GITHUB_TOKEN`, exporting immutable image digests.
+- `github-release`: on `v*.*.*` tags, creates or updates the GitHub Release with
+  generated release notes, GHCR image digests, `mousetrap_submission.zip` and its
+  SHA-256 checksum.
+- `deploy`: when `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_SSH_KEY` secrets are
+  configured, copies `infra/production/compose.yaml` and the Keycloak theme over
+  SSH and deploys the pinned GHCR image digests with Docker Compose. When those
+  secrets are absent, the job logs setup instructions to the workflow summary and
+  exits cleanly.
 
 ```fish
 cd web
