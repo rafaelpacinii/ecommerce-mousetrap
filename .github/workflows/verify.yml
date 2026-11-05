@@ -26,8 +26,8 @@ jobs:
           --health-cmd "pg_isready -U ecommerce_test -d ecommerce_test"
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -53,6 +53,46 @@ jobs:
       - run: npm run audit
       - run: npm test -- --watch=false
       - run: npm run build
+  container-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build API container image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api
+          load: true
+          tags: mousetrap-api:scan
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+      - name: Scan API container image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: mousetrap-api:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+      - name: Build Web container image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          load: true
+          tags: mousetrap-web:scan
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+      - name: Scan Web container image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: mousetrap-web:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 30

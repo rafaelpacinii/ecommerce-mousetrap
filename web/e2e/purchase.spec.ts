@@ -215,8 +215,13 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
     await audit(page, 'app-cart h1');
     await page.goto(web + '/checkout');
     await page.locator('app-checkout .panel-heading a').click();
+    await expect(page).toHaveURL(web + '/enderecos?returnUrl=%2Fcheckout');
+    await page.locator('app-account-nav a[href^="/meus-dados"]').click();
+    await expect(page).toHaveURL(web + '/meus-dados?returnUrl=%2Fcheckout');
     await page.locator('.profile-form [formControlName="nome"]').fill('Cliente Release QA');
+    await audit(page, '.profile-form');
     await page.locator('.profile-form button[type="submit"]').click();
+    await expect(page).toHaveURL(web + '/enderecos?returnUrl=%2Fcheckout');
     await expect(
       page.locator('mat-error').filter({ hasText: 'Campo obrigatório.' }).first(),
     ).toBeVisible();
@@ -225,6 +230,11 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
     await expect(page.locator('.profile-form .municipio-info')).toContainText('São Paulo');
     await page.locator('.profile-form [formControlName="numero"]').fill('10');
     await audit(page, '.profile-form');
+    await page.locator('.profile-form button[type="submit"]').click();
+    await expect(page).toHaveURL(web + '/checkout');
+    await expect(page.locator('.confirm-button')).toBeEnabled();
+    await page.locator('app-checkout .panel-heading a').click();
+    await expect(page).toHaveURL(web + '/enderecos?returnUrl=%2Fcheckout');
     await page.getByRole('button', { name: 'Novo endereço', exact: true }).click();
     await page.locator('.form-endereco button[type="submit"]').click();
     await expect(page.locator('.form-endereco mat-error').first()).toBeVisible();
@@ -236,7 +246,7 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
       .locator('.form-endereco')
       .getByRole('button', { name: 'Cancelar', exact: true })
       .click();
-    await page.locator('.profile-form button[type="submit"]').click();
+    await page.goto(web + '/checkout');
     await expect(page.locator('.confirm-button')).toBeEnabled();
     await audit(page, '.confirm-button');
     await page.locator('.confirm-button').click();
@@ -357,9 +367,12 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
     expect((await request.get(web + '/meus-dados')).headers()['x-robots-tag']).toBe(
       'noindex, nofollow',
     );
+    expect((await request.get(web + '/enderecos')).headers()['x-robots-tag']).toBe(
+      'noindex, nofollow',
+    );
     expect((await request.get(api + '/q/health/ready')).status()).toBe(200);
   } finally {
-    await Promise.all(contexts.map((context) => context.close()));
+    await Promise.all(contexts.map((context) => context.close().catch(() => undefined)));
     for (const id of users) await request.delete(realm + '/users/' + id, { headers });
     // Historical records live only in the disposable stack, removed by the runner.
   }
