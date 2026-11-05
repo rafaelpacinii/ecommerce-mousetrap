@@ -1,6 +1,6 @@
 # Dependency maintenance
 
-[`.github/dependabot.yml`](../.github/dependabot.yml) configures dependency
+[`.github/dependabot.yml`](../../.github/dependabot.yml) configures dependency
 version updates for the MouseTrap monorepo. It opens reviewable pull requests;
 merging and publishing remain manual.
 
@@ -69,7 +69,7 @@ and [security update setup](https://docs.github.com/en/code-security/how-tos/sec
 
 ## Review and verification
 
-The existing [CI workflow](../.github/workflows/verify.yml) already runs for PRs
+The existing [CI workflow](../../.github/workflows/verify.yml) already runs for PRs
 to `develop` and `main`, including Dependabot PRs. It uses a read-only repository
 token, generated test credentials and disposable infrastructure. No production
 secret, `.env` file or active `application.properties` is needed by Dependabot.
@@ -78,7 +78,7 @@ secret, `.env` file or active `application.properties` is needed by Dependabot.
   `cd api && ./mvnw -B -Prelease clean verify` with the isolated test database.
 - **npm:** review manifest/lockfile changes together; run `npm ci`,
   `npm run audit`, `npm test -- --watch=false` and `npm run build` inside `web/`.
-- **Actions:** review action release notes and inspect all four CI jobs after
+- **Actions:** review action release notes and inspect all CI jobs after
   the update. Keep workflow permissions limited to those actually needed.
 - **Containers:** review all affected Dockerfiles/Compose stacks and use
   `sh scripts/verify_release.sh` to exercise the disposable browser stack.

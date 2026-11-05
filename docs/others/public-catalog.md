@@ -2,7 +2,7 @@
 
 This second implementation slice adds public browsing and product detail screens
 without replacing existing administrative routes or removing their HTTP fields.
-Visual references: wireframes 02, 03, 10 and 11 in [the wireframe index](ui-wireframes/README.md).
+Visual references: wireframes 02, 03, 10 and 11 in [the wireframe index](../ui-wireframes/README.md).
 
 ## Delivered behavior
 

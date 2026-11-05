@@ -36,7 +36,7 @@ before JavaScript executes. Preserve that header through a public reverse proxy.
 - Global focus rings, the skip link, labeled controls, status/alert regions and
   non-destructive initial dialog focus are covered by browser tests. Reduced
   motion preferences disable decorative transitions/animations.
-- The visual references remain [canonical SVG wireframes](ui-wireframes/README.md).
+- The visual references remain [canonical SVG wireframes](../ui-wireframes/README.md).
   Browser verification checks widths 1440, 1024, 768, 375 and 320 and Axe rules
   tagged WCAG 2 A/AA and 2.1 AA. Automated checks do not establish complete WCAG
   conformance; screen-reader usability and additional browsers remain manual QA.
@@ -108,19 +108,30 @@ Prepare these concrete environment changes before exposing a host:
    switching traffic. Database rollback requires a compatible backup/forward fix;
    do not edit V1–V7 or run Flyway clean against an installation.
 6. Pin approved container image digests for the deployment and scan those images
-   in its registry. CI currently audits npm dependencies and runs application
-   checks; a full OS/JVM/container vulnerability audit is not claimed.
+   in its registry. CI audits npm dependencies, runs application checks and scans
+   the `api` and `web` container images with Trivy (`CRITICAL,HIGH`), while
+   upstream base-image advisories remain tracked during release reviews.
 
-The local setup guide is [SETUP_DO_ZERO.md](../SETUP_DO_ZERO.md).
+The maintained local setup procedure covers [environment discovery](../ai/setup-environment.md)
+and [Docker, identity, email and R2 integrations](../ai/setup-integrations.md).
 
 ## Repeatable verification
 
-GitHub Actions `.github/workflows/verify.yml` defines four independent jobs:
-Java 17 + PostgreSQL tests and release packaging checks; Node 24 audit/unit/build;
-Docker + Chromium browser tests; and deterministic source packaging. Permissions
-are read-only; no deploy, push, PR creation or secret upload is performed. The
-browser job creates generated credentials and isolated volumes rather than using
-repository credentials. Remote Actions execution occurs after an authorized push.
+GitHub Actions `.github/workflows/verify.yml` uses a `changes` job to inspect
+modified monorepo scopes on `push` and `pull_request` events (`full` on `main`,
+`v*.*.*` tags and `workflow_dispatch`) and conditionally orchestrates five jobs:
+Java 17 + PostgreSQL tests and release packaging checks (`backend`); Node 24
+audit/unit/build (`frontend`); Trivy container vulnerability scanning for `api`
+and `web` (`container-scan`); Docker + Chromium browser tests (`browser`); and
+deterministic source packaging plus governance checks (`package`, which always
+runs so branch protection receives a required status check even on docs-only PRs).
+Permissions are read-only; the browser job creates generated credentials and
+isolated volumes rather than using repository credentials. Continuous delivery
+and release automation are defined separately in `.github/workflows/cd.yml`,
+which conditionally builds and pushes modified images (`mousetrap-api` and
+`mousetrap-web`) to GHCR on `main` and `v*.*.*` tags, publishes GitHub Releases
+with the source archive, and triggers SSH + Docker Compose deployment when
+`PROD_SSH_HOST` is configured.
 
 ```fish
 cd web

@@ -1,0 +1,34 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+# Requires permission-profile support; local CLI version: 0.166.0.
+# setup_commands/verify_commands/include_patterns/exclude_patterns live in
+# .agents/project.toml and are consumed by scripts/ai_checks.py, not by Codex.
+approval_policy = "on-request"
+default_permissions = "mousetrap"
+project_doc_max_bytes = 24576
+
+[permissions.mousetrap]
+description = "Workspace editing with private configuration denied and lockfile read-only."
+extends = ":workspace"
+
+[permissions.mousetrap.filesystem]
+glob_scan_max_depth = 6
+
+[permissions.mousetrap.filesystem.":workspace_roots"]
+".env" = "deny"
+".env.*" = "deny"
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+".env.example" = "read"
+".local" = "deny"
+".certs" = "deny"
+".aws" = "deny"
+"**/*.pem" = "deny"
+"**/*.key" = "deny"
+"**/*.p12" = "deny"
+"**/*.pfx" = "deny"
+"**/*.jks" = "deny"
+"api/src/main/resources/application.properties" = "deny"
+"web/package-lock.json" = "read"
+
+[permissions.mousetrap.network]
+enabled = false

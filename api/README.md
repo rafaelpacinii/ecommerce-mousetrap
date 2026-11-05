@@ -15,9 +15,9 @@ catalog, owned profiles/addresses, transactional orders, events and wishlist.
 - Owner-scoped history/details, administrative payment decisions and fulfillment at `/admin/pedidos`.
 - Database-backed admin indicators and subject-owned persistent wishlist at `/desejos`.
 
-See [catalog](../docs/public-catalog.md), [authentication](../docs/authentication.md),
-[addresses](docs/clientes-cep.md), [checkout](../docs/transactional-checkout.md) and
-[history/fulfillment](../docs/customer-portal-admin-orders.md) for exact methods,
+See [catalog](../docs/others/public-catalog.md), [authentication](../docs/others/authentication.md),
+[addresses](docs/clientes-cep.md), [checkout](../docs/others/transactional-checkout.md) and
+[history/fulfillment](../docs/others/customer-portal-admin-orders.md) for exact methods,
 payloads and status rules. Live payments/refunds/carriers and image uploads remain
 future integrations. Card credentials are never accepted by payment DTOs.
 
@@ -25,7 +25,7 @@ future integrations. Card credentials are never accepted by payment DTOs.
 
 Set `JAVA_HOME` to your JDK 17 installation. Install curl and unzip for the Maven
 Wrapper; its pinned ZIP distribution checksum is verified on first installation.
-Run a local PostgreSQL and [identity service](../docs/authentication.md), then:
+Run a local PostgreSQL and [identity service](../docs/others/authentication.md), then:
 
 ```fish
 cd api
@@ -60,7 +60,7 @@ Wait for `pg_isready` before running tests. Keep the database running during
 Quarkus continuous testing. If it reports `Connection to localhost:55439 refused`,
 recreate the disposable container and rerun. Surefire executes the HTTP tests;
 Failsafe integration tests remain disabled (`skipITs=true`), not silently counted
-as executed. Browser integration has its own [release runner](../docs/release-readiness.md).
+as executed. Browser integration has its own [release runner](../docs/others/release-readiness.md).
 
 Coverage includes authorization, active catalog filtering, address ownership,
 profile uniqueness, validation, CORS, checkout idempotency/concurrency, stock
@@ -83,4 +83,4 @@ profile and also excludes the local file from its build context.
 Existing Flyway migrations must not be edited. Start new installations with an
 empty database; back up and validate existing installations before upgrading.
 No destructive schema generation or automatic baseline is enabled. See
-[deployment and backups](../docs/release-readiness.md).
+[deployment and backups](../docs/others/release-readiness.md).

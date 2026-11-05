@@ -1,6 +1,6 @@
 # Transactional Checkout, Orders, and Simulated Payments
 
-Slice 5 adds an authenticated purchase flow based on [wireframe 05](ui-wireframes/05-storefront-checkout.svg), the [established visual system](visual-alignment.md), and the existing domain model. The homepage hero is unchanged. Customer history, cross-customer administrative order operations, shipping and events are now implemented in [slice 6](customer-portal-admin-orders.md).
+Slice 5 adds an authenticated purchase flow based on [wireframe 05](../ui-wireframes/05-storefront-checkout.svg), the [established visual system](visual-alignment.md), and the existing domain model. The homepage hero is unchanged. Customer history, cross-customer administrative order operations, shipping and events are now implemented in [slice 6](customer-portal-admin-orders.md).
 
 ## Delivered behavior
 
@@ -114,53 +114,53 @@ Automated coverage includes authoritative totals, price/freight conflicts, owner
 
 ### Documentation
 
-- [`README.md`](../README.md)
-- [`api/README.md`](../api/README.md)
-- [`api/docs/modelagem/README.md`](../api/docs/modelagem/README.md)
-- [`docs/implementation-backlog.md`](../docs/implementation-backlog.md)
-- [`docs/transactional-checkout.md`](../docs/transactional-checkout.md)
-- [`docs/visual-alignment.md`](../docs/visual-alignment.md)
+- [`README.md`](../../README.md)
+- [`api/README.md`](../../api/README.md)
+- [`api/docs/modelagem/README.md`](../../api/docs/modelagem/README.md)
+- [`docs/others/implementation-backlog.md`](implementation-backlog.md)
+- [`docs/others/transactional-checkout.md`](transactional-checkout.md)
+- [`docs/others/visual-alignment.md`](visual-alignment.md)
 
 ### Database and configuration
 
-- [`api/pom.xml`](../api/pom.xml)
-- [`api/src/main/resources/META-INF/microprofile-config.properties`](../api/src/main/resources/META-INF/microprofile-config.properties)
-- [`api/src/main/resources/application.properties.example`](../api/src/main/resources/application.properties.example)
-- [`api/src/main/resources/db/migration/V6__criar_pedidos_pagamentos.sql`](../api/src/main/resources/db/migration/V6__criar_pedidos_pagamentos.sql)
+- [`api/pom.xml`](../../api/pom.xml)
+- [`api/src/main/resources/META-INF/microprofile-config.properties`](../../api/src/main/resources/META-INF/microprofile-config.properties)
+- [`api/src/main/resources/application.properties.example`](../../api/src/main/resources/application.properties.example)
+- [`api/src/main/resources/db/migration/V6__criar_pedidos_pagamentos.sql`](../../api/src/main/resources/db/migration/V6__criar_pedidos_pagamentos.sql)
 
 ### Backend and contracts
 
-- [`api/src/main/java/br/unitins/tp2/dto/CheckoutConfiguracaoResponseDTO.java`](../api/src/main/java/br/unitins/tp2/dto/CheckoutConfiguracaoResponseDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/EnderecoEntregaResponseDTO.java`](../api/src/main/java/br/unitins/tp2/dto/EnderecoEntregaResponseDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/ItemCheckoutDTO.java`](../api/src/main/java/br/unitins/tp2/dto/ItemCheckoutDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/ItemPedidoResponseDTO.java`](../api/src/main/java/br/unitins/tp2/dto/ItemPedidoResponseDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/PagamentoDTO.java`](../api/src/main/java/br/unitins/tp2/dto/PagamentoDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/PagamentoResponseDTO.java`](../api/src/main/java/br/unitins/tp2/dto/PagamentoResponseDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/PedidoDTO.java`](../api/src/main/java/br/unitins/tp2/dto/PedidoDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/PedidoResponseDTO.java`](../api/src/main/java/br/unitins/tp2/dto/PedidoResponseDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoDTO.java`](../api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoResponseDTO.java`](../api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoResponseDTO.java)
-- [`api/src/main/java/br/unitins/tp2/dto/SimulacaoPagamentoDTO.java`](../api/src/main/java/br/unitins/tp2/dto/SimulacaoPagamentoDTO.java)
-- [`api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoException.java`](../api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoException.java)
-- [`api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoExceptionMapper.java`](../api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoExceptionMapper.java)
-- [`api/src/main/java/br/unitins/tp2/job/ExpiracaoPedidosJob.java`](../api/src/main/java/br/unitins/tp2/job/ExpiracaoPedidosJob.java)
-- [`api/src/main/java/br/unitins/tp2/model/EnderecoEntrega.java`](../api/src/main/java/br/unitins/tp2/model/EnderecoEntrega.java)
-- [`api/src/main/java/br/unitins/tp2/model/FormaPagamento.java`](../api/src/main/java/br/unitins/tp2/model/FormaPagamento.java)
-- [`api/src/main/java/br/unitins/tp2/model/ItemPedido.java`](../api/src/main/java/br/unitins/tp2/model/ItemPedido.java)
-- [`api/src/main/java/br/unitins/tp2/model/Pagamento.java`](../api/src/main/java/br/unitins/tp2/model/Pagamento.java)
-- [`api/src/main/java/br/unitins/tp2/model/Pedido.java`](../api/src/main/java/br/unitins/tp2/model/Pedido.java)
-- [`api/src/main/java/br/unitins/tp2/model/ResultadoSimulacao.java`](../api/src/main/java/br/unitins/tp2/model/ResultadoSimulacao.java)
-- [`api/src/main/java/br/unitins/tp2/model/StatusPagamento.java`](../api/src/main/java/br/unitins/tp2/model/StatusPagamento.java)
-- [`api/src/main/java/br/unitins/tp2/model/StatusPedido.java`](../api/src/main/java/br/unitins/tp2/model/StatusPedido.java)
-- [`api/src/main/java/br/unitins/tp2/model/converterjpa/FormaPagamentoConverter.java`](../api/src/main/java/br/unitins/tp2/model/converterjpa/FormaPagamentoConverter.java)
-- [`api/src/main/java/br/unitins/tp2/model/converterjpa/ResultadoSimulacaoConverter.java`](../api/src/main/java/br/unitins/tp2/model/converterjpa/ResultadoSimulacaoConverter.java)
-- [`api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPagamentoConverter.java`](../api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPagamentoConverter.java)
-- [`api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPedidoConverter.java`](../api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPedidoConverter.java)
-- [`api/src/main/java/br/unitins/tp2/repository/PagamentoRepository.java`](../api/src/main/java/br/unitins/tp2/repository/PagamentoRepository.java)
-- [`api/src/main/java/br/unitins/tp2/repository/PedidoRepository.java`](../api/src/main/java/br/unitins/tp2/repository/PedidoRepository.java)
-- [`api/src/main/java/br/unitins/tp2/resource/PedidoResource.java`](../api/src/main/java/br/unitins/tp2/resource/PedidoResource.java)
-- [`api/src/main/java/br/unitins/tp2/service/PedidoService.java`](../api/src/main/java/br/unitins/tp2/service/PedidoService.java)
-- [`api/src/main/java/br/unitins/tp2/service/PedidoServiceImpl.java`](../api/src/main/java/br/unitins/tp2/service/PedidoServiceImpl.java)
+- [`api/src/main/java/br/unitins/tp2/dto/CheckoutConfiguracaoResponseDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/CheckoutConfiguracaoResponseDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/EnderecoEntregaResponseDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/EnderecoEntregaResponseDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/ItemCheckoutDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/ItemCheckoutDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/ItemPedidoResponseDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/ItemPedidoResponseDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/PagamentoDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/PagamentoDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/PagamentoResponseDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/PagamentoResponseDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/PedidoDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/PedidoDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/PedidoResponseDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/PedidoResponseDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoResponseDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/RevisaoPedidoResponseDTO.java)
+- [`api/src/main/java/br/unitins/tp2/dto/SimulacaoPagamentoDTO.java`](../../api/src/main/java/br/unitins/tp2/dto/SimulacaoPagamentoDTO.java)
+- [`api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoException.java`](../../api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoException.java)
+- [`api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoExceptionMapper.java`](../../api/src/main/java/br/unitins/tp2/exception/ConflitoPedidoExceptionMapper.java)
+- [`api/src/main/java/br/unitins/tp2/job/ExpiracaoPedidosJob.java`](../../api/src/main/java/br/unitins/tp2/job/ExpiracaoPedidosJob.java)
+- [`api/src/main/java/br/unitins/tp2/model/EnderecoEntrega.java`](../../api/src/main/java/br/unitins/tp2/model/EnderecoEntrega.java)
+- [`api/src/main/java/br/unitins/tp2/model/FormaPagamento.java`](../../api/src/main/java/br/unitins/tp2/model/FormaPagamento.java)
+- [`api/src/main/java/br/unitins/tp2/model/ItemPedido.java`](../../api/src/main/java/br/unitins/tp2/model/ItemPedido.java)
+- [`api/src/main/java/br/unitins/tp2/model/Pagamento.java`](../../api/src/main/java/br/unitins/tp2/model/Pagamento.java)
+- [`api/src/main/java/br/unitins/tp2/model/Pedido.java`](../../api/src/main/java/br/unitins/tp2/model/Pedido.java)
+- [`api/src/main/java/br/unitins/tp2/model/ResultadoSimulacao.java`](../../api/src/main/java/br/unitins/tp2/model/ResultadoSimulacao.java)
+- [`api/src/main/java/br/unitins/tp2/model/StatusPagamento.java`](../../api/src/main/java/br/unitins/tp2/model/StatusPagamento.java)
+- [`api/src/main/java/br/unitins/tp2/model/StatusPedido.java`](../../api/src/main/java/br/unitins/tp2/model/StatusPedido.java)
+- [`api/src/main/java/br/unitins/tp2/model/converterjpa/FormaPagamentoConverter.java`](../../api/src/main/java/br/unitins/tp2/model/converterjpa/FormaPagamentoConverter.java)
+- [`api/src/main/java/br/unitins/tp2/model/converterjpa/ResultadoSimulacaoConverter.java`](../../api/src/main/java/br/unitins/tp2/model/converterjpa/ResultadoSimulacaoConverter.java)
+- [`api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPagamentoConverter.java`](../../api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPagamentoConverter.java)
+- [`api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPedidoConverter.java`](../../api/src/main/java/br/unitins/tp2/model/converterjpa/StatusPedidoConverter.java)
+- [`api/src/main/java/br/unitins/tp2/repository/PagamentoRepository.java`](../../api/src/main/java/br/unitins/tp2/repository/PagamentoRepository.java)
+- [`api/src/main/java/br/unitins/tp2/repository/PedidoRepository.java`](../../api/src/main/java/br/unitins/tp2/repository/PedidoRepository.java)
+- [`api/src/main/java/br/unitins/tp2/resource/PedidoResource.java`](../../api/src/main/java/br/unitins/tp2/resource/PedidoResource.java)
+- [`api/src/main/java/br/unitins/tp2/service/PedidoService.java`](../../api/src/main/java/br/unitins/tp2/service/PedidoService.java)
+- [`api/src/main/java/br/unitins/tp2/service/PedidoServiceImpl.java`](../../api/src/main/java/br/unitins/tp2/service/PedidoServiceImpl.java)
 
 ### Frontend
 
@@ -168,22 +168,22 @@ Automated coverage includes authoritative totals, price/freight conflicts, owner
 - `web/src/app/components/storefront/checkout/card-fields.ts`, `cartao.form.ts` — ephemeral Material card fields and local validators.
 - `web/src/app/components/storefront/checkout/pix.ts`, `pix-payment.ts` — BR Code payload, SVG rendering and copy action.
 
-- [`web/src/app/app.routes.ts`](../web/src/app/app.routes.ts)
-- [`web/src/app/components/storefront/checkout/checkout.css`](../web/src/app/components/storefront/checkout/checkout.css)
-- [`web/src/app/components/storefront/checkout/checkout.html`](../web/src/app/components/storefront/checkout/checkout.html)
-- [`web/src/app/components/storefront/checkout/checkout.ts`](../web/src/app/components/storefront/checkout/checkout.ts)
-- [`web/src/app/models/pedido.model.ts`](../web/src/app/models/pedido.model.ts)
-- [`web/src/app/services/auth.service.ts`](../web/src/app/services/auth.service.ts)
-- [`web/src/app/services/carrinho.service.ts`](../web/src/app/services/carrinho.service.ts)
-- [`web/src/app/services/checkout.service.ts`](../web/src/app/services/checkout.service.ts)
+- [`web/src/app/app.routes.ts`](../../web/src/app/app.routes.ts)
+- [`web/src/app/components/storefront/checkout/checkout.css`](../../web/src/app/components/storefront/checkout/checkout.css)
+- [`web/src/app/components/storefront/checkout/checkout.html`](../../web/src/app/components/storefront/checkout/checkout.html)
+- [`web/src/app/components/storefront/checkout/checkout.ts`](../../web/src/app/components/storefront/checkout/checkout.ts)
+- [`web/src/app/models/pedido.model.ts`](../../web/src/app/models/pedido.model.ts)
+- [`web/src/app/services/auth.service.ts`](../../web/src/app/services/auth.service.ts)
+- [`web/src/app/services/carrinho.service.ts`](../../web/src/app/services/carrinho.service.ts)
+- [`web/src/app/services/checkout.service.ts`](../../web/src/app/services/checkout.service.ts)
 
 ### Tests
 
 - `web/src/app/components/storefront/checkout/payment-fields.spec.ts` — card validation and official CRC reference vectors.
 
-- [`api/src/test/java/br/unitins/tp2/resource/AutorizacaoResourceTest.java`](../api/src/test/java/br/unitins/tp2/resource/AutorizacaoResourceTest.java)
-- [`api/src/test/java/br/unitins/tp2/resource/CatalogoTestProfile.java`](../api/src/test/java/br/unitins/tp2/resource/CatalogoTestProfile.java)
-- [`api/src/test/java/br/unitins/tp2/resource/CheckoutDesabilitadoResourceTest.java`](../api/src/test/java/br/unitins/tp2/resource/CheckoutDesabilitadoResourceTest.java)
-- [`api/src/test/java/br/unitins/tp2/resource/PedidoResourceTest.java`](../api/src/test/java/br/unitins/tp2/resource/PedidoResourceTest.java)
-- [`web/src/app/components/storefront/checkout/checkout.spec.ts`](../web/src/app/components/storefront/checkout/checkout.spec.ts)
-- [`web/src/app/services/checkout.service.spec.ts`](../web/src/app/services/checkout.service.spec.ts)
+- [`api/src/test/java/br/unitins/tp2/resource/AutorizacaoResourceTest.java`](../../api/src/test/java/br/unitins/tp2/resource/AutorizacaoResourceTest.java)
+- [`api/src/test/java/br/unitins/tp2/resource/CatalogoTestProfile.java`](../../api/src/test/java/br/unitins/tp2/resource/CatalogoTestProfile.java)
+- [`api/src/test/java/br/unitins/tp2/resource/CheckoutDesabilitadoResourceTest.java`](../../api/src/test/java/br/unitins/tp2/resource/CheckoutDesabilitadoResourceTest.java)
+- [`api/src/test/java/br/unitins/tp2/resource/PedidoResourceTest.java`](../../api/src/test/java/br/unitins/tp2/resource/PedidoResourceTest.java)
+- [`web/src/app/components/storefront/checkout/checkout.spec.ts`](../../web/src/app/components/storefront/checkout/checkout.spec.ts)
+- [`web/src/app/services/checkout.service.spec.ts`](../../web/src/app/services/checkout.service.spec.ts)
