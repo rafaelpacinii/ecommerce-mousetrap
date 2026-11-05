@@ -11,7 +11,122 @@ concurrency:
   group: verify-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  changes:
+    name: Detect modified scopes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      scan_api: ${{ steps.filter.outputs.scan_api }}
+      scan_web: ${{ steps.filter.outputs.scan_web }}
+      browser: ${{ steps.filter.outputs.browser }}
+      package: ${{ steps.filter.outputs.package }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Classify changed paths by monorepo scope
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import PurePosixPath
+          import subprocess
+
+          event = os.environ.get('EVENT_NAME', '')
+          ref = os.environ.get('REF_NAME', '')
+          base_ref = os.environ.get('BASE_REF', '')
+          before_sha = os.environ.get('BEFORE_SHA', '')
+          current_sha = os.environ.get('CURRENT_SHA', 'HEAD')
+
+          def git_diff_files() -> list[str] | None:
+              if event == 'workflow_dispatch' or ref == 'refs/heads/main' or ref.startswith('refs/tags/'):
+                  return None
+              cmd = None
+              if event == 'pull_request' and base_ref:
+                  cmd = ['git', 'diff', '--name-only', f'origin/{base_ref}...HEAD']
+              elif event == 'push' and before_sha and set(before_sha) != {'0'}:
+                  cmd = ['git', 'diff', '--name-only', before_sha, current_sha]
+              if not cmd:
+                  return None
+              res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+              if res.returncode != 0:
+                  return None
+              return [line.strip() for line in res.stdout.splitlines() if line.strip()]
+
+          files = git_diff_files()
+
+          if files is None:
+              backend = frontend = scan_api = scan_web = browser = True
+              reason = 'Full verification (manual dispatch, main branch, tag, or fallback)'
+          else:
+              shared_prefixes = ('infra/', '.github/workflows/')
+              shared_exact = {
+                  'docker-compose.yml',
+                  '.env.example',
+                  'scripts/verify_release.sh',
+                  'scripts/configure_stack.py',
+              }
+              shared = any(
+                  f in shared_exact or f.startswith(shared_prefixes)
+                  for f in files
+              )
+              api = any(f.startswith('api/') for f in files)
+              web = any(f.startswith('web/') for f in files)
+
+              backend = api or shared
+              frontend = web or shared
+              scan_api = api or shared
+              scan_web = web or shared
+              browser = api or web or shared
+              reason = f'Scoped verification across {len(files)} changed file(s)'
+
+          outputs = {
+              'backend': str(backend).lower(),
+              'frontend': str(frontend).lower(),
+              'scan_api': str(scan_api).lower(),
+              'scan_web': str(scan_web).lower(),
+              'browser': str(browser).lower(),
+              'package': 'true',
+          }
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              for k, v in outputs.items():
+                  out.write(f'{k}={v}\n')
+
+          summary_lines = [
+              '### 🔍 Monorepo Scope Detection',
+              f'- **Mode:** {reason}',
+              '',
+              '| Scope / Job | Run? |',
+              '| :--- | :---: |',
+              f"| `backend` (Quarkus + PostgreSQL) | {'✅ Yes' if backend else '⏭️ Skipped'} |",
+              f"| `frontend` (Angular + Vitest + Audit) | {'✅ Yes' if frontend else '⏭️ Skipped'} |",
+              f"| `container-scan` (`mousetrap-api`) | {'✅ Yes' if scan_api else '⏭️ Skipped'} |",
+              f"| `container-scan` (`mousetrap-web`) | {'✅ Yes' if scan_web else '⏭️ Skipped'} |",
+              f"| `browser` (Docker Compose + Playwright + Axe) | {'✅ Yes' if browser else '⏭️ Skipped'} |",
+              '| `package` (Archive + Python/Governance Tests) | ✅ Yes |',
+          ]
+          if files is not None:
+              sample = ', '.join(f'`{PurePosixPath(f)}`' for f in files[:15])
+              if len(files) > 15:
+                  sample += f' (+{len(files) - 15} more)'
+              summary_lines.extend(['', f'**Changed files:** {sample or "none"}'])
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('\n'.join(summary_lines) + '\n')
+          PY
+
   backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -27,7 +142,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -36,7 +151,10 @@ jobs:
         working-directory: api
       - name: Verify local configuration exclusion
         run: test ! -f api/target/classes/application.properties
+
   frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -53,7 +171,57 @@ jobs:
       - run: npm run audit
       - run: npm test -- --watch=false
       - run: npm run build
+
+  container-scan:
+    needs: changes
+    if: needs.changes.outputs.scan_api == 'true' || needs.changes.outputs.scan_web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build API container image
+        if: needs.changes.outputs.scan_api == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api
+          load: true
+          tags: mousetrap-api:scan
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+      - name: Scan API container image with Trivy
+        if: needs.changes.outputs.scan_api == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: mousetrap-api:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+      - name: Build Web container image
+        if: needs.changes.outputs.scan_web == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          load: true
+          tags: mousetrap-web:scan
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+      - name: Scan Web container image with Trivy
+        if: needs.changes.outputs.scan_web == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: mousetrap-web:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
   browser:
+    needs: changes
+    if: needs.changes.outputs.browser == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -68,7 +236,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
         working-directory: web
       - run: sh scripts/verify_release.sh
+
   package:
+    needs: changes
+    if: needs.changes.outputs.package == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -76,6 +247,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Run governance verification when configured
+        run: |
+          if [ -f scripts/check_ai_governance.py ]; then
+            python3 scripts/check_ai_governance.py
+          fi
       - run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
       - run: python3 scripts/package_release.py
       - uses: actions/upload-artifact@v4

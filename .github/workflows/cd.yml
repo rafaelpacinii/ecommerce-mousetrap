@@ -1,0 +1,386 @@
+name: Continuous Delivery & Release
+on:
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: 'Target deployment environment when manual dispatch is triggered'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+permissions:
+  contents: read
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  prepare-release:
+    name: Validate version, scope & source archive
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      sha256: ${{ steps.package.outputs.sha256 }}
+      build_api: ${{ steps.scope.outputs.build_api }}
+      build_web: ${{ steps.scope.outputs.build_web }}
+      should_deploy: ${{ steps.scope.outputs.should_deploy }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Detect modified CD scopes
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import subprocess
+
+          event = os.environ.get('EVENT_NAME', '')
+          ref = os.environ.get('REF_NAME', '')
+          before_sha = os.environ.get('BEFORE_SHA', '')
+          current_sha = os.environ.get('CURRENT_SHA', 'HEAD')
+
+          files = None
+          if event == 'push' and not ref.startswith('refs/tags/') and before_sha and set(before_sha) != {'0'}:
+              res = subprocess.run(
+                  ['git', 'diff', '--name-only', before_sha, current_sha],
+                  capture_output=True, text=True, check=False
+              )
+              if res.returncode == 0:
+                  files = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+
+          if files is None:
+              build_api = build_web = should_deploy = True
+          else:
+              shared = any(
+                  f == 'docker-compose.yml'
+                  or f.startswith('infra/')
+                  or f == '.github/workflows/cd.yml'
+                  for f in files
+              )
+              build_api = shared or any(f.startswith('api/') for f in files)
+              build_web = shared or any(f.startswith('web/') for f in files)
+              should_deploy = build_api or build_web
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"build_api={str(build_api).lower()}\n")
+              out.write(f"build_web={str(build_web).lower()}\n")
+              out.write(f"should_deploy={str(should_deploy).lower()}\n")
+          PY
+      - name: Verify semantic version alignment
+        id: version
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          pom = ET.fromstring(Path('api/pom.xml').read_text(encoding='utf-8'))
+          ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+          api_version = pom.findtext('m:version', namespaces=ns)
+          pkg_version = json.loads(Path('web/package.json').read_text(encoding='utf-8'))['version']
+          lock_data = json.loads(Path('web/package-lock.json').read_text(encoding='utf-8'))
+          lock_version = lock_data.get('version')
+          lock_root_version = lock_data.get('packages', {}).get('', {}).get('version')
+
+          if not ({api_version, pkg_version, lock_version, lock_root_version} == {api_version}):
+              raise SystemExit(
+                  f'Version mismatch across manifests: api/pom.xml={api_version}, '
+                  f'web/package.json={pkg_version}, web/package-lock.json={lock_version}/{lock_root_version}'
+              )
+
+          ref = os.environ.get('GITHUB_REF', '')
+          if ref.startswith('refs/tags/v'):
+              tag_version = ref.removeprefix('refs/tags/v')
+              if tag_version != api_version:
+                  raise SystemExit(
+                      f'Git tag v{tag_version} does not match manifest version {api_version}. '
+                      'Align api/pom.xml, web/package.json and web/package-lock.json before tagging.'
+                  )
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f'version={api_version}\n')
+          print(f'Verified unified version: {api_version}')
+          PY
+      - name: Run release script unit tests
+        run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
+      - name: Build deterministic source submission archive
+        id: package
+        run: |
+          python3 scripts/package_release.py
+          (cd dist && sha256sum mousetrap_submission.zip > mousetrap_submission.zip.sha256)
+          SHA256=$(awk '{print $1}' dist/mousetrap_submission.zip.sha256)
+          echo "sha256=${SHA256}" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mousetrap-release-bundle
+          path: |
+            dist/mousetrap_submission.zip
+            dist/mousetrap_submission.zip.sha256
+          retention-days: 30
+
+  publish-images:
+    name: Scan & publish images to GHCR
+    needs: prepare-release
+    if: needs.prepare-release.outputs.build_api == 'true' || needs.prepare-release.outputs.build_web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      api_image: ${{ steps.meta-api.outputs.tags }}
+      api_digest: ${{ steps.push-api.outputs.digest }}
+      web_image: ${{ steps.meta-web.outputs.tags }}
+      web_digest: ${{ steps.push-web.outputs.digest }}
+      image_tag: ${{ steps.vars.outputs.primary_tag }}
+      owner_lc: ${{ steps.vars.outputs.owner_lc }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Compute lowercase registry owner and primary tag
+        id: vars
+        run: |
+          OWNER_LC=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            PRIMARY_TAG="${GITHUB_REF_NAME}"
+          else
+            PRIMARY_TAG="sha-${GITHUB_SHA::7}"
+          fi
+          echo "owner_lc=${OWNER_LC}" >> "$GITHUB_OUTPUT"
+          echo "primary_tag=${PRIMARY_TAG}" >> "$GITHUB_OUTPUT"
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata for API image
+        if: needs.prepare-release.outputs.build_api == 'true'
+        id: meta-api
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.vars.outputs.owner_lc }}/mousetrap-api
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+      - name: Build API image for vulnerability scan
+        if: needs.prepare-release.outputs.build_api == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api
+          load: true
+          tags: mousetrap-api:scan
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+      - name: Scan API image with Trivy
+        if: needs.prepare-release.outputs.build_api == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: mousetrap-api:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+      - name: Push API image to GHCR
+        if: needs.prepare-release.outputs.build_api == 'true'
+        id: push-api
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api
+          push: true
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha,scope=api
+      - name: Extract metadata for Web image
+        if: needs.prepare-release.outputs.build_web == 'true'
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.vars.outputs.owner_lc }}/mousetrap-web
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+      - name: Build Web image for vulnerability scan
+        if: needs.prepare-release.outputs.build_web == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          load: true
+          tags: mousetrap-web:scan
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+      - name: Scan Web image with Trivy
+        if: needs.prepare-release.outputs.build_web == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: mousetrap-web:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+      - name: Push Web image to GHCR
+        if: needs.prepare-release.outputs.build_web == 'true'
+        id: push-web
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha,scope=web
+
+  github-release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [prepare-release, publish-images]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: mousetrap-release-bundle
+          path: dist
+      - name: Create or update GitHub Release
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          OWNER_LC: ${{ needs.publish-images.outputs.owner_lc }}
+          API_DIGEST: ${{ needs.publish-images.outputs.api_digest }}
+          WEB_DIGEST: ${{ needs.publish-images.outputs.web_digest }}
+          ARCHIVE_SHA256: ${{ needs.prepare-release.outputs.sha256 }}
+        run: |
+          cat > dist/release-notes.md <<EOF
+          ### Container Images (GHCR)
+          - **API:** \`ghcr.io/${OWNER_LC}/mousetrap-api:${TAG_NAME}\` (\`${API_DIGEST}\`)
+          - **Web:** \`ghcr.io/${OWNER_LC}/mousetrap-web:${TAG_NAME}\` (\`${WEB_DIGEST}\`)
+
+          ### Deterministic Source Archive
+          - **File:** \`mousetrap_submission.zip\`
+          - **SHA-256:** \`${ARCHIVE_SHA256}\`
+          EOF
+
+          if gh release view "${TAG_NAME}" >/dev/null 2>&1; then
+            gh release upload "${TAG_NAME}" \
+              dist/mousetrap_submission.zip \
+              dist/mousetrap_submission.zip.sha256 \
+              --clobber
+          else
+            gh release create "${TAG_NAME}" \
+              dist/mousetrap_submission.zip \
+              dist/mousetrap_submission.zip.sha256 \
+              --title "MouseTrap ${TAG_NAME}" \
+              --notes-file dist/release-notes.md \
+              --generate-notes
+          fi
+
+  deploy:
+    name: Deploy stack via SSH & Docker Compose
+    needs: [prepare-release, publish-images]
+    if: needs.prepare-release.outputs.should_deploy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      OWNER_LC: ${{ needs.publish-images.outputs.owner_lc }}
+      API_DIGEST: ${{ needs.publish-images.outputs.api_digest }}
+      WEB_DIGEST: ${{ needs.publish-images.outputs.web_digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check deployment target configuration
+        id: check
+        run: |
+          if [ -z "${DEPLOY_HOST}" ] || [ -z "${DEPLOY_USER}" ] || [ -z "${DEPLOY_SSH_KEY}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ### ℹ️ Remote Deployment Skipped (No Server Secrets Configured)
+          Container images were scanned and published to GitHub Container Registry (`ghcr.io`), and release artifacts were generated.
+          To enable automated SSH + Docker Compose deployment on push to `main` or version tags, configure the following repository secrets under **Settings → Secrets and variables → Actions**:
+
+          | Secret | Required | Description |
+          | :--- | :--- | :--- |
+          | `DEPLOY_HOST` | Yes | Target server hostname or IP address |
+          | `DEPLOY_USER` | Yes | SSH user with Docker Compose permissions |
+          | `DEPLOY_SSH_KEY` | Yes | Private SSH key (`ed25519` or `rsa`) for `DEPLOY_USER` |
+          | `DEPLOY_PORT` | No | SSH port (defaults to `22`) |
+          | `DEPLOY_PATH` | No | Target directory on host (defaults to `/opt/mousetrap`) |
+          | `DEPLOY_KNOWN_HOSTS` | No | Pinned `known_hosts` entry for strict host key verification |
+          EOF
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy container stack over SSH
+        if: steps.check.outputs.configured == 'true'
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          TARGET_DIR="${DEPLOY_PATH:-/opt/mousetrap}"
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${DEPLOY_SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          if [ -n "${DEPLOY_KNOWN_HOSTS}" ]; then
+            printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "${PORT}" -H "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+          SSH_OPTS="-i ~/.ssh/deploy_key -p ${PORT} -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts"
+          SCP_OPTS="-i ~/.ssh/deploy_key -P ${PORT} -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts"
+
+          ssh ${SSH_OPTS} "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "mkdir -p '${TARGET_DIR}/infra/production' '${TARGET_DIR}/infra/identity/themes'"
+
+          scp ${SCP_OPTS} infra/production/compose.yaml \
+            "${DEPLOY_USER}@${DEPLOY_HOST}:${TARGET_DIR}/infra/production/compose.yaml"
+          scp -r ${SCP_OPTS} infra/identity/themes/mousetrap \
+            "${DEPLOY_USER}@${DEPLOY_HOST}:${TARGET_DIR}/infra/identity/themes/"
+
+          if [ -n "${API_DIGEST}" ]; then
+            API_REF="ghcr.io/${OWNER_LC}/mousetrap-api@${API_DIGEST}"
+          else
+            API_REF="ghcr.io/${OWNER_LC}/mousetrap-api:latest"
+          fi
+          if [ -n "${WEB_DIGEST}" ]; then
+            WEB_REF="ghcr.io/${OWNER_LC}/mousetrap-web@${WEB_DIGEST}"
+          else
+            WEB_REF="ghcr.io/${OWNER_LC}/mousetrap-web:latest"
+          fi
+
+          ssh ${SSH_OPTS} "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "cd '${TARGET_DIR}' && \
+             export API_IMAGE='${API_REF}' WEB_IMAGE='${WEB_REF}' THEME_DIRECTORY='${TARGET_DIR}/infra/identity/themes/mousetrap' && \
+             docker compose --env-file .local/production/stack.env -f infra/production/compose.yaml pull api web && \
+             docker compose --env-file .local/production/stack.env -f infra/production/compose.yaml up -d --remove-orphans && \
+             docker compose --env-file .local/production/stack.env -f infra/production/compose.yaml ps"
+          rm -f ~/.ssh/deploy_key
