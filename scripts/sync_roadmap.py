@@ -268,8 +268,15 @@ def format_board(plan: dict | None = None) -> str:
     return '\n'.join(lines)
 
 
-def _run_gh(args: list[str], runner=subprocess.run) -> str:
-    result = runner(['gh', *args], cwd=ROOT, capture_output=True, text=True, check=False)
+def _run_gh(args: list[str], runner=subprocess.run, input_text: str | None = None) -> str:
+    result = runner(
+        ['gh', *args],
+        cwd=ROOT,
+        input=input_text,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     if result.returncode != 0:
         raise RuntimeError(f"gh {' '.join(args)} failed: {result.stderr.strip()}")
     return result.stdout.strip()
@@ -313,7 +320,7 @@ def apply_to_github(repo: str, runner=subprocess.run) -> dict:
                 '-f', f"description={milestone['description']}",
             ], runner=runner))
             number = created['number']
-        milestone_numbers[milestone['key']] = title
+        milestone_numbers[milestone['key']] = number
 
     raw_issues = _run_gh([
         'issue', 'list', '--repo', repo, '--state', 'all', '--limit', '200',
@@ -327,33 +334,41 @@ def apply_to_github(repo: str, runner=subprocess.run) -> dict:
     synced_issues = []
     for epic in plan['epics']:
         title = epic['title']
-        milestone_title = milestone_numbers[epic['milestone']]
+        milestone_number = milestone_numbers[epic['milestone']]
+        payload = json.dumps({
+            'title': title,
+            'body': epic['body'],
+            'milestone': milestone_number,
+            'labels': list(epic['labels']),
+        })
         if title not in existing_issues:
-            cmd = [
-                'issue', 'create', '--repo', repo,
-                '--title', title,
-                '--body', epic['body'],
-                '--milestone', milestone_title,
-            ]
-            for label in epic['labels']:
-                cmd.extend(['--label', label])
-            url = _run_gh(cmd, runner=runner)
+            created_issue = json.loads(_run_gh(
+                ['api', '--method', 'POST', f'repos/{repo}/issues', '--input', '-'],
+                runner=runner,
+                input_text=payload,
+            ))
+            issue_number = str(created_issue['number'])
             if epic['state'] == 'closed':
-                issue_ref = url.rstrip('/').split('/')[-1]
-                _run_gh(['issue', 'close', issue_ref, '--repo', repo], runner=runner)
+                _run_gh([
+                    'api', '--method', 'PATCH',
+                    f'repos/{repo}/issues/{issue_number}',
+                    '-f', 'state=closed',
+                ], runner=runner)
             synced_issues.append({'title': title, 'action': 'created', 'state': epic['state']})
         else:
-            number = str(existing_issues[title]['number'])
-            _run_gh([
-                'issue', 'edit', number, '--repo', repo,
-                '--body', epic['body'],
-                '--milestone', milestone_title,
-            ], runner=runner)
-            current_state = existing_issues[title]['state'].lower()
-            if epic['state'] == 'closed' and current_state != 'closed':
-                _run_gh(['issue', 'close', number, '--repo', repo], runner=runner)
-            elif epic['state'] == 'open' and current_state == 'closed':
-                _run_gh(['issue', 'reopen', number, '--repo', repo], runner=runner)
+            issue_number = str(existing_issues[title]['number'])
+            update_payload = json.dumps({
+                'title': title,
+                'body': epic['body'],
+                'milestone': milestone_number,
+                'labels': list(epic['labels']),
+                'state': epic['state'],
+            })
+            _run_gh(
+                ['api', '--method', 'PATCH', f'repos/{repo}/issues/{issue_number}', '--input', '-'],
+                runner=runner,
+                input_text=update_payload,
+            )
             synced_issues.append({'title': title, 'action': 'updated', 'state': epic['state']})
 
     return {

@@ -1,11 +1,23 @@
 package br.unitins.tp2.model;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
-import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "mouse")
@@ -49,74 +61,255 @@ public class Mouse extends DefaultEntity {
     private Marca marca;
 
     @ElementCollection
-    @CollectionTable(name = "mouse_conexao", joinColumns = @JoinColumn(name = "mouse_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"mouse_id", "tipo_conexao"}))
+    @CollectionTable(
+        name = "mouse_conexao",
+        joinColumns = @JoinColumn(name = "mouse_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"mouse_id", "tipo_conexao"})
+    )
     @Column(name = "tipo_conexao", nullable = false)
     private Set<TipoConexao> tiposConexao = new HashSet<>();
 
     @Column(length = 100)
     private String sensor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sensor_id")
+    private Sensor sensorEntidade;
+
     @Column(name = "polling_rate")
     private Integer pollingRate;
+
     @Column(name = "tipo_switch")
     private TipoSwitch tipoSwitch;
+
     @Column(name = "modelo_switch", length = 100)
     private String modeloSwitch;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "switch_id")
+    private SwitchMouse switchEntidade;
+
+    @Column(name = "comprimento_mm", precision = 5, scale = 1)
+    private BigDecimal comprimentoMm;
+
+    @Column(name = "largura_mm", precision = 5, scale = 1)
+    private BigDecimal larguraMm;
+
+    @Column(name = "altura_mm", precision = 5, scale = 1)
+    private BigDecimal alturaMm;
+
+    @Column(name = "autonomia_bateria_horas")
+    private Integer autonomiaBateriaHoras;
+
+    @Column(name = "garantia_meses", nullable = false)
+    private Integer garantiaMeses = 12;
+
     @ElementCollection
     @CollectionTable(name = "mouse_pegada", joinColumns = @JoinColumn(name = "mouse_id"))
     @Column(name = "pegada", nullable = false)
     private Set<Pegada> pegadas = new HashSet<>();
+
     @OneToMany(mappedBy = "mouse", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordem ASC, id ASC")
     private List<ImagemMouse> imagens = new ArrayList<>();
 
-    public String getSensor() { return sensor; }
-    public void setSensor(String sensor) { this.sensor = sensor; }
-    public Integer getPollingRate() { return pollingRate; }
-    public void setPollingRate(Integer pollingRate) { this.pollingRate = pollingRate; }
-    public TipoSwitch getTipoSwitch() { return tipoSwitch; }
-    public void setTipoSwitch(TipoSwitch tipoSwitch) { this.tipoSwitch = tipoSwitch; }
-    public String getModeloSwitch() { return modeloSwitch; }
-    public void setModeloSwitch(String modeloSwitch) { this.modeloSwitch = modeloSwitch; }
-    public Set<Pegada> getPegadas() { return pegadas; }
-    public List<ImagemMouse> getImagens() { return imagens; }
+    public String getSensor() {
+        return sensor;
+    }
 
-    public String getSku() { return sku; }
-    public void setSku(String sku) { this.sku = sku; }
+    public void setSensor(String sensor) {
+        this.sensor = sensor;
+    }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+    public Sensor getSensorEntidade() {
+        return sensorEntidade;
+    }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public void setSensorEntidade(Sensor sensorEntidade) {
+        this.sensorEntidade = sensorEntidade;
+    }
 
-    public String getCor() { return cor; }
-    public void setCor(String cor) { this.cor = cor; }
+    public Integer getPollingRate() {
+        return pollingRate;
+    }
 
-    public BigDecimal getPreco() { return preco; }
-    public void setPreco(BigDecimal preco) { this.preco = preco; }
+    public void setPollingRate(Integer pollingRate) {
+        this.pollingRate = pollingRate;
+    }
 
-    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
-    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
+    public TipoSwitch getTipoSwitch() {
+        return tipoSwitch;
+    }
 
-    public Integer getDpiMaximo() { return dpiMaximo; }
-    public void setDpiMaximo(Integer dpiMaximo) { this.dpiMaximo = dpiMaximo; }
+    public void setTipoSwitch(TipoSwitch tipoSwitch) {
+        this.tipoSwitch = tipoSwitch;
+    }
 
-    public Integer getQuantidadeBotoes() { return quantidadeBotoes; }
-    public void setQuantidadeBotoes(Integer quantidadeBotoes) { this.quantidadeBotoes = quantidadeBotoes; }
+    public String getModeloSwitch() {
+        return modeloSwitch;
+    }
 
-    public BigDecimal getPesoGramas() { return pesoGramas; }
-    public void setPesoGramas(BigDecimal pesoGramas) { this.pesoGramas = pesoGramas; }
+    public void setModeloSwitch(String modeloSwitch) {
+        this.modeloSwitch = modeloSwitch;
+    }
 
-    public Boolean getAtivo() { return ativo; }
-    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+    public SwitchMouse getSwitchEntidade() {
+        return switchEntidade;
+    }
 
-    public Long getVersao() { return versao; }
-    public void setVersao(Long versao) { this.versao = versao; }
+    public void setSwitchEntidade(SwitchMouse switchEntidade) {
+        this.switchEntidade = switchEntidade;
+    }
 
-    public Marca getMarca() { return marca; }
-    public void setMarca(Marca marca) { this.marca = marca; }
+    public BigDecimal getComprimentoMm() {
+        return comprimentoMm;
+    }
 
-    public Set<TipoConexao> getTiposConexao() { return tiposConexao; }
-    public void setTiposConexao(Set<TipoConexao> tiposConexao) { this.tiposConexao = tiposConexao; }
+    public void setComprimentoMm(BigDecimal comprimentoMm) {
+        this.comprimentoMm = comprimentoMm;
+    }
+
+    public BigDecimal getLarguraMm() {
+        return larguraMm;
+    }
+
+    public void setLarguraMm(BigDecimal larguraMm) {
+        this.larguraMm = larguraMm;
+    }
+
+    public BigDecimal getAlturaMm() {
+        return alturaMm;
+    }
+
+    public void setAlturaMm(BigDecimal alturaMm) {
+        this.alturaMm = alturaMm;
+    }
+
+    public Integer getAutonomiaBateriaHoras() {
+        return autonomiaBateriaHoras;
+    }
+
+    public void setAutonomiaBateriaHoras(Integer autonomiaBateriaHoras) {
+        this.autonomiaBateriaHoras = autonomiaBateriaHoras;
+    }
+
+    public Integer getGarantiaMeses() {
+        return garantiaMeses;
+    }
+
+    public void setGarantiaMeses(Integer garantiaMeses) {
+        this.garantiaMeses = garantiaMeses;
+    }
+
+    public Set<Pegada> getPegadas() {
+        return pegadas;
+    }
+
+    public List<ImagemMouse> getImagens() {
+        return imagens;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getCor() {
+        return cor;
+    }
+
+    public void setCor(String cor) {
+        this.cor = cor;
+    }
+
+    public BigDecimal getPreco() {
+        return preco;
+    }
+
+    public void setPreco(BigDecimal preco) {
+        this.preco = preco;
+    }
+
+    public Integer getQuantidadeEstoque() {
+        return quantidadeEstoque;
+    }
+
+    public void setQuantidadeEstoque(Integer quantidadeEstoque) {
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
+
+    public Integer getDpiMaximo() {
+        return dpiMaximo;
+    }
+
+    public void setDpiMaximo(Integer dpiMaximo) {
+        this.dpiMaximo = dpiMaximo;
+    }
+
+    public Integer getQuantidadeBotoes() {
+        return quantidadeBotoes;
+    }
+
+    public void setQuantidadeBotoes(Integer quantidadeBotoes) {
+        this.quantidadeBotoes = quantidadeBotoes;
+    }
+
+    public BigDecimal getPesoGramas() {
+        return pesoGramas;
+    }
+
+    public void setPesoGramas(BigDecimal pesoGramas) {
+        this.pesoGramas = pesoGramas;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public Long getVersao() {
+        return versao;
+    }
+
+    public void setVersao(Long versao) {
+        this.versao = versao;
+    }
+
+    public Marca getMarca() {
+        return marca;
+    }
+
+    public void setMarca(Marca marca) {
+        this.marca = marca;
+    }
+
+    public Set<TipoConexao> getTiposConexao() {
+        return tiposConexao;
+    }
+
+    public void setTiposConexao(Set<TipoConexao> tiposConexao) {
+        this.tiposConexao = tiposConexao;
+    }
 }

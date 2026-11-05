@@ -33,15 +33,13 @@ class RoadmapSyncTests(unittest.TestCase):
                 response.stdout = json.dumps({'number': len(calls)})
             elif 'issue' in cmd and 'list' in cmd:
                 response.stdout = '[]'
-            elif 'issue' in cmd and 'create' in cmd:
-                response.stdout = 'https://github.com/rafaelpacinii/ecommerce-mousetrap/issues/10'
             return response
 
         report = sync_roadmap.apply_to_github('rafaelpacinii/ecommerce-mousetrap', runner=fake_runner)
         self.assertEqual(report['milestones_synced'], 6)
         self.assertEqual(len(report['issues']), 9)
-        closed_cmds = [c for c in calls if len(c) >= 3 and c[1] == 'issue' and c[2] == 'close']
-        self.assertEqual(len(closed_cmds), 2)
+        closed_cmds = [c for c in calls if 'state=closed' in c]
+        self.assertEqual(len(closed_cmds), 4)
 
 
 if __name__ == '__main__':

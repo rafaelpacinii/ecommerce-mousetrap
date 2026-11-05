@@ -1,6 +1,6 @@
 # Modelagem do e-commerce de mouses
 
-MouseTrap domain planning reference. Catalog/images/specifications, external identity with owned customer profiles/addresses, browser-local cart, orders and simulated payments are implemented. Wishlist and fulfillment operations are implemented in [slice 6](../../../docs/others/customer-portal-admin-orders.md). The historical diagrams retain planned abstractions; [transactional checkout](../../../docs/others/transactional-checkout.md) documents the implemented contracts and Cliente/identity integration.
+MouseTrap 3NF domain reference. Catalog/images/specifications, external identity with owned customer profiles/addresses/phones, browser-local cart, orders, simulated payments, wishlist, fulfillment and R2 image uploads are implemented through Flyway migrations `V1`–`V9`. Both PlantUML diagrams (`banco-de-dados.puml` and `diagrama-de-classes.puml`) are reconciled with the active JPA entities and PostgreSQL tables. See [transactional checkout](../../../docs/others/transactional-checkout.md) and [roadmap](../../../docs/ROADMAP.md) for the complete architecture and future evolution (`V10`–`V15`).
 
 ## Diagramas em PlantUML
 
@@ -124,4 +124,4 @@ Antes de integrar checkout, testar especialmente concorrência pelo último item
 
 ## Esquema implementado
 
-V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. The domain enum IDs above are used in the implementation. Order deadlines/payment processing use UTC Instant/timestamptz; inherited legacy audit timestamps are unchanged. V7 adds shipping details, order events and persisted wishlist; customer and administrative fulfillment screens are implemented. See [checkout](../../../docs/others/transactional-checkout.md) for the implemented state transitions, configuration and guarantees.
+V1–V5 implement the catalog, customer profiles/identity links, images/specifications and owned addresses. V6 implements orders, immutable item/delivery snapshots and simulated payment attempts. V7 adds shipping details, order events and persisted wishlist. V8 adds brand logo URLs and Cloudflare R2 image uploads (`POST /imagens`). V9 normalizes the schema into 3NF (`pais`, enriched `marca`, `sensor`, `switch_mouse`, enriched `mouse`, `telefone_cliente`, enriched `cliente`, `desejo.cliente_id`, and `transportadora`). See [checkout](../../../docs/others/transactional-checkout.md) and [roadmap](../../../docs/ROADMAP.md) for the implemented state transitions, configuration and guarantees.

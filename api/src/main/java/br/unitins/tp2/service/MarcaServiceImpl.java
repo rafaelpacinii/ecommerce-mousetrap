@@ -5,8 +5,10 @@ import br.unitins.tp2.dto.MarcaDTO;
 import br.unitins.tp2.dto.MarcaResponseDTO;
 import br.unitins.tp2.exception.ValidationException;
 import br.unitins.tp2.model.Marca;
+import br.unitins.tp2.model.Pais;
 import br.unitins.tp2.repository.MarcaRepository;
 import br.unitins.tp2.repository.MouseRepository;
+import br.unitins.tp2.repository.PaisRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.annotation.security.RolesAllowed;
@@ -18,6 +20,7 @@ import jakarta.ws.rs.NotFoundException;
 public class MarcaServiceImpl implements MarcaService {
     @Inject MarcaRepository repository;
     @Inject MouseRepository mouseRepository;
+    @Inject PaisRepository paisRepository;
 
     @Override public br.unitins.tp2.dto.PageResponse<MarcaResponseDTO> pesquisar(String busca,String ordenar,int page,int size){
         if(page<0||size<1||size>100)throw new jakarta.ws.rs.BadRequestException("Paginação inválida.");
@@ -59,6 +62,7 @@ public class MarcaServiceImpl implements MarcaService {
         marca.setNome(dto.nome());
         marca.setAtivo(dto.ativo());
         marca.setLogomarcaUrl(dto.logomarcaUrl() == null || dto.logomarcaUrl().isBlank() ? null : dto.logomarcaUrl());
+        aplicarAtributosComplementares(marca, dto, true);
         repository.persistAndFlush(marca);
         return MarcaResponseDTO.valueOf(marca);
     }
@@ -72,8 +76,40 @@ public class MarcaServiceImpl implements MarcaService {
         marca.setAtivo(dto.ativo());
         // Legacy clients omit this field; an empty string explicitly removes the logo.
         if (dto.logomarcaUrl() != null) marca.setLogomarcaUrl(dto.logomarcaUrl().isBlank() ? null : dto.logomarcaUrl());
+        aplicarAtributosComplementares(marca, dto, false);
         repository.flush();
         return MarcaResponseDTO.valueOf(marca);
+    }
+
+    private void aplicarAtributosComplementares(Marca marca, MarcaDTO dto, boolean criacao) {
+        if (dto.siglaPaisOrigem() != null) {
+            if (dto.siglaPaisOrigem().isBlank()) {
+                marca.setPaisOrigem(null);
+            } else {
+                Pais pais = paisRepository.findBySiglaIso(dto.siglaPaisOrigem());
+                if (pais == null) {
+                    throw new ValidationException("siglaPaisOrigem", "País de origem não encontrado para a sigla informada.");
+                }
+                marca.setPaisOrigem(pais);
+            }
+        }
+        if (dto.descricao() != null) {
+            marca.setDescricao(dto.descricao().isBlank() ? null : dto.descricao());
+        }
+        if (dto.siteOficial() != null) {
+            marca.setSiteOficial(dto.siteOficial().isBlank() ? null : dto.siteOficial());
+        }
+        if (dto.emailSuporte() != null) {
+            marca.setEmailSuporte(dto.emailSuporte().isBlank() ? null : dto.emailSuporte());
+        }
+        if (dto.anoFundacao() != null) {
+            marca.setAnoFundacao(dto.anoFundacao());
+        }
+        if (dto.garantiaPadraoMeses() != null) {
+            marca.setGarantiaPadraoMeses(dto.garantiaPadraoMeses());
+        } else if (criacao && marca.getGarantiaPadraoMeses() == null) {
+            marca.setGarantiaPadraoMeses(12);
+        }
     }
 
     @Override

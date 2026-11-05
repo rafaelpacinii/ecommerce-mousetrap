@@ -15,6 +15,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 public class DesejoServiceImpl implements DesejoService {
     @Inject DesejoRepository desejos;
     @Inject MouseRepository mouses;
+    @Inject ClienteRepository clientes;
     @Inject EntityManager em;
     @Inject JsonWebToken token;
     private String subject(){String s=token.getSubject();if(s==null||s.isBlank()||s.length()>255)throw new ForbiddenException();return s;}
@@ -31,7 +32,7 @@ public class DesejoServiceImpl implements DesejoService {
         var m=mouses.findById(id,LockModeType.PESSIMISTIC_READ);
         if(m==null||!Boolean.TRUE.equals(m.getAtivo())||!Boolean.TRUE.equals(m.getMarca().getAtivo()))throw new NotFoundException("Produto indisponível.");
         if(desejos.count("identidadeSubject",s)>=500)throw new ValidationException("desejos","Sua lista pode ter até 500 produtos.");
-        var d=new br.unitins.tp2.model.Desejo();d.setIdentidadeSubject(s);d.setMouse(m);desejos.persistAndFlush(d);
+        var d=new br.unitins.tp2.model.Desejo();d.setIdentidadeSubject(s);d.setCliente(clientes.findByIdentidadeSubject(s));d.setMouse(m);desejos.persistAndFlush(d);
     }
     @Override @Transactional public void remover(Long id){desejos.delete("identidadeSubject = ?1 and mouse.id = ?2",subject(),id);}
 }

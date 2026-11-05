@@ -50,13 +50,13 @@ flowchart TD
 | :--- | :--- | :---: | :---: | :--- |
 | **`v1.0.0`** | Slices 1–7: Storefront, Catalog, Auth, Cart, Checkout, Portal, Admin, Release Stack | ✅ **Done** | `V1`–`V7` | Public `/catalogo`, Keycloak PKCE, ViaCEP, atomic checkout/PIX/card demo, wishlist, admin orders, Playwright/Axe E2E |
 | **`v1.1.0`** | Post-1.0: Carousel, R2 Uploads, Setup Guides, Dependabot, Monorepo CI/CD, AI Governance | ✅ **Done** | `V8` | 4-banner hero carousel, `POST /imagens/{mouses\|marcas}`, R2 S3 adapter, scope-aware CI/CD, 13 skills, [ADR 0001](adr/0001-record-architecture-decisions.md) |
-| **`v1.2.0`** | **E1:** 3NF Database Normalization, Enriched Entities & PlantUML Reconciliation | 🔄 **Next (`#1`)** | `V9` | Normalize `Pais`, enrich `Marca`, extract `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, link `Desejo.cliente`, update [PlantUML models](../api/docs/modelagem/README.md) |
-| **`v1.2.0`** | **E2:** Product Categories (`Categoria`) & Component CRUD Screens | 📋 **Planned (`#2`)** | `V10` | `Categoria` entity/repo/service/resource, `/admin/categorias` + `/admin/sensores` + `/admin/switches` + `/admin/transportadoras`, `/catalogo` facets |
-| **`v1.3.0`** | **E3:** Real Merchandising (Curated Weekly Highlights & Best-Sellers) | 📋 **Planned (`#3`)** | `V11` | `mouse.destaque` & `ordem_destaque`, real sales aggregation (`ordenar=mais-vendidos`), `GET /catalogo/mouses/destaques`, Home highlights |
-| **`v1.3.0`** | **E4:** Discount Coupons (`Cupom`) | 📋 **Planned (`#4`)** | `V12` | `Cupom` entity, `/admin/cupons` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & `Pedido` discount snapshot |
-| **`v1.4.0`** | **E5:** Verified Customer Reviews & Ratings (`Avaliacao`) | 📋 **Planned (`#5`)** | `V13` | Purchase-verified 1–5 star reviews, product rating summary + JSON-LD `aggregateRating`, `/admin/avaliacoes` moderation |
-| **`v1.4.0`** | **E6:** Order Refunds & Stock Restoration (`Estorno`) | 📋 **Planned (`#6`)** | `V14` | `StatusPedido.REEMBOLSADO (7)`, `StatusPagamento.ESTORNADO (5)`, atomic refund + single stock restoration, `EventoPedido` audit |
-| **`v2.0.0`** | **E7:** External Gateways, R2 Orphan Cleanup & Integer-Cent Migration | 📋 **Planned (`#7`)** | `V15` | R2 orphan cleanup, pluggable `PagamentoGateway`/`FreteGateway` + webhook idempotency (`V15`), integer-cent pricing, blocking Trivy |
+| **`v1.2.0`** | **E1:** 3NF Database Normalization, Enriched Entities & PlantUML Reconciliation | ✅ **Done (`#43`)** | `V9` | Normalize `Pais`, enrich `Marca`, extract `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, link `Desejo.cliente`, update [PlantUML models](../api/docs/modelagem/README.md) |
+| **`v1.2.0`** | **E2:** Product Categories (`Categoria`) & Component CRUD Screens | 🔄 **Next (`#44`)** | `V10` | `Categoria` entity/repo/service/resource, `/admin/categorias` + `/admin/sensores` + `/admin/switches` + `/admin/transportadoras`, `/catalogo` facets |
+| **`v1.3.0`** | **E3:** Real Merchandising (Curated Weekly Highlights & Best-Sellers) | 📋 **Planned (`#45`)** | `V11` | `mouse.destaque` & `ordem_destaque`, real sales aggregation (`ordenar=mais-vendidos`), `GET /catalogo/mouses/destaques`, Home highlights |
+| **`v1.3.0`** | **E4:** Discount Coupons (`Cupom`) | 📋 **Planned (`#46`)** | `V12` | `Cupom` entity, `/admin/cupons` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & `Pedido` discount snapshot |
+| **`v1.4.0`** | **E5:** Verified Customer Reviews & Ratings (`Avaliacao`) | 📋 **Planned (`#47`)** | `V13` | Purchase-verified 1–5 star reviews, product rating summary + JSON-LD `aggregateRating`, `/admin/avaliacoes` moderation |
+| **`v1.4.0`** | **E6:** Order Refunds & Stock Restoration (`Estorno`) | 📋 **Planned (`#48`)** | `V14` | `StatusPedido.REEMBOLSADO (7)`, `StatusPagamento.ESTORNADO (5)`, atomic refund + single stock restoration, `EventoPedido` audit |
+| **`v2.0.0`** | **E7:** External Gateways, R2 Orphan Cleanup & Integer-Cent Migration | 📋 **Planned (`#49`)** | `V15` | R2 orphan cleanup, pluggable `PagamentoGateway`/`FreteGateway` + webhook idempotency (`V15`), integer-cent pricing, blocking Trivy |
 
 ---
 

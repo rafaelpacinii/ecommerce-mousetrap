@@ -183,4 +183,65 @@ class CatalogoResourceTest {
                 .header("Access-Control-Allow-Origin", "http://localhost:4200")
                 .header("Access-Control-Allow-Credentials", "true");
     }
+
+    @Test
+    void devePersistirAtributosNormalizados3NfEmMarcaEMouse() {
+        String nomeMarca = "Marca 3NF " + unico();
+        long idMarca = given().contentType("application/json")
+                .body(Map.of(
+                        "nome", nomeMarca,
+                        "ativo", true,
+                        "siglaPaisOrigem", "CH",
+                        "descricao", "Fabricante suíça de periféricos de alta precisão",
+                        "siteOficial", "https://example.com/marca",
+                        "emailSuporte", "suporte@example.com",
+                        "anoFundacao", 1981,
+                        "garantiaPadraoMeses", 24))
+                .post("/marcas").then().statusCode(201)
+                .body("paisOrigem.siglaIso", is("CH"))
+                .body("paisOrigem.nome", is("Suíça"))
+                .body("garantiaPadraoMeses", is(24))
+                .body("anoFundacao", is(1981))
+                .extract().jsonPath().getLong("id");
+        marcasCriadas.add(idMarca);
+
+        given().contentType("application/json")
+                .body(Map.of("nome", "Marca Pais Invalido " + unico(), "ativo", true, "siglaPaisOrigem", "ZZ"))
+                .post("/marcas").then().statusCode(400)
+                .body("errors.field", hasItem("siglaPaisOrigem"));
+
+        Map<String, Object> dtoMouse = mouse(idMarca);
+        String modeloSensor = "PAW3950-" + unico().substring(0, 8);
+        String modeloSwitch = "Optical-Gen3-" + unico().substring(0, 8);
+        dtoMouse.put("especificacoes", Map.ofEntries(
+                Map.entry("sensor", modeloSensor),
+                Map.entry("pollingRate", 8000),
+                Map.entry("tipoSwitch", 1),
+                Map.entry("modeloSwitch", modeloSwitch),
+                Map.entry("pegadas", List.of(1, 2)),
+                Map.entry("comprimentoMm", 125.0),
+                Map.entry("larguraMm", 63.5),
+                Map.entry("alturaMm", 40.0),
+                Map.entry("autonomiaBateriaHoras", 95),
+                Map.entry("sensorFabricante", "PixArt"),
+                Map.entry("sensorIps", 750),
+                Map.entry("sensorAceleracaoG", 50),
+                Map.entry("switchFabricante", "Razer"),
+                Map.entry("switchDurabilidadeMilhoesCliques", 90),
+                Map.entry("switchForcaAtuacaoGf", 45.0)));
+
+        long idMouse = given().contentType("application/json").body(dtoMouse)
+                .post("/mouses").then().statusCode(201)
+                .body("especificacoes.comprimentoMm", is(125.0f))
+                .body("especificacoes.autonomiaBateriaHoras", is(95))
+                .body("especificacoes.garantiaMeses", is(24))
+                .body("especificacoes.sensorDetalhes.modelo", is(modeloSensor))
+                .body("especificacoes.sensorDetalhes.fabricante", is("PixArt"))
+                .body("especificacoes.sensorDetalhes.ips", is(750))
+                .body("especificacoes.switchDetalhes.modelo", is(modeloSwitch))
+                .body("especificacoes.switchDetalhes.fabricante", is("Razer"))
+                .body("especificacoes.switchDetalhes.durabilidadeMilhoesCliques", is(90))
+                .extract().jsonPath().getLong("id");
+        mousesCriados.add(idMouse);
+    }
 }

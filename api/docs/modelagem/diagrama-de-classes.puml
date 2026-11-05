@@ -1,5 +1,5 @@
 @startuml diagrama-de-classes
-title E-commerce de mouses — classes de domínio propostas (MVP)
+title E-commerce de mouses (MouseTrap) — modelo de domínio 3NF implementado (V1–V9)
 top to bottom direction
 skinparam shadowing false
 skinparam classAttributeIconSize 0
@@ -15,10 +15,39 @@ abstract class DefaultEntity <<MappedSuperclass>> {
   + registrarDataAlteracao() : void
 }
 
-package "Catálogo" {
+package "Catálogo (3NF)" {
+  class Pais <<Entity>> {
+    - nome : String
+    - siglaIso : String
+  }
   class Marca <<Entity>> {
     - nome : String
     - ativo : Boolean
+    - logomarcaUrl : String [0..1]
+    - descricao : String [0..1]
+    - siteOficial : String [0..1]
+    - emailSuporte : String [0..1]
+    - anoFundacao : Integer [0..1]
+    - garantiaPadraoMeses : Integer
+    - versao : Long <<Version>>
+  }
+  class Sensor <<Entity>> {
+    - modelo : String
+    - fabricante : String
+    - dpiMaximo : Integer
+    - ips : Integer
+    - aceleracaoG : Integer
+    - ativo : Boolean
+    - versao : Long <<Version>>
+  }
+  class SwitchMouse <<Entity>> {
+    - modelo : String
+    - fabricante : String
+    - tipoSwitch : TipoSwitch
+    - durabilidadeMilhoesCliques : Integer
+    - forcaAtuacaoGf : BigDecimal [0..1]
+    - ativo : Boolean
+    - versao : Long <<Version>>
   }
   class Mouse <<Entity>> {
     - sku : String
@@ -30,9 +59,19 @@ package "Catálogo" {
     - dpiMaximo : Integer
     - quantidadeBotoes : Integer
     - pesoGramas : BigDecimal
+    - comprimentoMm : BigDecimal [0..1]
+    - larguraMm : BigDecimal [0..1]
+    - alturaMm : BigDecimal [0..1]
+    - autonomiaBateriaHoras : Integer [0..1]
+    - garantiaMeses : Integer
+    - pollingRate : Integer [0..1]
+    - sensor : String [0..1]
+    - tipoSwitch : TipoSwitch [0..1]
+    - modeloSwitch : String [0..1]
     - ativo : Boolean
     - versao : Long <<Version>>
     - tiposConexao : Set<TipoConexao>
+    - pegadas : Set<Pegada>
   }
   class ImagemMouse <<Entity>> {
     - url : String
@@ -44,16 +83,32 @@ package "Catálogo" {
     BLUETOOTH (2, "Bluetooth")
     RECEPTOR_USB (3, "Receptor USB sem fio")
   }
+  enum TipoSwitch {
+    OPTICO (1, "Óptico")
+    MECANICO (2, "Mecânico")
+  }
+  enum Pegada {
+    PALM (1, "Palm")
+    CLAW (2, "Claw")
+    FINGERTIP (3, "Fingertip")
+  }
 }
 
-package "Usuários" {
-  class Usuario <<Entity>> {
+package "Clientes e Localização (3NF)" {
+  class Cliente <<Entity>> {
     - nome : String
     - email : String
-    - senhaHash : String
-    - telefone : String [0..1]
-    - perfil : Perfil
+    - identidadeSubject : String [0..1]
+    - cpf : String [0..1]
+    - dataNascimento : LocalDate [0..1]
     - ativo : Boolean
+    - versao : Long <<Version>>
+  }
+  class TelefoneCliente <<Entity>> {
+    - ddd : String
+    - numero : String
+    - tipoTelefone : TipoTelefone
+    - principal : Boolean
   }
   class Endereco <<Entity>> {
     - apelido : String
@@ -63,37 +118,60 @@ package "Usuários" {
     - numero : String
     - complemento : String [0..1]
     - bairro : String
-    - cidade : String
-    - uf : String
+    - principal : Boolean
   }
-  enum Perfil {
-    CLIENTE (1, "Cliente")
-    ADMINISTRADOR (2, "Administrador")
+  class Municipio <<Entity>> {
+    - nome : String
+    - codigoIbge : String
+  }
+  class Estado <<Entity>> {
+    - nome : String
+    - sigla : String
+  }
+  enum TipoTelefone {
+    CELULAR (1, "Celular")
+    RESIDENCIAL (2, "Residencial")
+    COMERCIAL (3, "Comercial")
   }
 }
 
-package "Compras" {
-  class ListaDesejos <<Entity>> {
+package "Compras, Pagamento e Logística (3NF)" {
+  class Desejo <<Entity>> {
+    - identidadeSubject : String
   }
-  class ItemListaDesejos <<Entity>> {
+  class Transportadora <<Entity>> {
+    - nome : String
+    - cnpj : String [0..1]
+    - urlRastreioPadrao : String [0..1]
+    - valorBaseFrete : BigDecimal
+    - prazoMedioDias : Integer
+    - ativo : Boolean
+    - versao : Long <<Version>>
   }
   class Pedido <<Entity>> {
     - chaveCheckout : UUID
+    - requisicaoHash : String
     - status : StatusPedido
-    - expiraEm : LocalDateTime
-    - valorFrete : BigDecimal
+    - criadoEm : Instant
+    - expiraEm : Instant
+    - frete : BigDecimal
+    - prazoDiasUteis : Integer
     - versao : Long <<Version>>
+    - transportadora : String [0..1]
     - codigoRastreio : String [0..1]
-    + calcularSubtotal() : BigDecimal
-    + calcularTotal() : BigDecimal
+    - enviadoEm : Instant [0..1]
+    - entregueEm : Instant [0..1]
+    + getSubtotal() : BigDecimal
+    + getTotal() : BigDecimal
   }
   class ItemPedido <<Entity>> {
-    - skuMouse : String
-    - nomeMouse : String
-    - corMouse : String
+    - sku : String
+    - nome : String
+    - cor : String
+    - marca : String
     - quantidade : Integer
     - precoUnitario : BigDecimal
-    + calcularSubtotal() : BigDecimal
+    + getSubtotal() : BigDecimal
   }
   class EnderecoEntrega <<Embeddable>> {
     - destinatario : String
@@ -102,16 +180,23 @@ package "Compras" {
     - numero : String
     - complemento : String [0..1]
     - bairro : String
-    - cidade : String
+    - municipio : String
     - uf : String
   }
   class Pagamento <<Entity>> {
     - chaveIdempotencia : UUID
     - forma : FormaPagamento
     - status : StatusPagamento
+    - resultadoSimulado : ResultadoSimulacao
     - valor : BigDecimal
     - versao : Long <<Version>>
-    - processadoEm : LocalDateTime [0..1]
+    - processadoEm : Instant [0..1]
+  }
+  class EventoPedido <<Entity>> {
+    - status : StatusPedido
+    - ocorridoEm : Instant
+    - descricao : String
+    - responsavelSubject : String [0..1]
   }
   enum StatusPedido {
     AGUARDANDO_PAGAMENTO (1, "Aguardando pagamento")
@@ -131,55 +216,71 @@ package "Compras" {
     RECUSADO (3, "Recusado")
     CANCELADO (4, "Cancelado")
   }
+  enum ResultadoSimulacao {
+    APROVAR (1, "Aprovar")
+    RECUSAR (2, "Recusar")
+    PENDENTE (3, "Manter pendente")
+  }
 }
 
+DefaultEntity <|-- Pais
 DefaultEntity <|-- Marca
+DefaultEntity <|-- Sensor
+DefaultEntity <|-- SwitchMouse
 DefaultEntity <|-- Mouse
 DefaultEntity <|-- ImagemMouse
-DefaultEntity <|-- Usuario
+DefaultEntity <|-- Cliente
+DefaultEntity <|-- TelefoneCliente
 DefaultEntity <|-- Endereco
-DefaultEntity <|-- ListaDesejos
-DefaultEntity <|-- ItemListaDesejos
+DefaultEntity <|-- Municipio
+DefaultEntity <|-- Estado
+DefaultEntity <|-- Desejo
+DefaultEntity <|-- Transportadora
 DefaultEntity <|-- Pedido
 DefaultEntity <|-- ItemPedido
 DefaultEntity <|-- Pagamento
+DefaultEntity <|-- EventoPedido
 
-Marca "1" -- "0..*" Mouse : marca
+Pais "0..1" <-- "0..*" Marca : paisOrigem
+Marca "1" <-- "0..*" Mouse : marca
+Sensor "0..1" <-- "0..*" Mouse : sensorEntidade
+SwitchMouse "0..1" <-- "0..*" Mouse : switchEntidade
+SwitchMouse ..> TipoSwitch
 Mouse "1" *-- "0..*" ImagemMouse : imagens
-Mouse ..> TipoConexao : coleção de 1..3 valores
-Usuario "1" -- "0..*" Endereco : endereços
-Usuario ..> Perfil
-Usuario "1" -- "0..1" ListaDesejos : listaDesejos
-ListaDesejos "1" *-- "0..*" ItemListaDesejos : itens
-ItemListaDesejos "0..*" --> "1" Mouse : mouse
-Usuario "1" -- "0..*" Pedido : pedidos
+Mouse ..> TipoConexao : mouse_conexao (1..3)
+Mouse ..> Pegada : mouse_pegada (0..3)
+
+Cliente "1" *-- "0..*" TelefoneCliente : telefones
+TelefoneCliente ..> TipoTelefone
+Cliente "1" -- "0..*" Endereco : enderecos
+Endereco "0..*" --> "1" Municipio : municipio
+Municipio "0..*" --> "1" Estado : estado
+
+Cliente "0..1" <-- "0..*" Desejo : cliente
+Desejo "0..*" --> "1" Mouse : mouse
+Cliente "1" <-- "0..*" Pedido : cliente
+Transportadora "0..1" <-- "0..*" Pedido : transportadoraEntidade
 Pedido "1" *-- "1..*" ItemPedido : itens
 ItemPedido "0..*" --> "1" Mouse : mouse
-Pedido "1" *-- "1" EnderecoEntrega : enderecoEntrega
-Pedido "1" -- "0..*" Pagamento : tentativas
+Pedido "1" *-- "1" EnderecoEntrega : endereco
+Pedido "1" *-- "0..*" Pagamento : pagamentos
+Pedido "1" *-- "1..*" EventoPedido : eventos
 Pedido ..> StatusPedido
+EventoPedido ..> StatusPedido
 Pagamento ..> FormaPagamento
 Pagamento ..> StatusPagamento
+Pagamento ..> ResultadoSimulacao
 
 note bottom of EnderecoEntrega
-  Objeto de valor copiado no checkout.
+  Snapshot histórico imutável copiado no checkout.
   Sem identidade própria e sem herança de DefaultEntity.
   Persistido nas colunas entrega_* de pedido.
 end note
 
 legend left
-  Classes de domínio; não representa todas as camadas da aplicação.
-  Associações representam os atributos de relacionamento, sem duplicá-los nas classes.
-  Todas as entidades herdam de DefaultEntity; getters/setters omitidos.
-  Enums: id Integer, label String, construtor privado,
-  getId(), getLabel() e valueOf(Integer id) estático.
-  Cada enum terá AttributeConverter<Enum, Integer> com autoApply = true
-  em br.unitins.tp2.model.converterjpa. Não usar ordinal como ID.
-  Mouse.tiposConexao: ElementCollection em mouse_conexao.
-  Regras transacionais e acesso aos repositórios pertencem aos serviços.
-  Métodos calcular* são cálculos locais, sem acesso ao banco.
-  Carrinho é estado do frontend; o checkout recebe IDs e quantidades e os revalida.
-  ListaDesejos e ItemListaDesejos persistem favoritos, sem quantidade ou reserva.
-  Composição UML não autoriza exclusão em cascata de histórico de pedidos.
+  Classes de domínio 3NF implementadas até a migração V9.
+  Todas as entidades herdam de DefaultEntity (id, dataCadastro, dataAlteracao).
+  Enums possuem id Integer, label String, valueOf(Integer) e AttributeConverter em model.converterjpa.
+  Autenticação e papéis (admin, customer) são geridos via Keycloak OIDC e vinculados por Cliente.identidadeSubject.
 endlegend
 @enduml
