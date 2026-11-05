@@ -107,4 +107,9 @@ requires explicit review. Commits follow Conventional Commits in English.
 Application releases follow the [MAJOR.MINOR.PATCH policy](docs/versioning.md).
 The compatible homepage carousel targets the next minor release, `1.1.0`.
 
+Dependabot checks Maven, npm, GitHub Actions, Docker and Compose dependencies
+weekly and opens version update PRs against `develop`. See
+[dependency maintenance](docs/dependency-updates.md) for grouping, major upgrade
+policy, security update activation and review checks.
+
 [MIT License](LICENSE.md).
