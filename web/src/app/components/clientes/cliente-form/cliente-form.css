@@ -145,6 +145,7 @@ form {
   padding: 0;
   border: 0;
 }
+.account-form > p.profile-notice,
 .profile-notice {
   padding: 16px;
   background: var(--light-cyan);
