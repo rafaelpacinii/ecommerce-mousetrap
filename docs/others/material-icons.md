@@ -68,7 +68,7 @@ SHA256:
 ```
 
 The official Apache 2.0 license is retained in
-[`web/public/licenses/material-icons-LICENSE.txt`](../web/public/licenses/material-icons-LICENSE.txt).
+[`web/public/licenses/material-icons-LICENSE.txt`](../../web/public/licenses/material-icons-LICENSE.txt).
 Source license: [Google Material Design Icons LICENSE](https://github.com/google/material-design-icons/blob/master/LICENSE).
 
 ## Validation

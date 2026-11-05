@@ -1,6 +1,6 @@
 # MouseTrap
 
-Gaming mouse storefront and administration built with Angular 22.2, Quarkus 3.39,
+Gaming mouse storefront and administration built with Angular 22.2, Quarkus 3.40,
 Java 17, PostgreSQL 16 and Keycloak 26.8. The repository includes the application,
 identity theme, SVG wireframes, automated verification and source packaging.
 
@@ -27,8 +27,8 @@ For agent-assisted setup on a new computer or to add missing services, use the
 infrastructure and completes PostgreSQL, Keycloak, local email, application and
 R2 configuration without resetting an existing installation.
 
-Read [setup from scratch](SETUP_DO_ZERO.md) for the complete local stack or
-[developer authentication setup](docs/authentication.md) for independently running
+Read [setup from scratch](docs/ai/setup-environment.md) for the complete local stack or
+[developer authentication setup](docs/others/authentication.md) for independently running
 Angular and Quarkus. The root Compose stack uses its own databases and requires
 an explicitly generated private environment; it does not reuse the older local
 identity stack or its credentials. Do not start both on the same ports.
@@ -46,7 +46,7 @@ administrator: create one in the `mousetrap` realm and assign its `admin` role.
 The bootstrap console administrator belongs to `master`.
 
 This loopback-only stack is a release rehearsal. Before public deployment, follow
-[release operations, TLS, secrets, backups and migration guidance](docs/release-readiness.md).
+[release operations, TLS, secrets, backups and migration guidance](docs/others/release-readiness.md).
 
 ## Architecture and contracts
 
@@ -57,19 +57,22 @@ mandatory; guards only improve navigation.
 
 | Area | Routes / documentation |
 | --- | --- |
-| Public catalog | `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`; [contracts](docs/public-catalog.md) |
-| Catalog image uploads | Admin-only `POST /imagens/{mouses\|marcas}`; [Cloudflare R2 setup](docs/cloudflare-r2.md) |
+| Public catalog | `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`; [contracts](docs/others/public-catalog.md) |
+| Catalog image uploads | Admin-only `POST /imagens/{mouses\|marcas}`; [Cloudflare R2 setup](docs/others/cloudflare-r2.md) |
 | Postcode / freight | `/ceps/{cep}`, `/ceps/{cep}/frete`; [addresses](api/docs/clientes-cep.md) |
-| Owned profile / addresses | `/clientes/me`, `/clientes/me/enderecos`; [authentication](docs/authentication.md) |
-| Checkout / payments | `/pedidos`; [transactional contracts](docs/transactional-checkout.md) |
-| History / fulfillment / wishlist | `/pedidos/me`, `/admin/pedidos`, `/desejos`; [operations](docs/customer-portal-admin-orders.md) |
+| Owned profile / addresses | `/clientes/me`, `/clientes/me/enderecos`; [authentication](docs/others/authentication.md) |
+| Checkout / payments | `/pedidos`; [transactional contracts](docs/others/transactional-checkout.md) |
+| History / fulfillment / wishlist | `/pedidos/me`, `/admin/pedidos`, `/desejos`; [operations](docs/others/customer-portal-admin-orders.md) |
 | Storefront | `/`, `/catalogo`, `/catalogo/:id`, `/carrinho`, `/checkout` |
 | Customer area | `/meus-dados`, `/enderecos`, `/meus-pedidos`, `/meus-pedidos/:id`, `/lista-de-desejos` |
 | Administration | `/admin/pedidos`, `/admin/mouses`, `/admin/marcas`, `/admin/clientes` |
 
-See [implementation status](docs/implementation-backlog.md),
+See [implementation status](docs/others/implementation-backlog.md),
 [canonical SVG screens](docs/ui-wireframes/README.md), [web development](web/README.md),
 [API development](api/README.md) and [engineering rules](AGENTS.md).
+
+For Codex and Antigravity, see [AI governance and daily skill usage](docs/ai-governance.md).
+Shared skills live in `.agents/skills/`; `TASK.md` records current execution state.
 
 ## Verify and package
 
@@ -104,12 +107,12 @@ credentials. Archive bytes are deterministic for identical source contents.
 CI runs backend, frontend, browser and packaging jobs for PRs to `develop`/`main`.
 It never deploys. Features and bug fixes target `develop`; release publication
 requires explicit review. Commits follow Conventional Commits in English.
-Application releases follow the [MAJOR.MINOR.PATCH policy](docs/versioning.md).
+Application releases follow the [MAJOR.MINOR.PATCH policy](docs/others/versioning.md).
 The compatible homepage carousel targets the next minor release, `1.1.0`.
 
 Dependabot checks Maven, npm, GitHub Actions, Docker and Compose dependencies
 weekly and opens version update PRs against `develop`. See
-[dependency maintenance](docs/dependency-updates.md) for grouping, major upgrade
+[dependency maintenance](docs/others/dependency-updates.md) for grouping, major upgrade
 policy, security update activation and review checks.
 
 [MIT License](LICENSE.md).

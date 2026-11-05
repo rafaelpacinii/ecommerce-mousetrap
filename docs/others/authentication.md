@@ -50,7 +50,7 @@ npm start
 
 Restart existing development processes after installing the new dependencies.
 Keep the isolated PostgreSQL test container running when using continuous tests;
-see [API test setup](../api/README.md#testes).
+see [API test setup](../../api/README.md#testes).
 
 ## Configuration and protocol
 

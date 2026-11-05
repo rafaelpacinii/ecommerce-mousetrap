@@ -1,7 +1,7 @@
 # Visual Foundation and Homepage
 
 The first storefront slice implements the visual foundation from
-[01-storefront-home.svg](ui-wireframes/01-storefront-home.svg) and the approved
+[01-storefront-home.svg](../ui-wireframes/01-storefront-home.svg) and the approved
 MouseTrap palette. The root route now opens the homepage instead of brand
 administration.
 

@@ -36,7 +36,7 @@ before JavaScript executes. Preserve that header through a public reverse proxy.
 - Global focus rings, the skip link, labeled controls, status/alert regions and
   non-destructive initial dialog focus are covered by browser tests. Reduced
   motion preferences disable decorative transitions/animations.
-- The visual references remain [canonical SVG wireframes](ui-wireframes/README.md).
+- The visual references remain [canonical SVG wireframes](../ui-wireframes/README.md).
   Browser verification checks widths 1440, 1024, 768, 375 and 320 and Axe rules
   tagged WCAG 2 A/AA and 2.1 AA. Automated checks do not establish complete WCAG
   conformance; screen-reader usability and additional browsers remain manual QA.
@@ -107,41 +107,40 @@ Prepare these concrete environment changes before exposing a host:
    into a separate stack, validate Flyway checksums and apply migrations before
    switching traffic. Database rollback requires a compatible backup/forward fix;
    do not edit V1–V7 or run Flyway clean against an installation.
-6. Pin approved container image digests for the deployment and scan those images
-   in its registry. CI (`verify.yml`) and CD (`cd.yml`) scan built `mousetrap-api`
-   and `mousetrap-web` container images with Trivy for `HIGH` and `CRITICAL` OS and
-   library vulnerabilities alongside `npm run audit`.
+6. Pin approved container image digests for deployment and scan those images.
+   CI (`verify.yml`) and CD (`cd.yml`) scan built `mousetrap-api` and
+   `mousetrap-web` images with Trivy for `HIGH` and `CRITICAL` OS/library findings,
+   alongside the npm audit. Trivy currently uses non-blocking exit status; review
+   findings and upstream base-image advisories before release.
 
-The local setup guide is [SETUP_DO_ZERO.md](../SETUP_DO_ZERO.md).
+The maintained local setup procedure covers [environment discovery](../ai/setup-environment.md)
+and [Docker, identity, email and R2 integrations](../ai/setup-integrations.md).
 
 ## Repeatable verification and continuous delivery
 
-GitHub Actions `.github/workflows/verify.yml` defines five independent jobs:
-Java 17 + PostgreSQL tests and release packaging checks; Node 24 audit/unit/build;
-Trivy container vulnerability scanning (`mousetrap-api` and `mousetrap-web`);
-Docker + Chromium browser tests; and deterministic source packaging. Permissions
-are read-only; no deploy, push, PR creation or secret upload is performed in PR
-verification. The browser job creates generated credentials and isolated volumes
-rather than using repository credentials.
+GitHub Actions `.github/workflows/verify.yml` uses a `changes` job to inspect
+modified monorepo scopes on `push` and `pull_request` events. Checks run in full
+on `main` and manual dispatch; feature PRs conditionally run `backend`, `frontend`,
+`container-scan` and `browser`. The `package` job always runs Python tests, source
+packaging and governance checks so documentation-only PRs still receive a status.
+Verification uses read-only permissions and performs no deployment or publishing.
+The browser job uses generated credentials and isolated volumes.
 
 GitHub Actions `.github/workflows/cd.yml` runs on pushes to `main`, semantic
 version tags (`v*.*.*`), and manual dispatch:
 
-- `prepare-release`: verifies that `api/pom.xml`, `web/package.json` and
-  `web/package-lock.json` share the same version (and match the `vMAJOR.MINOR.PATCH`
-  tag when tagging), runs the Python packaging test suite, and generates
-  `dist/mousetrap_submission.zip` and `dist/mousetrap_submission.zip.sha256`.
-- `publish-images`: builds, scans with Trivy, and pushes
-  `ghcr.io/<owner>/mousetrap-api` and `ghcr.io/<owner>/mousetrap-web` to GitHub
-  Container Registry using `GITHUB_TOKEN`, exporting immutable image digests.
-- `github-release`: on `v*.*.*` tags, creates or updates the GitHub Release with
-  generated release notes, GHCR image digests, `mousetrap_submission.zip` and its
-  SHA-256 checksum.
-- `deploy`: when `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_SSH_KEY` secrets are
-  configured, copies `infra/production/compose.yaml` and the Keycloak theme over
-  SSH and deploys the pinned GHCR image digests with Docker Compose. When those
-  secrets are absent, the job logs setup instructions to the workflow summary and
-  exits cleanly.
+- `prepare-release`: verifies the shared API/web/lockfile version and release tag,
+  runs Python tests, and generates the source ZIP and SHA-256 file. It detects
+  affected API/web scopes; tags and manual dispatch build both images.
+- `publish-images`: builds, scans and publishes changed images to GHCR using
+  `GITHUB_TOKEN`, retaining the digest outputs. Documentation-only pushes skip it.
+- `github-release`: on version tags, creates/updates the release with image
+  digests, the source archive and its checksum.
+- `deploy`: when changes need deployment and `DEPLOY_HOST`, `DEPLOY_USER` and
+  `DEPLOY_SSH_KEY` are configured, copies the production Compose source/theme over
+  SSH and updates the stack. Changed images use their published digests; unchanged
+  image references fall back to `latest` in the existing partial-build workflow.
+  Missing deployment secrets produce setup instructions and skip the SSH step.
 
 ```fish
 cd web

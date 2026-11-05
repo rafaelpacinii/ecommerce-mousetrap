@@ -1,5 +1,5 @@
 # Version updates follow Gitflow. Security updates use GitHub's default branch.
-# See docs/dependency-updates.md for activation and the review policy.
+# See docs/others/dependency-updates.md for activation and the review policy.
 version: 2
 
 updates:

@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 import zipfile
 import configure_stack
-from package_release import build, verify
+from package_release import REQUIRED, build, verify
 
 
 class PackagingTests(unittest.TestCase):
@@ -14,7 +14,7 @@ class PackagingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             files = {'README.md': 'source', 'api/mvnw': '#!/bin/sh\n',
-                     'web/src/main.ts': 'public', 'docs/release-readiness.md': 'documentation',
+                     'web/src/main.ts': 'public', 'docs/others/release-readiness.md': 'documentation',
                      'api/src/main/resources/application.properties.example': 'mock',
                      'api/src/main/resources/application.properties': 'secret',
                      'web/.env': 'secret', 'infra/private.key': 'secret',
@@ -33,9 +33,23 @@ class PackagingTests(unittest.TestCase):
             self.assertEqual(first['sha256'], second['sha256'])
             with zipfile.ZipFile(first['archive']) as archive:
                 self.assertEqual(set(archive.namelist()), required | {
-                    'docs/release-readiness.md',
+                    'docs/others/release-readiness.md',
                     'api/src/main/resources/application.properties.example'})
                 self.assertEqual(archive.getinfo('api/mvnw').external_attr >> 16, 0o100755)
+
+    def test_default_requirements_accept_relocated_docs_without_deleted_setup_guide(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in REQUIRED:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('public source fixture')
+            report = build(root, root / 'dist/source.zip')
+            self.assertEqual(report['integrity_and_exclusions'], 'passed')
+            with zipfile.ZipFile(report['archive']) as archive:
+                self.assertIn('docs/others/release-readiness.md', archive.namelist())
+                self.assertIn('docs/ai/setup-environment.md', archive.namelist())
+                self.assertNotIn('SETUP_DO_ZERO.md', archive.namelist())
 
     def test_rejects_incomplete_or_unsafe_archives_and_module_output(self):
         with tempfile.TemporaryDirectory() as temporary:
