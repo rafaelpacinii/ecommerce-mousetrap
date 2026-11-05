@@ -92,6 +92,8 @@ __pycache__/
 !/scripts/ai_checks.py
 !/scripts/check_ai_governance.py
 !/scripts/test_ai_governance.py
+!/scripts/sync_roadmap.py
+!/scripts/test_roadmap.py
 /.local/
 web/test-results/
 web/playwright-report/
