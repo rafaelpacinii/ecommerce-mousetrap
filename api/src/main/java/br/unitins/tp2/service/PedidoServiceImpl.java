@@ -33,6 +33,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Inject MarcaRepository marcas;
     @Inject ClienteRepository clientes;
     @Inject EnderecoRepository enderecos;
+    @Inject TransportadoraRepository transportadoras;
     @Inject CepService cep;
     @Inject EntityManager em;
     @Inject JsonWebToken token;
@@ -203,7 +204,16 @@ public class PedidoServiceImpl implements PedidoService {
         if((p.getStatus()==StatusPedido.ENVIADO||p.getStatus()==StatusPedido.ENTREGUE)&&transportadora.equals(p.getTransportadora())&&codigo.equals(p.getCodigoRastreio()))return PedidoAdminResponseDTO.valueOf(p);
         exigirVersao(p,dto.versao());
         if(p.getStatus()!=StatusPedido.PAGO)throw new ConflitoPedidoException("Somente pedidos pagos podem ser enviados.");
-        p.setTransportadora(transportadora);p.setCodigoRastreio(codigo);p.setEnviadoEm(Instant.now());p.setStatus(StatusPedido.ENVIADO);
+        Transportadora t = transportadoras.findByNomeExato(transportadora);
+        if (t == null) {
+            t = new Transportadora();
+            t.setNome(transportadora);
+            t.setValorBaseFrete(p.getFrete() != null ? p.getFrete() : new BigDecimal("24.90"));
+            t.setPrazoMedioDias(p.getPrazoDiasUteis() > 0 ? p.getPrazoDiasUteis() : 6);
+            t.setAtivo(true);
+            transportadoras.persistAndFlush(t);
+        }
+        p.setTransportadora(transportadora);p.setTransportadoraEntidade(t);p.setCodigoRastreio(codigo);p.setEnviadoEm(Instant.now());p.setStatus(StatusPedido.ENVIADO);
         registrarEvento(p,"Pedido enviado pela transportadora.",subject());pedidos.flush();return PedidoAdminResponseDTO.valueOf(p);
     }
     @Override @Transactional @RolesAllowed("admin") public PedidoAdminResponseDTO entregar(Long id,OperacaoPedidoDTO dto){

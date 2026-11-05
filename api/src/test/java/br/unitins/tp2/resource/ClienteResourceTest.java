@@ -61,4 +61,40 @@ class ClienteResourceTest {
         given().get("/ceps/88888888/frete").then().statusCode(503);
         given().delete("/clientes/" + Long.MAX_VALUE).then().statusCode(404);
     }
+
+    @Test
+    void deveCadastrarEAtualizarClienteComCpfDataNascimentoETelefones3Nf() {
+        var dto = dados();
+        String cpf = String.format("%011d", Math.abs(UUID.randomUUID().getMostSignificantBits()) % 100000000000L);
+        dto.put("cpf", cpf);
+        dto.put("dataNascimento", "1998-05-14");
+        dto.put("telefones", java.util.List.of(
+                Map.of("ddd", "63", "numero", "999887766", "tipoTelefone", 1, "principal", true),
+                Map.of("ddd", "63", "numero", "32154433", "tipoTelefone", 2, "principal", false)));
+
+        var criado = given().contentType("application/json").body(dto).post("/clientes")
+                .then().statusCode(201)
+                .body("cpf", is(cpf))
+                .body("dataNascimento", is("1998-05-14"))
+                .body("telefones", hasSize(2))
+                .body("telefones[0].ddd", is("63"))
+                .body("telefones[0].principal", is(true))
+                .extract().jsonPath();
+        long id = criado.getLong("id");
+
+        var duplicadoCpf = dados();
+        duplicadoCpf.put("cpf", cpf);
+        given().contentType("application/json").body(duplicadoCpf).post("/clientes")
+                .then().statusCode(400)
+                .body("errors.field", hasItem("cpf"));
+
+        dto.put("telefones", java.util.List.of(
+                Map.of("ddd", "11", "numero", "988776655", "tipoTelefone", 1, "principal", true),
+                Map.of("ddd", "11", "numero", "988776655", "tipoTelefone", 1, "principal", false)));
+        given().contentType("application/json").body(dto).put("/clientes/" + id)
+                .then().statusCode(400)
+                .body("errors.field", hasItem("telefones"));
+
+        given().delete("/clientes/" + id).then().statusCode(204);
+    }
 }

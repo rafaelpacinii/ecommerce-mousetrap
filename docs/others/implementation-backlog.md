@@ -281,3 +281,5 @@ sales-based merchandising remain future scope. The financial engine remains loca
 - [x] Formalize major/minor/patch decisions across future releases. The carousel
       targets **1.1.0** under the [versioning policy](versioning.md); published
       1.0.0 remains immutable.
+- [x] Deliver Cloudflare R2 image uploads (`POST /imagens`) and brand logo URLs (`V8`) in **1.1.0**.
+- [x] Normalize the database into 3NF (`V9`: `pais`, `sensor`, `switch_mouse`, `telefone_cliente`, `transportadora`, enriched `marca`/`mouse`/`cliente`/`desejo`) and reconcile PlantUML diagrams (`Epic E1` of the [Master Roadmap](../ROADMAP.md)).

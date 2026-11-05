@@ -1,24 +1,26 @@
 # MouseTrap API
 
-Java 17 / Quarkus 3.39 REST API with PostgreSQL 16, Panache repositories,
+Java 17 / Quarkus 3.40 REST API with PostgreSQL 16, Panache repositories,
 transactional services, Java record DTOs, Bean Validation and RFC 7807 errors.
-Resources never bypass the service layer. Flyway migrations V1–V7 create the
-catalog, owned profiles/addresses, transactional orders, events and wishlist.
+Resources never bypass the service layer. Flyway migrations V1–V9 create the
+3NF catalog (`pais`, `marca`, `sensor`, `switch_mouse`, `mouse`, `imagem_mouse`),
+owned profiles/addresses/phones (`cliente`, `telefone_cliente`, `endereco`, `municipio`, `estado`),
+transactional orders, events, carriers (`transportadora`) and wishlist (`desejo`).
 
 ## Implemented contracts
 
 - Public active catalog: `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`.
 - Public postcode and freight: `GET /ceps/{cep}` and `GET /ceps/{cep}/frete`.
-- Protected admin CRUD: `/marcas`, `/mouses`, `/clientes`.
+- Protected admin CRUD: `/marcas`, `/mouses`, `/clientes`, and R2 image upload `POST /imagens`.
 - Verified identity-owned profile: `GET/PUT /clientes/me`; saved addresses at `/clientes/me/enderecos`.
 - Idempotent transactional checkout, payment attempts, cancellation and expiration at `/pedidos`.
 - Owner-scoped history/details, administrative payment decisions and fulfillment at `/admin/pedidos`.
 - Database-backed admin indicators and subject-owned persistent wishlist at `/desejos`.
 
 See [catalog](../docs/others/public-catalog.md), [authentication](../docs/others/authentication.md),
-[addresses](docs/clientes-cep.md), [checkout](../docs/others/transactional-checkout.md) and
-[history/fulfillment](../docs/others/customer-portal-admin-orders.md) for exact methods,
-payloads and status rules. Live payments/refunds/carriers and image uploads remain
+[addresses](docs/clientes-cep.md), [checkout](../docs/others/transactional-checkout.md),
+[history/fulfillment](../docs/others/customer-portal-admin-orders.md) and [roadmap](../docs/ROADMAP.md) for exact methods,
+payloads and status rules. Live payment gateways, refunds and carrier APIs remain
 future integrations. Card credentials are never accepted by payment DTOs.
 
 ## Development

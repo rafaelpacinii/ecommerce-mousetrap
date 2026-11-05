@@ -12,6 +12,8 @@ import br.unitins.tp2.model.Cliente;
 import br.unitins.tp2.model.Endereco;
 import br.unitins.tp2.model.Estado;
 import br.unitins.tp2.model.Municipio;
+import br.unitins.tp2.model.TelefoneCliente;
+import br.unitins.tp2.model.TipoTelefone;
 import br.unitins.tp2.repository.ClienteRepository;
 import br.unitins.tp2.repository.EnderecoRepository;
 import br.unitins.tp2.repository.EstadoRepository;
@@ -305,6 +307,44 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente existente = repository.findByEmail(dto.email());
         if (existente != null && !existente.getId().equals(cliente.getId())) {
             throw new ValidationException("email", "Já existe um cliente com este e-mail.");
+        }
+        if (dto.cpf() != null) {
+            String cpfLimpo = dto.cpf().isBlank() ? null : dto.cpf();
+            if (cpfLimpo != null) {
+                Cliente existenteCpf = repository.findByCpf(cpfLimpo);
+                if (existenteCpf != null && !existenteCpf.getId().equals(cliente.getId())) {
+                    throw new ValidationException("cpf", "Já existe um cliente com este CPF.");
+                }
+            }
+            cliente.setCpf(cpfLimpo);
+        }
+        if (dto.dataNascimento() != null) {
+            cliente.setDataNascimento(dto.dataNascimento());
+        }
+        if (dto.telefones() != null) {
+            if (dto.telefones().stream().map(t -> t.ddd() + "-" + t.numero()).distinct().count() != dto.telefones().size()) {
+                throw new ValidationException("telefones", "Não repita o mesmo número de telefone.");
+            }
+            cliente.getTelefones().clear();
+            if (cliente.getId() != null) {
+                repository.flush();
+            }
+            boolean principalDefinido = false;
+            for (int i = 0; i < dto.telefones().size(); i++) {
+                var telDto = dto.telefones().get(i);
+                TelefoneCliente tel = new TelefoneCliente();
+                tel.setCliente(cliente);
+                tel.setDdd(telDto.ddd());
+                tel.setNumero(telDto.numero());
+                tel.setTipoTelefone(TipoTelefone.valueOf(telDto.tipoTelefone()));
+                boolean isPrincipal = !principalDefinido
+                        && (Boolean.TRUE.equals(telDto.principal()) || i == dto.telefones().size() - 1);
+                if (isPrincipal) {
+                    principalDefinido = true;
+                }
+                tel.setPrincipal(isPrincipal);
+                cliente.getTelefones().add(tel);
+            }
         }
         Municipio municipio = resolverMunicipioPorCep(dto.cep());
         cliente.setNome(dto.nome());

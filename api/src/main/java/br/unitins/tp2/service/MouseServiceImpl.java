@@ -9,10 +9,14 @@ import br.unitins.tp2.model.Marca;
 import br.unitins.tp2.model.Mouse;
 import br.unitins.tp2.model.ImagemMouse;
 import br.unitins.tp2.model.Pegada;
+import br.unitins.tp2.model.Sensor;
+import br.unitins.tp2.model.SwitchMouse;
 import br.unitins.tp2.model.TipoSwitch;
 import br.unitins.tp2.model.TipoConexao;
 import br.unitins.tp2.repository.MarcaRepository;
 import br.unitins.tp2.repository.MouseRepository;
+import br.unitins.tp2.repository.SensorRepository;
+import br.unitins.tp2.repository.SwitchMouseRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.annotation.security.RolesAllowed;
@@ -25,6 +29,8 @@ import jakarta.ws.rs.NotFoundException;
 public class MouseServiceImpl implements MouseService {
     @Inject MouseRepository repository;
     @Inject MarcaRepository marcaRepository;
+    @Inject SensorRepository sensorRepository;
+    @Inject SwitchMouseRepository switchRepository;
     @Inject jakarta.persistence.EntityManager em;
 
     @Override public br.unitins.tp2.dto.PageResponse<MouseResponseDTO> pesquisar(String busca,String ordenar,int page,int size){
@@ -109,12 +115,28 @@ public class MouseServiceImpl implements MouseService {
             if (especificacoes.pollingRate() != null && !java.util.Set.of(125, 250, 500, 1000, 2000, 4000, 8000).contains(especificacoes.pollingRate())) {
                 throw new ValidationException("especificacoes.pollingRate", "Selecione uma taxa de atualização suportada.");
             }
-            mouse.setSensor(especificacoes.sensor() == null || especificacoes.sensor().isBlank() ? null : especificacoes.sensor());
+            String modeloSensor = especificacoes.sensor() == null || especificacoes.sensor().isBlank() ? null : especificacoes.sensor();
+            mouse.setSensor(modeloSensor);
+            mouse.setSensorEntidade(resolverSensor(modeloSensor, dto.dpiMaximo(), especificacoes));
             mouse.setPollingRate(especificacoes.pollingRate());
-            mouse.setTipoSwitch(TipoSwitch.valueOf(especificacoes.tipoSwitch()));
-            mouse.setModeloSwitch(especificacoes.modeloSwitch() == null || especificacoes.modeloSwitch().isBlank() ? null : especificacoes.modeloSwitch());
+            TipoSwitch tipoSwitch = TipoSwitch.valueOf(especificacoes.tipoSwitch());
+            mouse.setTipoSwitch(tipoSwitch);
+            String modeloSwitch = especificacoes.modeloSwitch() == null || especificacoes.modeloSwitch().isBlank() ? null : especificacoes.modeloSwitch();
+            mouse.setModeloSwitch(modeloSwitch);
+            mouse.setSwitchEntidade(resolverSwitch(modeloSwitch, tipoSwitch, especificacoes));
             mouse.getPegadas().clear();
             if (especificacoes.pegadas() != null) mouse.getPegadas().addAll(especificacoes.pegadas().stream().map(Pegada::valueOf).toList());
+            if (especificacoes.comprimentoMm() != null) mouse.setComprimentoMm(especificacoes.comprimentoMm());
+            if (especificacoes.larguraMm() != null) mouse.setLarguraMm(especificacoes.larguraMm());
+            if (especificacoes.alturaMm() != null) mouse.setAlturaMm(especificacoes.alturaMm());
+            if (especificacoes.autonomiaBateriaHoras() != null) mouse.setAutonomiaBateriaHoras(especificacoes.autonomiaBateriaHoras());
+            if (especificacoes.garantiaMeses() != null) {
+                mouse.setGarantiaMeses(especificacoes.garantiaMeses());
+            } else if (mouse.getId() == null) {
+                mouse.setGarantiaMeses(marca.getGarantiaPadraoMeses() != null ? marca.getGarantiaPadraoMeses() : 12);
+            }
+        } else if (mouse.getId() == null) {
+            mouse.setGarantiaMeses(marca.getGarantiaPadraoMeses() != null ? marca.getGarantiaPadraoMeses() : 12);
         }
         if (dto.imagens() != null) {
             if (dto.imagens().stream().map(i -> i.ordem()).distinct().count() != dto.imagens().size()) {
@@ -154,5 +176,70 @@ public class MouseServiceImpl implements MouseService {
         mouse.getTiposConexao().clear();
         mouse.getTiposConexao().addAll(dto.tiposConexao().stream()
                 .map(TipoConexao::valueOf).collect(Collectors.toSet()));
+    }
+
+    private Sensor resolverSensor(String modeloSensor, Integer dpiMaximo, br.unitins.tp2.dto.EspecificacoesMouseDTO especificacoes) {
+        if (modeloSensor == null) {
+            return null;
+        }
+        Sensor sensor = sensorRepository.findByModeloExato(modeloSensor);
+        boolean novo = sensor == null;
+        if (novo) {
+            sensor = new Sensor();
+            sensor.setModelo(modeloSensor);
+            sensor.setFabricante("Não informado");
+            sensor.setDpiMaximo(dpiMaximo != null ? dpiMaximo : 16000);
+            sensor.setIps(400);
+            sensor.setAceleracaoG(40);
+            sensor.setAtivo(true);
+        }
+        if (especificacoes.sensorFabricante() != null && !especificacoes.sensorFabricante().isBlank()) {
+            sensor.setFabricante(especificacoes.sensorFabricante());
+        }
+        if (dpiMaximo != null && (novo || dpiMaximo > sensor.getDpiMaximo())) {
+            sensor.setDpiMaximo(dpiMaximo);
+        }
+        if (especificacoes.sensorIps() != null) {
+            sensor.setIps(especificacoes.sensorIps());
+        }
+        if (especificacoes.sensorAceleracaoG() != null) {
+            sensor.setAceleracaoG(especificacoes.sensorAceleracaoG());
+        }
+        if (novo) {
+            sensorRepository.persistAndFlush(sensor);
+        }
+        return sensor;
+    }
+
+    private SwitchMouse resolverSwitch(String modeloSwitch, TipoSwitch tipoSwitch, br.unitins.tp2.dto.EspecificacoesMouseDTO especificacoes) {
+        if (modeloSwitch == null) {
+            return null;
+        }
+        SwitchMouse sw = switchRepository.findByModeloExato(modeloSwitch);
+        boolean novo = sw == null;
+        if (novo) {
+            sw = new SwitchMouse();
+            sw.setModelo(modeloSwitch);
+            sw.setFabricante("Não informado");
+            sw.setTipoSwitch(tipoSwitch != null ? tipoSwitch : TipoSwitch.MECANICO);
+            sw.setDurabilidadeMilhoesCliques(50);
+            sw.setAtivo(true);
+        }
+        if (tipoSwitch != null) {
+            sw.setTipoSwitch(tipoSwitch);
+        }
+        if (especificacoes.switchFabricante() != null && !especificacoes.switchFabricante().isBlank()) {
+            sw.setFabricante(especificacoes.switchFabricante());
+        }
+        if (especificacoes.switchDurabilidadeMilhoesCliques() != null) {
+            sw.setDurabilidadeMilhoesCliques(especificacoes.switchDurabilidadeMilhoesCliques());
+        }
+        if (especificacoes.switchForcaAtuacaoGf() != null) {
+            sw.setForcaAtuacaoGf(especificacoes.switchForcaAtuacaoGf());
+        }
+        if (novo) {
+            switchRepository.persistAndFlush(sw);
+        }
+        return sw;
     }
 }
