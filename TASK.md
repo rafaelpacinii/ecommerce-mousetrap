@@ -2,60 +2,49 @@
 
 ## Current objective
 
-Record the exact post-merge checkpoint on `develop` (`d42c88f`) after completing PR #35
-(`feature/restructure-ai-config` → `develop`), and track pending verification,
-dependency maintenance, `v1.1.0` release preparation and backlog items.
+Establish the visual end-to-end roadmap (`v1.0.0` → `v2.0.0`) in [ROADMAP.md](docs/ROADMAP.md),
+[ADR 0002](docs/adr/0002-post-1-1-roadmap-and-domain-evolution.md), and `scripts/sync_roadmap.py`,
+and queue **Epic E1 (3NF Database Normalization, Enriched Entities & PlantUML Reconciliation)**
+as the immediate next implementation sprint on `develop`.
 
-## Where we stopped (checkpoint on 2026-11-05)
+## Current checkpoint (2026-11-05)
 
-- Active branch: `develop` at `d42c88f`, synchronized with `origin/develop`.
-- Stable baseline: `main` and tag `v1.0.0` remain at `fbcabb6`; manifests (`api/pom.xml`,
-  `web/package.json`, `web/package-lock.json`) stay at `1.0.0` until release preparation.
-- Completed on `develop` since `v1.0.0`:
-  - Four-banner homepage campaign carousel (`feature/homepage-banner-carousel`, PR #19).
-  - Storefront navigation, catalog search and `/enderecos` WCAG contrast fixes (PRs #20, #24).
-  - Cloudflare R2 catalog image/brand logo uploads and Flyway `V8` (`feature/r2-catalog-images`, PR #21).
-  - Incremental setup procedures and environment guides (`feature/setup-agent`, PR #22; `docs/ai/setup-*.md`).
-  - Dependabot configuration and merged dependency updates across Maven, npm, Actions,
-    Docker and Compose (`feature/configure-dependabot`, PR #23, PRs #25–#34).
-  - Path-based monorepo scope detection in `.github/workflows/verify.yml` and
-    `.github/workflows/cd.yml`, Trivy container scans, GHCR publishing and conditional
-    SSH Compose deployment (`fix/ci-cd-pipeline`, PR #24; `feature/restructure-ai-config`, PR #35).
-  - Repository AI governance restructuring (`AGENTS.md`, `CLAUDE.md`, `.codex/config.toml`,
-    `.agents/project.toml`, 13 skills in `.agents/skills/`, rules/personas, ADR 0001,
-    `scripts/ai_checks.py`, `scripts/check_ai_governance.py`, and `docs/others/` layout, PR #35).
+- **Released baselines:** `v1.0.0` (`fbcabb6`) and `v1.1.0` (`4ff1a36` on `main`, back-merged to
+  `develop` at `59efe94`); manifests (`api/pom.xml`, `web/package.json`, `web/package-lock.json`)
+  are aligned at `1.1.0`.
+- **Visual planning & tracking:**
+  - Canonical specification and Mermaid ER/milestone diagrams: [docs/ROADMAP.md](docs/ROADMAP.md).
+  - Architectural decision record for 3NF domain evolution: [ADR 0002](docs/adr/0002-post-1-1-roadmap-and-domain-evolution.md).
+  - GitHub Milestones/Labels/Issues sync utility: `scripts/sync_roadmap.py` + `scripts/test_roadmap.py`.
 
-## Step-by-step checklist (completed vs. remaining)
+## Master execution queue (`v1.2.0` → `v2.0.0`)
 
-- [x] Restructure AI governance, 13 canonical skills, runner presets and `docs/others/` layout.
-- [x] Add path-based monorepo scope detection to `verify.yml` and `cd.yml`.
-- [x] Resolve PR #35 conflicts with `origin/develop` (`dae0043`), align Angular 22.2.4 /
-      Material & CDK 22.2.5 manifests, push `ea27489` and merge PR #35 into `develop` (`d42c88f`).
-- [x] Update `TASK.md` and `docs/SYSTEM_STATE.md` with the post-merge checkpoint and remaining work.
-- [ ] Review and validate the two pending Maven Dependabot branches rebased on `d42c88f`:
-  - `origin/dependabot/maven/api/develop/maven-plugins-efb2ace15a` (`8547d6d`: Surefire/Failsafe `3.5.6` → `3.6.1`).
-  - `origin/dependabot/maven/api/develop/org.apache.maven-apache-maven-3.10.0` (`9d12c24`: Maven Wrapper `3.9.16` → `3.10.0`).
-- [ ] Clean up superseded remote branches (`github-actions-073acec55a`, `angular-1b495c61cd` and merged feature branches) when authorized.
-- [ ] Execute Docker-backed checks (`cd api && ./mvnw -B -Prelease clean verify` against PostgreSQL on `localhost:55439` and `sh scripts/verify_release.sh` for Playwright/Axe E2E) on a Docker-enabled host or confirm remote CI on `develop`.
-- [ ] Prepare release `v1.1.0` when requested: branch `release/v1.1.0` from `develop`, align manifest versions to `1.1.0` per [versioning policy](docs/others/versioning.md), open PR to `main`, tag `v1.1.0` and back-merge to `develop`.
-- [ ] Complete external production readiness before public hosting: HTTPS domains/proxy, production Keycloak/SMTP, `DEPLOY_*` and R2 secrets, and database/identity backup-restore rehearsal.
-- [ ] Scope and approve future backlog slices before implementation: categories (`V9+`), live payment gateway/webhooks/refunds, carrier shipping APIs, curated/sales-based merchandising, R2 orphan cleanup, and integer-cent client/JSON price migration.
+- [x] **Release `v1.0.0`:** Slices 1–7 storefront, OIDC PKCE, cart, checkout, portal, admin & E2E (`V1`–`V7`).
+- [x] **Release `v1.1.0`:** 4-banner carousel, Cloudflare R2 uploads (`V8`), Dependabot, monorepo CI/CD & AI governance.
+- [x] **Roadmap foundation:** Create `docs/ROADMAP.md`, `ADR 0002`, and `scripts/sync_roadmap.py` covering Epics `E1`–`E7`.
+- [ ] **Epic E1 (`v1.2.0` — Next):** 3NF Database Normalization (`V9`: `Pais`, enriched `Marca`, `Sensor`, `SwitchMouse`, enriched `Cliente` + `TelefoneCliente`, `Desejo.cliente`, `Transportadora`) & PlantUML diagram reconciliation.
+- [ ] **Epic E2 (`v1.2.0`):** Product Categories (`V10`: `Categoria` entity/service/resource) & admin/catalog UI for normalized 3NF components (`/admin/categorias`, `/admin/sensores`, `/admin/switches`, `/admin/transportadoras`, `/catalogo` facets).
+- [ ] **Epic E3 (`v1.3.0`):** Real Merchandising (`V11`: curated weekly highlights `GET /catalogo/mouses/destaques` & real sales-based `ordenar=mais-vendidos`).
+- [ ] **Epic E4 (`v1.3.0`):** Discount Coupons (`V12`: `Cupom` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & order snapshot).
+- [ ] **Epic E5 (`v1.4.0`):** Verified Customer Reviews (`V13`: `Avaliacao` 1–5 star ratings, purchase ownership check, JSON-LD `aggregateRating` & admin moderation).
+- [ ] **Epic E6 (`v1.4.0`):** Order Refunds & Restock (`V14`: `StatusPedido.REEMBOLSADO`, `StatusPagamento.ESTORNADO`, atomic single stock restoration & `EventoPedido`).
+- [ ] **Epic E7 (`v2.0.0`):** External Gateways, R2 Orphan Cleanup & Integer-Cent Price Migration (`V15`: `evento_webhook_pagamento`, `PagamentoGateway`/`FreteGateway`, `precoCentavos` & blocking Trivy gates).
 
-## Acceptance criteria for current checkpoint
+## Step-by-step subtasks for active Epic E1 (ready to start after merging roadmap PR)
 
-- `TASK.md` and `docs/SYSTEM_STATE.md` accurately reflect `develop` at `d42c88f` and distinguish completed work, blocked local checks, release steps and planned features.
-- Governance verification (`python3 scripts/ai_checks.py verify --scope governance`) and Python unit tests pass within the 180-line / 12,000-character entrypoint budget.
-- No remote push, branch deletion or release creation is executed without explicit user authorization.
+- [ ] Create `api/src/main/resources/db/migration/V9__normalizar_catalogo_clientes_transportadoras.sql` with safe backfill of existing `mouse`, `marca`, `cliente`, `desejo` and `pedido` data.
+- [ ] Implement JPA entities (`Pais`, `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, `TipoTelefone`), repositories, record DTOs, and services while keeping existing REST contracts backward-compatible.
+- [ ] Reconcile `api/docs/modelagem/diagrama-de-classes.puml`, `banco-de-dados.puml`, and `README.md` with the 3NF model, and update stale R2 notes in `api/README.md` and `docs/others/implementation-backlog.md`.
+- [ ] Verify migration `V9`, backend tests, and governance checks.
 
 ## Session decisions
 
-- Keep application manifests at `1.0.0` on `develop`; version bumps happen exclusively on `release/v1.1.0` per `docs/others/versioning.md`.
-- Preserve partial-build CD fallback (`latest` for unchanged service images) and non-blocking Trivy exit code (`0`) until an explicit policy change is requested.
-- Record Docker-dependent backend/E2E checks as pending environment prerequisites rather than skipping or removing tests.
+- Address the professor's modeling feedback by normalizing transitive dependencies (`Sensor`, `SwitchMouse`, `Pais`, `TelefoneCliente`, `Transportadora`) and enriching `Marca`, `Mouse`, and `Cliente` in incremental Flyway migrations (`V9`–`V10`), never rewriting `V1`–`V8`.
+- Keep `scripts/sync_roadmap.py` safe by default (`--dry-run`) and require explicit `--apply` before mutating GitHub Milestones/Issues.
 
 ## Validation evidence
 
 - `python3 scripts/ai_checks.py verify --scope governance`: passed (entrypoints, 13 skills, links, TOML and context budgets).
-- `python3 -m unittest discover -s scripts -p 'test_*.py' -v`: 11 Python unit tests passed.
-- Previous integration checks on `ea27489`/`d42c88f`: actionlint 1.7.12 passed on `verify.yml` and `cd.yml`; `npm ci`, `npm run audit` (0 vulnerabilities), web `tsc --noEmit`, 127 Vitest tests across 26 files, `npm run build` (347.36 kB initial bundle), API `./mvnw -B -Prelease clean compile` (118 Java 17 source files) and deterministic `scripts/package_release.py` passed.
-- Pending Docker-dependent checks in this WSL environment: `cd api && ./mvnw -B -Prelease clean verify` (requires PostgreSQL on `localhost:55439`) and `sh scripts/verify_release.sh` (requires Docker Compose).
+- `python3 -m unittest discover -s scripts -p 'test_*.py' -v`: 14 Python unit tests passed (including `test_roadmap.py`).
+- `python3 scripts/sync_roadmap.py --dry-run`: passed (6 milestones, 8 labels, 9 epic issues verified).
+- `python3 scripts/package_release.py` and `git diff --check`: passed.
