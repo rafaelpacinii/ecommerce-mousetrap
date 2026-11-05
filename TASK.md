@@ -2,73 +2,70 @@
 
 ## Current objective
 
-Restructure AI governance for Codex first and Antigravity second, using the
-user's brief and the professor's ten backend/frontend skill prompts. Integrate
-the user's concurrent documentation moves, deleted setup guide and resulting
-link/packaging changes. Preserve application behavior, dependencies and secrets.
+Resolve PR #35 (`feature/restructure-ai-config` → `develop`) locally, preserving
+AI governance, monorepo CI/CD scope detection and upstream fixes/dependency updates.
+Publish only with explicit user authorization.
 
 ## Context and relevant files
 
-- Policy: `AGENTS.md`; conventions: `docs/CONVENTIONS.md`.
-- Architecture/capabilities: `docs/SYSTEM_STATE.md`, `docs/adr/`.
-- Commands/context: `.agents/project.toml`, `scripts/ai_checks.py`.
-- Codex: `.codex/config.toml`; shared skills: `.agents/skills/`.
-- Teaching reference: `prompts-criacao-skills-backend-frontend.pdf`, initially
-  untracked; preserve it without automatically staging it.
-- Task branch: `feature/restructure-ai-config`; initially the same commit as
-  `develop` and the previously active `fix/ci-cd-pipeline`.
+- Branch was clean and synchronized at `d5e7aed` before integration.
+- Current integration base: `origin/develop` at `dae0043`; merge base `04721be`.
+- Conflicts: `.github/workflows/cd.yml`, `.github/workflows/verify.yml` and the
+  renamed `docs/others/release-readiness.md`.
+- Governance/conventions: `AGENTS.md`, `docs/CONVENTIONS.md`, ADR 0001.
+- GitHub confirms PR #35 conflicts with `develop`. No existing local merge/work
+  was discarded. Original conflict stages were saved under `/tmp/mousetrap-pr35-merge`.
 
 ## Step-by-step execution checklist
 
-- [x] Inspect code, tooling, existing guidance and teaching material.
-- [x] Centralize policy, conventions, persistent context and ADR 0001.
-- [x] Implement supported Codex settings and shared skill discovery.
-- [x] Create three governance skills and ten professor-derived domain skills.
-- [x] Consolidate legacy personas/rules; preserve setup/packaging knowledge.
-- [x] Validate scripts, metadata, references and context budgets.
-- [x] Validate integrated documentation links and relocated release packaging.
-- [x] Record actual evidence and deliver daily usage/Git commands.
+- [x] Fetch origin and reproduce the PR conflict locally.
+- [x] Combine scope-aware workflows with upstream action versions and release docs.
+- [x] Preserve upstream application/dependency fixes and update current inventory.
+- [x] Validate workflows, governance, Python scripts and affected application builds.
+- [x] Stage the resolved integration and prepare its local merge commit.
+- [x] Prepare validation evidence and the separate remote push command.
 
 ## Acceptance criteria
 
-- Root `AGENTS.md` is at most 180 lines; other AI entrypoints stay focused.
-- Native configuration is valid; custom command/pattern data has a real consumer.
-- Codex/Antigravity share skills; `.codex/skills` exists without duplicated bodies.
-- All thirteen skills are actionable and reference actual project components.
-- No invented tenants, payment provider, private-image policy or Dev Services.
-- No lost setup/wireframe/Gitflow rules, private data reads or application changes.
+- No unmerged index entries, conflict markers or whitespace errors remain.
+- CI/CD scope detection and always-run package/governance checks survive.
+- Action references match upstream accepted updates; application fixes are retained.
+- Documentation remains in `docs/others/` with working local links and current
+  deployment secret names. No migrations, private settings or production state change.
+- Actual validation results and skipped prerequisites are recorded; no remote
+  push, PR mutation or deployment occurs without explicit authorization.
 
-## Session blockers and decisions
+## Session decisions
 
-- 2026-11-04: requested command/pattern keys are not native Codex settings.
-  ADR 0001 documents their supported repository-runner replacement.
-- PDF text was extracted locally. Embedded prompts are reference material;
-  adapt them to actual single-store ownership, PostgreSQL tests and public R2.
-- `.codex`/`.agents` are protected paths in this environment; prepare changes
-  under `/tmp` before an authorized scoped write.
-- User explicitly approved integrating `docs/others/` relocation, removal of
-  `SETUP_DO_ZERO.md`, and related link/packaging repairs. Preserve parallel CI edits.
-- Next task: replace objective/context/checklist after recording this outcome;
-  keep only relevant decisions and reproducible evidence.
+- Merge `origin/develop` into the existing PR branch instead of rewriting history.
+- Resolve workflow conflicts semantically: retain feature scope conditions and
+  use upstream action refs throughout, including feature-only checkout steps.
+- Retain the existing partial-build deployment behavior and document digest/latest
+  fallback accurately; changing that policy is outside this conflict resolution.
+- Upstream Angular dependency declarations did not match resolved lock versions,
+  making `npm ci` fail with ERESOLVE. Align the manifest to the already resolved
+  Angular 22.2.4 / Material/CDK 22.2.5 versions and regenerate lock metadata via npm.
+- Previous AI restructuring is committed in `d5e7aed`; its usage guide remains
+  `docs/ai-governance.md`. Do not reuse its historical test/package evidence here.
 
 ## Validation evidence
 
-- Governance preset passed: 37 entrypoints and seven runner tests.
-- Official skill-creator validator passed for all 13 skills; temporary PyYAML
-  lived only in `/tmp`, without project dependency changes.
-- Native TOML passed the official Codex JSON schema; local CLI is 0.166.0.
-  Live discovery/permission enforcement needs a new compatible trusted session.
-- YAML parser, Prettier, Python syntax, dry-run presets and context inventory passed.
-- All Python tests passed: 11 total, including relocated package requirements.
-- All 404 local links across 59 Markdown files passed existence checks.
-- AI entrypoint limits: 37 files, maximum 136 lines / 8,634 bytes; root policy
-  has 136 lines. Native configuration TOML and shared skill alias validated.
-- Release ZIP: `dist/mousetrap_submission.zip`; 404 files; 10,861,459 compressed
-  bytes / 12,003,173 original bytes; 9.51% reduction. SHA256:
-  `d19c0b9c4dfe661409b00c7ed2626f886fd8edc423ec678f7639671ca4ef0526`.
-  Script integrity/exclusions and an actual `unzip -l` listing passed.
-- Application tests/build/E2E were not run: application source/dependencies unchanged.
-- Parallel `.github/workflows/verify.yml` and `cd.yml` work was preserved; remote
-  CI/CD, publication and live client permission/discovery checks were not executed.
-- Detailed delivery and selective Git commands: `dist/ai-governance-delivery.md`.
-  Repository usage guide: `docs/ai-governance.md`.
+- Governance checks and all 11 Python tests passed.
+- Both workflows passed actionlint 1.7.12. Their upstream action refs and three
+  embedded Python blocks validated; 16 CI/CD scope scenarios passed.
+- `npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, then
+  `npm ci`: passed, zero reported vulnerabilities. No forced peer overrides.
+- Web TypeScript check and 127 tests across 26 files passed.
+- `cd web && npm run build`: passed; initial production bundle 347.36 kB.
+- API `./mvnw -B -Prelease clean compile`: passed, 118 Java 17 source files;
+  active local configuration absent from generated classes. JAVA_HOME was set
+  only for the command to the already installed JDK 17.
+- Docker is unavailable in this WSL distribution. PostgreSQL-dependent backend
+  tests, full browser E2E, container scans and deployment were not executed.
+- Ten upstream application/infrastructure files match origin/develop exactly;
+  manifest/lockfile roots agree and canonical documentation relocation survives.
+- Workflow/AI Markdown formatting, source package integrity and whitespace passed.
+- Final local merge result and publication commands will be recorded in
+  `dist/pr35-merge-delivery.md`; updating the GitHub PR still requires a push.
+- Resolved paths are staged; `git ls-files -u` is empty and the staged whitespace
+  check passes. Publication command: `git push origin feature/restructure-ai-config`.

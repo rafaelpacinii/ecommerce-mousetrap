@@ -107,31 +107,40 @@ Prepare these concrete environment changes before exposing a host:
    into a separate stack, validate Flyway checksums and apply migrations before
    switching traffic. Database rollback requires a compatible backup/forward fix;
    do not edit V1–V7 or run Flyway clean against an installation.
-6. Pin approved container image digests for the deployment and scan those images
-   in its registry. CI audits npm dependencies, runs application checks and scans
-   the `api` and `web` container images with Trivy (`CRITICAL,HIGH`), while
-   upstream base-image advisories remain tracked during release reviews.
+6. Pin approved container image digests for deployment and scan those images.
+   CI (`verify.yml`) and CD (`cd.yml`) scan built `mousetrap-api` and
+   `mousetrap-web` images with Trivy for `HIGH` and `CRITICAL` OS/library findings,
+   alongside the npm audit. Trivy currently uses non-blocking exit status; review
+   findings and upstream base-image advisories before release.
 
 The maintained local setup procedure covers [environment discovery](../ai/setup-environment.md)
 and [Docker, identity, email and R2 integrations](../ai/setup-integrations.md).
 
-## Repeatable verification
+## Repeatable verification and continuous delivery
 
 GitHub Actions `.github/workflows/verify.yml` uses a `changes` job to inspect
-modified monorepo scopes on `push` and `pull_request` events (`full` on `main`,
-`v*.*.*` tags and `workflow_dispatch`) and conditionally orchestrates five jobs:
-Java 17 + PostgreSQL tests and release packaging checks (`backend`); Node 24
-audit/unit/build (`frontend`); Trivy container vulnerability scanning for `api`
-and `web` (`container-scan`); Docker + Chromium browser tests (`browser`); and
-deterministic source packaging plus governance checks (`package`, which always
-runs so branch protection receives a required status check even on docs-only PRs).
-Permissions are read-only; the browser job creates generated credentials and
-isolated volumes rather than using repository credentials. Continuous delivery
-and release automation are defined separately in `.github/workflows/cd.yml`,
-which conditionally builds and pushes modified images (`mousetrap-api` and
-`mousetrap-web`) to GHCR on `main` and `v*.*.*` tags, publishes GitHub Releases
-with the source archive, and triggers SSH + Docker Compose deployment when
-`PROD_SSH_HOST` is configured.
+modified monorepo scopes on `push` and `pull_request` events. Checks run in full
+on `main` and manual dispatch; feature PRs conditionally run `backend`, `frontend`,
+`container-scan` and `browser`. The `package` job always runs Python tests, source
+packaging and governance checks so documentation-only PRs still receive a status.
+Verification uses read-only permissions and performs no deployment or publishing.
+The browser job uses generated credentials and isolated volumes.
+
+GitHub Actions `.github/workflows/cd.yml` runs on pushes to `main`, semantic
+version tags (`v*.*.*`), and manual dispatch:
+
+- `prepare-release`: verifies the shared API/web/lockfile version and release tag,
+  runs Python tests, and generates the source ZIP and SHA-256 file. It detects
+  affected API/web scopes; tags and manual dispatch build both images.
+- `publish-images`: builds, scans and publishes changed images to GHCR using
+  `GITHUB_TOKEN`, retaining the digest outputs. Documentation-only pushes skip it.
+- `github-release`: on version tags, creates/updates the release with image
+  digests, the source archive and its checksum.
+- `deploy`: when changes need deployment and `DEPLOY_HOST`, `DEPLOY_USER` and
+  `DEPLOY_SSH_KEY` are configured, copies the production Compose source/theme over
+  SSH and updates the stack. Changed images use their published digests; unchanged
+  image references fall back to `latest` in the existing partial-build workflow.
+  Missing deployment secrets produce setup instructions and skip the SSH step.
 
 ```fish
 cd web

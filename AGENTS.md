@@ -25,9 +25,9 @@ R2 image uploads exist. Categories, refunds, carrier APIs and webhooks are plann
 
 ## Tech stack and tooling
 
-- API: Java 17, Quarkus 3.39.3, Maven Wrapper, Hibernate ORM/Panache repositories,
+- API: Java 17, Quarkus 3.40.1.1, Maven Wrapper, Hibernate ORM/Panache repositories,
   Bean Validation, Flyway and PostgreSQL 16. See `api/pom.xml`.
-- Web: Angular/Material/CDK 22.2.3, TypeScript 6, Node 24 and **npm 11**.
+- Web: Angular 22.2.4, Material/CDK 22.2.5, TypeScript 6, Node 24 and **npm 11**.
   `web/package.json` pins npm. Use `npm ci`, not yarn/pnpm.
 - Identity: Keycloak 26.8.1, realm `mousetrap`, clients `mousetrap-web` and
   `mousetrap-api`, roles `admin`/`customer`. Compose pins service images.

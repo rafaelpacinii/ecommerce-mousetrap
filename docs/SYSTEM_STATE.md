@@ -23,9 +23,9 @@ capabilities change; use `TASK.md` for temporary execution state.
 
 ## Current architecture
 
-- API: Java 17 / Quarkus 3.39.3; Resource → Service → Repository → Entity,
+- API: Java 17 / Quarkus 3.40.1.1; Resource → Service → Repository → Entity,
   record DTOs and RFC Problem Details. See [conventions](CONVENTIONS.md).
-- Web: Angular 22.2.3 / Material/CDK, TypeScript 6, Node 24 / npm 11;
+- Web: Angular 22.2.4 / Material/CDK 22.2.5, TypeScript 6, Node 24 / npm 11;
   standalone components, signals/services, reactive forms and functional resolvers.
 - Identity: Keycloak 26.8.1, single store, `admin`/`customer`, JWT subject ownership.
   **No multitenancy, organization selector or client-supplied tenant context.**

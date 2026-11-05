@@ -59,7 +59,7 @@ Start the local [identity stack](../docs/others/authentication.md) before signin
 
 Administration links appear for authorized operators. Legacy CRUD paths redirect
 to `/admin/**`. Login and registration are at `/login` and `/cadastro`; the owned
-profile/address form is at `/minha-conta`. Credentials and recovery are handled by
+profile and address forms are at `/meus-dados` and `/enderecos`. Credentials and recovery are handled by
 the branded identity provider forms.
 
 ## Structure

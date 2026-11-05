@@ -1,6 +1,6 @@
 # MouseTrap
 
-Gaming mouse storefront and administration built with Angular 22.2, Quarkus 3.39,
+Gaming mouse storefront and administration built with Angular 22.2, Quarkus 3.40,
 Java 17, PostgreSQL 16 and Keycloak 26.8. The repository includes the application,
 identity theme, SVG wireframes, automated verification and source packaging.
 
