@@ -96,4 +96,21 @@ describe('authentication session', () => {
     expect(auth.authenticated()).toBe(false);
     expect(auth.error()).not.toBe('');
   });
+
+  it('computes user initials, principal role label, and role membership via Angular Signals', async () => {
+    adapter.tokenParsed = { name: 'Rafael Pacini', email: 'rafael@example.com', sub: 'sub-1' };
+    const auth = TestBed.inject(AuthService);
+    await auth.initialize();
+    expect(auth.iniciaisUsuario()).toBe('RP');
+    expect(auth.perfilPrincipal()).toBe('Cliente');
+    expect(auth.hasAnyRole(['customer'])).toBe(true);
+    expect(auth.hasAnyRole(['admin'])).toBe(false);
+    auth.roles.set(['admin', 'customer']);
+    expect(auth.perfilPrincipal()).toBe('Administrador');
+    expect(auth.hasAnyRole(['admin'])).toBe(true);
+    auth.clear();
+    expect(auth.iniciaisUsuario()).toBe('');
+    expect(auth.perfilPrincipal()).toBe('');
+    expect(auth.hasAnyRole(['customer'])).toBe(false);
+  });
 });
