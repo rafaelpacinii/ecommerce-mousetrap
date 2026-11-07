@@ -38,8 +38,24 @@ export class AuthService {
   readonly subject = signal('');
   readonly nome = signal('');
   readonly email = signal('');
+  readonly iniciaisUsuario = computed(() => {
+    const base = (this.nome() || this.email()).trim();
+    if (!base) return '';
+    const partes = base.split(/\s+/).filter(Boolean);
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  });
+  readonly perfilPrincipal = computed(() => {
+    if (!this.authenticated()) return '';
+    return this.admin() ? 'Administrador' : 'Cliente';
+  });
   readonly error = signal('');
   readonly redirecting = signal(false);
+
+  hasAnyRole(rolesPermitidas: readonly string[]): boolean {
+    if (!rolesPermitidas.length) return this.authenticated();
+    return this.authenticated() && rolesPermitidas.some((role) => this.roles().includes(role));
+  }
 
   initialize(): Promise<void> {
     return (this.initialization ??= this.start());

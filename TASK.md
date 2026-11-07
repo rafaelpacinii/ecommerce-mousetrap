@@ -16,8 +16,11 @@ on branch `feature/complete-uml-and-business-rules`, then advance to
     to global [docs/modelagem/](docs/modelagem/README.md) (`diagrama-de-classes.puml`,
     `banco-de-dados.puml`, `README.md`, and rendered `.png` previews) covering implemented
     `V1`–`V9` entities/tables and approved planned `V10`–`V15` evolution.
-  - Created [docs/BUSINESS_RULES.md](docs/BUSINESS_RULES.md) codifying 72 numbered rules
-    (`BR-GOV`, `BR-IAM`, `BR-CAT`, `BR-CLI`, `BR-CRT`, `BR-PRC`, `BR-ORD`, `BR-PAY`, `BR-REV`).
+  - Created [docs/BUSINESS_RULES.md](docs/BUSINESS_RULES.md) codifying 73 numbered rules
+    (`BR-GOV`, `BR-IAM`, `BR-CAT`, `BR-CLI`, `BR-CRT`, `BR-PRC`, `BR-ORD`, `BR-PAY`, `BR-REV`),
+    including `BR-IAM-09` locking in-memory tokens + Keycloak `HttpOnly` SSO cookies (zero `localStorage`).
+  - Enriched Angular `AuthService` with computed signals (`iniciaisUsuario`, `perfilPrincipal`) and
+    `hasAnyRole` to match the professor's session-signal patterns without storing tokens in `localStorage`.
   - Wired mandatory business-rule consultation and explicit user-authorization locks into
     `AGENTS.md`, `.agents/rules/business-rules.md`, domain skills, `scripts/check_ai_governance.py`,
     and `scripts/package_release.py`.
