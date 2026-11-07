@@ -168,8 +168,9 @@
             <p class="frete-erro" role="alert">{{ erroFrete() }}</p>
           } @else if (carrinho.frete(); as frete) {
             <p class="frete-info" role="status">
-              Entrega para {{ frete.localidade }}/{{ frete.uf }} em até
-              {{ frete.prazoDiasUteis }} dias úteis
+              Entrega para
+              {{ frete.localidade ? frete.localidade + '/' + frete.uf : 'o CEP ' + frete.cep }} em
+              até {{ frete.prazoDiasUteis }} dias úteis
             </p>
           }
         </div>

@@ -80,6 +80,18 @@ class PedidoResourceTest {
     void vencer(long id) { QuarkusTransaction.requiringNew().run(() -> { var p = pedidos.findById(id); p.setCriadoEm(Instant.now().minusSeconds(7200)); p.setExpiraEm(Instant.now().minusSeconds(3600)); }); }
     Map<String,Object> pagamento(String chave, int resultado) { return Map.of("chaveIdempotencia", chave, "forma", 1, "resultadoSimulado", resultado); }
 
+    @Test void checkoutUsesSavedAddressDuringPostcodeOutage() {
+        QuarkusTransaction.requiringNew().run(() -> enderecos.findById(enderecoId).setCep("88888888"));
+        var dto = compra();
+        given().contentType("application/json").body(dto).post("/pedidos/revisao")
+                .then().statusCode(200).body("frete.localidade", is("São Paulo"))
+                .body("frete.uf", is("SP"));
+        long id = criar(dto);
+        assertEquals(id, criar(dto));
+        assertEquals(4, estoque());
+        given().get("/pedidos/" + id).then().statusCode(200).body("total", is(129.90f));
+    }
+
     @Test void revisaoIdempotenciaSnapshotEPropriedade() {
         var dto = compra();
         given().contentType("application/json").body(dto).post("/pedidos/revisao").then().statusCode(200).body("total", is(129.90f));

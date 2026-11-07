@@ -225,9 +225,14 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
     await expect(
       page.locator('mat-error').filter({ hasText: 'Campo obrigatório.' }).first(),
     ).toBeVisible();
-    await page.locator('.profile-form [formControlName="cep"]').fill('01001000');
-    await page.locator('.profile-form [formControlName="cep"]').blur();
-    await expect(page.locator('.profile-form .municipio-info')).toContainText('São Paulo');
+    await page.locator('.profile-form [formControlName="cep"]').fill('88888888');
+    await page.getByRole('button', { name: 'Consultar CEP', exact: true }).click();
+    await expect(page.locator('.profile-form [role="alert"]')).toContainText('manualmente');
+    await page.getByRole('button', { name: 'Preencher endereço manualmente', exact: true }).click();
+    await page.getByLabel('Estado', { exact: true }).selectOption('SP');
+    await page.getByLabel('Município', { exact: true }).selectOption('3550308');
+    await page.locator('.profile-form [formControlName="logradouro"]').fill('Rua manual');
+    await page.locator('.profile-form [formControlName="bairro"]').fill('Centro');
     await page.locator('.profile-form [formControlName="numero"]').fill('10');
     await audit(page, '.profile-form');
     await page.locator('.profile-form button[type="submit"]').click();
@@ -242,10 +247,19 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze()
       .then((result) => expect(result.violations.map((v) => v.id)).toEqual([]));
-    await page
-      .locator('.form-endereco')
-      .getByRole('button', { name: 'Cancelar', exact: true })
-      .click();
+    await page.locator('.form-endereco [formControlName="cep"]').fill('01001000');
+    await page.getByRole('button', { name: 'Consultar CEP', exact: true }).click();
+    await expect(page.getByLabel('Município', { exact: true })).toHaveValue('3550308');
+    await expect(page.locator('.form-endereco [formControlName="logradouro"]')).toHaveValue('Praça da Sé');
+    await page.locator('.form-endereco [formControlName="numero"]').fill('20');
+    await page.locator('.form-endereco button[type="submit"]').click();
+    await expect(page.locator('.card-endereco')).toHaveCount(2);
+    const secondary = page.locator('.card-endereco').filter({ hasText: 'Casa' });
+    await secondary.getByRole('button', { name: /Editar/ }).click();
+    await page.locator('.form-endereco [formControlName="cep"]').fill('88888888');
+    await page.locator('.form-endereco [formControlName="numero"]').fill('S/N');
+    await page.locator('.form-endereco button[type="submit"]').click();
+    await expect(secondary).toContainText('S/N');
     await page.goto(web + '/checkout');
     await expect(page.locator('.confirm-button')).toBeEnabled();
     await audit(page, '.confirm-button');

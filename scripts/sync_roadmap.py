@@ -37,25 +37,25 @@ MILESTONES = (
         'key': 'v1.2.0',
         'title': 'v1.2.0 — 3NF Normalization, Enriched Catalog & Categories',
         'state': 'open',
-        'description': 'Epics E1 & E2: 3NF relational restructuring (Pais, Marca+, Sensor, SwitchMouse, TelefoneCliente, Transportadora — V9), PlantUML reconciliation, and Product Categories (Categoria — V10).',
+        'description': 'Epics E1 & E2: 3NF relational restructuring (Pais, Marca+, Sensor, SwitchMouse, TelefoneCliente, Transportadora — V9), PlantUML reconciliation, and Product Categories (Categoria — V11).',
     },
     {
         'key': 'v1.3.0',
         'title': 'v1.3.0 — Merchandising & Discount Coupons',
         'state': 'open',
-        'description': 'Epics E3 & E4: Curated weekly highlights, real best-sellers sales aggregation (V11), and Discount Coupons (Cupom) with atomic checkout redemption (V12).',
+        'description': 'Epics E3 & E4: Curated weekly highlights, real best-sellers sales aggregation (V12), and Discount Coupons (Cupom) with atomic checkout redemption (V13).',
     },
     {
         'key': 'v1.4.0',
         'title': 'v1.4.0 — Customer Reviews & Order Refunds',
         'state': 'open',
-        'description': 'Epics E5 & E6: Verified 1–5 star customer reviews with SEO AggregateRating (V13) and Order Refunds with atomic stock restoration (V14).',
+        'description': 'Epics E5 & E6: Verified 1–5 star customer reviews with SEO AggregateRating (V14) and Order Refunds with atomic stock restoration (V15).',
     },
     {
         'key': 'v2.0.0',
         'title': 'v2.0.0 — External Gateways, R2 Cleanup & Integer-Cent Pricing',
         'state': 'open',
-        'description': 'Epic E7: R2 orphan cleanup, pluggable payment/shipping gateways & webhook idempotency (V15), integer-cent price migration, and blocking Trivy gates.',
+        'description': 'Epic E7: R2 orphan cleanup, pluggable payment/shipping gateways & webhook idempotency (V16), integer-cent price migration, and blocking Trivy gates.',
     },
 )
 
@@ -126,17 +126,17 @@ EPICS = (
     },
     {
         'code': 'E2',
-        'title': '[Epic E2] Product Categories (Categoria) & Enriched Component CRUD Screens (V10)',
+        'title': '[Epic E2] Product Categories (Categoria) & Enriched Component CRUD Screens (V11)',
         'milestone': 'v1.2.0',
         'state': 'open',
         'column': 'Planned',
-        'migration': 'V10',
+        'migration': 'V11',
         'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
         'body': (
             '## Objective\n'
             'Add product taxonomy (`Categoria`) and expose complete administrative CRUD and public catalog filters for the normalized 3NF entities.\n\n'
             '## Checklist\n'
-            '- [ ] Create `V10__criar_categorias.sql` (`categoria` table + `mouse.categoria_id` FK and index).\n'
+            '- [ ] Create `V11__criar_categorias.sql` (`categoria` table + `mouse.categoria_id` FK and index).\n'
             '- [ ] Implement `Categoria` entity, repository, DTOs, service and admin resource (`/categorias`).\n'
             '- [ ] Expose admin endpoints for `/sensores`, `/switches`, `/transportadoras` and `/paises`.\n'
             '- [ ] Extend `GET /catalogo/mouses` and `GET /catalogo/filtros` with `idCategoria`, `idSensor` and `idSwitch` facets.\n'
@@ -146,25 +146,7 @@ EPICS = (
     },
     {
         'code': 'E3',
-        'title': '[Epic E3] Real Merchandising: Curated Weekly Highlights & Best-Sellers Aggregation (V11)',
-        'milestone': 'v1.3.0',
-        'state': 'open',
-        'column': 'Planned',
-        'migration': 'V11',
-        'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
-        'body': (
-            '## Objective\n'
-            'Deliver data-backed merchandising on the storefront homepage and catalog.\n\n'
-            '## Checklist\n'
-            '- [ ] Create `V11__adicionar_destaque_mouse.sql` (`destaque` and `ordem_destaque` on `mouse`).\n'
-            '- [ ] Implement `ordenar=mais-vendidos` in `CatalogoServiceImpl` aggregating quantities from paid/shipped/delivered orders.\n'
-            '- [ ] Add `GET /catalogo/mouses/destaques` for curated weekly highlights with deterministic fallback.\n'
-            '- [ ] Add highlight controls in `/admin/mouses` and wire `/` and `/catalogo` to the new merchandising endpoints.\n'
-        ),
-    },
-    {
-        'code': 'E4',
-        'title': '[Epic E4] Discount Coupons (Cupom) & Atomic Checkout Redemption (V12)',
+        'title': '[Epic E3] Real Merchandising: Curated Weekly Highlights & Best-Sellers Aggregation (V12)',
         'milestone': 'v1.3.0',
         'state': 'open',
         'column': 'Planned',
@@ -172,9 +154,27 @@ EPICS = (
         'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
         'body': (
             '## Objective\n'
+            'Deliver data-backed merchandising on the storefront homepage and catalog.\n\n'
+            '## Checklist\n'
+            '- [ ] Create `V12__adicionar_destaque_mouse.sql` (`destaque` and `ordem_destaque` on `mouse`).\n'
+            '- [ ] Implement `ordenar=mais-vendidos` in `CatalogoServiceImpl` aggregating quantities from paid/shipped/delivered orders.\n'
+            '- [ ] Add `GET /catalogo/mouses/destaques` for curated weekly highlights with deterministic fallback.\n'
+            '- [ ] Add highlight controls in `/admin/mouses` and wire `/` and `/catalogo` to the new merchandising endpoints.\n'
+        ),
+    },
+    {
+        'code': 'E4',
+        'title': '[Epic E4] Discount Coupons (Cupom) & Atomic Checkout Redemption (V13)',
+        'milestone': 'v1.3.0',
+        'state': 'open',
+        'column': 'Planned',
+        'migration': 'V13',
+        'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
+        'body': (
+            '## Objective\n'
             'Support percentage and fixed-amount promotional coupons with server-side validation and atomic checkout locking.\n\n'
             '## Checklist\n'
-            '- [ ] Create `V12__criar_cupons_desconto.sql` (`cupom` table + `cupom_id`, `codigo_cupom`, `valor_desconto` on `pedido`).\n'
+            '- [ ] Create `V13__criar_cupons_desconto.sql` (`cupom` table + `cupom_id`, `codigo_cupom`, `valor_desconto` on `pedido`).\n'
             '- [ ] Implement `Cupom` entity, `TipoDesconto` enum/converter, admin CRUD `/cupons` and `POST /cupons/validar`.\n'
             '- [ ] Lock coupon row in `PedidoServiceImpl` during checkout, enforce validity/minimum subtotal/usage cap, and restore usage count on order cancellation or expiry.\n'
             '- [ ] Build `/admin/cupons` CRUD and integrate coupon application in `/carrinho`, `/checkout` and order detail screens.\n'
@@ -182,25 +182,7 @@ EPICS = (
     },
     {
         'code': 'E5',
-        'title': '[Epic E5] Verified Customer Reviews & Product Ratings (Avaliacao — V13)',
-        'milestone': 'v1.4.0',
-        'state': 'open',
-        'column': 'Planned',
-        'migration': 'V13',
-        'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
-        'body': (
-            '## Objective\n'
-            'Allow customers who purchased a mouse to publish verified 1–5 star reviews and surface aggregate ratings in the catalog and SEO JSON-LD.\n\n'
-            '## Checklist\n'
-            '- [ ] Create `V13__criar_avaliacoes_produto.sql` (`avaliacao` linked to `mouse`, `cliente` and `pedido`, `UNIQUE(cliente_id, mouse_id)`).\n'
-            '- [ ] Enforce purchase ownership (`PAGO`, `ENVIADO` or `ENTREGUE`) in `POST /catalogo/mouses/{id}/avaliacoes`.\n'
-            '- [ ] Expose `GET /catalogo/mouses/{id}/avaliacoes`, aggregate rating fields on catalog DTOs, and `PATCH /admin/avaliacoes/{id}/visibilidade`.\n'
-            '- [ ] Render star ratings on product cards and `/catalogo/:id`, add `aggregateRating` in `SeoService`, and build review submission & admin moderation UIs.\n'
-        ),
-    },
-    {
-        'code': 'E6',
-        'title': '[Epic E6] Order Refunds, Post-Payment Cancellation & Stock Restoration (Estorno — V14)',
+        'title': '[Epic E5] Verified Customer Reviews & Product Ratings (Avaliacao — V14)',
         'milestone': 'v1.4.0',
         'state': 'open',
         'column': 'Planned',
@@ -208,9 +190,27 @@ EPICS = (
         'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
         'body': (
             '## Objective\n'
+            'Allow customers who purchased a mouse to publish verified 1–5 star reviews and surface aggregate ratings in the catalog and SEO JSON-LD.\n\n'
+            '## Checklist\n'
+            '- [ ] Create `V14__criar_avaliacoes_produto.sql` (`avaliacao` linked to `mouse`, `cliente` and `pedido`, `UNIQUE(cliente_id, mouse_id)`).\n'
+            '- [ ] Enforce purchase ownership (`PAGO`, `ENVIADO` or `ENTREGUE`) in `POST /catalogo/mouses/{id}/avaliacoes`.\n'
+            '- [ ] Expose `GET /catalogo/mouses/{id}/avaliacoes`, aggregate rating fields on catalog DTOs, and `PATCH /admin/avaliacoes/{id}/visibilidade`.\n'
+            '- [ ] Render star ratings on product cards and `/catalogo/:id`, add `aggregateRating` in `SeoService`, and build review submission & admin moderation UIs.\n'
+        ),
+    },
+    {
+        'code': 'E6',
+        'title': '[Epic E6] Order Refunds, Post-Payment Cancellation & Stock Restoration (Estorno — V15)',
+        'milestone': 'v1.4.0',
+        'state': 'open',
+        'column': 'Planned',
+        'migration': 'V15',
+        'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db'),
+        'body': (
+            '## Objective\n'
             'Model post-payment order refunds (`REEMBOLSADO` / `ESTORNADO`) with atomic stock restoration and immutable timeline events.\n\n'
             '## Checklist\n'
-            '- [ ] Create `V14__adicionar_estorno_pedido_pagamento.sql` expanding status checks and adding `estornado_em` and `motivo_estorno`.\n'
+            '- [ ] Create `V15__adicionar_estorno_pedido_pagamento.sql` expanding status checks and adding `estornado_em` and `motivo_estorno`.\n'
             '- [ ] Implement atomic refund operation in `PedidoServiceImpl` (`POST /admin/pedidos/{id}/estornar` and customer request for unshipped paid orders).\n'
             '- [ ] Restore mouse stock exactly once under deterministic lock ordering and record `EventoPedido`.\n'
             '- [ ] Update `/admin/pedidos/:id` and `/meus-pedidos/:id` with refund actions, badges and timeline entries.\n'
@@ -218,17 +218,17 @@ EPICS = (
     },
     {
         'code': 'E7',
-        'title': '[Epic E7] External Gateways, R2 Orphan Cleanup & Integer-Cent Price Migration (V15)',
+        'title': '[Epic E7] External Gateways, R2 Orphan Cleanup & Integer-Cent Price Migration (V16)',
         'milestone': 'v2.0.0',
         'state': 'open',
         'column': 'Planned',
-        'migration': 'V15',
+        'migration': 'V16',
         'labels': ('epic', 'status:planned', 'scope:api', 'scope:web', 'scope:db', 'scope:docs'),
         'body': (
             '## Objective\n'
             'Close remaining architectural technical debt and introduce pluggable external payment/shipping adapters for `v2.0.0`.\n\n'
             '## Checklist\n'
-            '- [ ] Create `V15__criar_eventos_webhook.sql` (`evento_webhook_pagamento`) for idempotent payment webhook deduplication.\n'
+            '- [ ] Create `V16__criar_eventos_webhook.sql` (`evento_webhook_pagamento`) for idempotent payment webhook deduplication.\n'
             '- [ ] Implement `PagamentoGateway` and `FreteGateway` interfaces keeping local simulation for dev/test while supporting external providers.\n'
             '- [ ] Implement R2 orphan object audit and cleanup service comparing bucket keys with `imagem_mouse` and `marca` URLs.\n'
             '- [ ] Migrate client cart and API price contracts to integer cents (`precoCentavos`) with full test coverage.\n'

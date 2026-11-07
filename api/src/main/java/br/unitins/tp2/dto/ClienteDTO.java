@@ -17,7 +17,7 @@ public record ClienteDTO(
         @Email(message = "Informe um e-mail válido.")
         @Size(max = 254, message = "O e-mail deve ter no máximo 254 caracteres.") String email,
         @NotBlank(message = "Informe o CEP.")
-        @Pattern(regexp = "[0-9]{8}", message = "Informe um CEP com oito dígitos.") String cep,
+        @Pattern(regexp = "[0-9]{5}-?[0-9]{3}", message = "Informe um CEP com oito dígitos.") String cep,
         @NotBlank(message = "Informe o logradouro.")
         @Size(max = 200, message = "O logradouro deve ter no máximo 200 caracteres.") String logradouro,
         @NotBlank(message = "Informe o bairro.")
@@ -27,7 +27,8 @@ public record ClienteDTO(
         @Size(max = 100, message = "O complemento deve ter no máximo 100 caracteres.") String complemento,
         @Pattern(regexp = "^$|^[0-9]{11}$", message = "Informe um CPF com 11 dígitos numéricos.") String cpf,
         @Past(message = "A data de nascimento deve ser anterior à data atual.") LocalDate dataNascimento,
-        @Size(max = 5, message = "Informe no máximo 5 telefones.") List<@Valid TelefoneClienteDTO> telefones) {
+        @Size(max = 5, message = "Informe no máximo 5 telefones.") List<@Valid TelefoneClienteDTO> telefones,
+        @Pattern(regexp = "[0-9]{7}") String codigoIbge) {
     public ClienteDTO(
             String nome,
             String email,
@@ -36,11 +37,18 @@ public record ClienteDTO(
             String bairro,
             String numero,
             String complemento) {
-        this(nome, email, cep, logradouro, bairro, numero, complemento, null, null, null);
+        this(nome, email, cep, logradouro, bairro, numero, complemento, null, null, null, null);
+    }
+
+    public ClienteDTO(String nome, String email, String cep, String logradouro, String bairro,
+            String numero, String complemento, String cpf, LocalDate dataNascimento,
+            List<TelefoneClienteDTO> telefones) {
+        this(nome, email, cep, logradouro, bairro, numero, complemento, cpf, dataNascimento, telefones, null);
     }
 
     public ClienteDTO {
         nome = limpar(nome);
+        cep = cep == null ? null : cep.replace("-", "");
         email = email == null ? null : email.strip().toLowerCase(Locale.ROOT);
         logradouro = limpar(logradouro);
         bairro = limpar(bairro);

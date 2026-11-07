@@ -17,7 +17,8 @@ public record PerfilClienteDTO(
         @Size(max = 100) String complemento,
         @Pattern(regexp = "^$|^[0-9]{11}$", message = "Informe um CPF com 11 dígitos numéricos.") String cpf,
         @Past(message = "A data de nascimento deve ser anterior à data atual.") LocalDate dataNascimento,
-        @Size(max = 5, message = "Informe no máximo 5 telefones.") List<@Valid TelefoneClienteDTO> telefones) {
+        @Size(max = 5, message = "Informe no máximo 5 telefones.") List<@Valid TelefoneClienteDTO> telefones,
+        @Pattern(regexp = "[0-9]{7}") String codigoIbge) {
     public PerfilClienteDTO {
         nome = nome == null ? null : nome.strip();
         cep = cep == null ? null : cep.replace("-", "");
@@ -31,6 +32,6 @@ public record PerfilClienteDTO(
     }
 
     public ClienteDTO comEmail(String email) {
-        return new ClienteDTO(nome, email, cep, logradouro, bairro, numero, complemento, cpf, dataNascimento, telefones);
+        return new ClienteDTO(nome, email, cep, logradouro, bairro, numero, complemento, cpf, dataNascimento, telefones, codigoIbge);
     }
 }

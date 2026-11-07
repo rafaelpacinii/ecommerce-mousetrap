@@ -1,4 +1,69 @@
-# Active sprint / current task
+# Active task — independent address registration
+
+## Objective and authorization (2026-11-07)
+
+Implement the user-approved BR-CLI-04 change: optional ViaCEP autofill, manual
+addresses validated against a local municipality catalog, and freight independent
+of ViaCEP. Branch: `feature/manual-address-resilience` (the initially proposed
+branch already existed and was preserved). No push, PR or deployment authorized.
+
+## Subtasks and acceptance
+
+- [x] Seed official IBGE municipalities additively; PostgreSQL upgrade V1–V9 → V10
+      passed with 5,571 rows, existing IDs/names/FKs preserved and idempotent insert.
+      Fresh Flyway V1–V10 and Hibernate validation passed in the API suite.
+- [x] Add local reference endpoints and optional `codigoIbge` to address DTOs;
+      validate locally, retaining the legacy CEP-only API path.
+- [x] Decouple public estimates and checkout freight from external lookup.
+- [x] Implement accessible manual selection, optional autofill and cancellation
+      without losing entered fields in admin/profile/address forms.
+- [x] Cover outage, invalid municipality, ownership and checkout regressions.
+- [x] Run API/web/governance/build and disposable browser checks; record outcomes.
+- [x] Synchronize rules, ADR, models, system state, dependency inventory and delivery.
+
+## Decisions and affected files
+
+- API: DTOs, Cliente/Cep/Pedido services, new localities/freight services/resources,
+  repositories, new V10 municipality seed and API tests.
+- Web: shared location selector, customer form, models/services, freight text,
+  public interceptor exception and tests.
+- Database: existing tables/IDs/FKs unchanged; insert missing official municipalities
+  only. Future roadmap migration numbers must move after the allocated V10.
+- Manual registration validates format and municipality, not actual postal existence
+  or CEP-to-city correspondence. Keep totals/ownership/stock/idempotency unchanged.
+- Web typecheck passed; first web suite: 126 passed / 9 failures caused by an outdated
+  route fixture (missing IBGE code/locality requests). Corrected: 135/135 tests pass
+  across 27 files. Production build passed without budget warnings.
+- API preset: 60 tests pass, zero failures/errors/skips. Fresh V1–V10 migrations
+  applied on PostgreSQL 16.15 and Hibernate validated the schema. Full release
+  `clean verify` passed (same 60 tests); Failsafe remains skipped by configuration.
+- Disposable `sh scripts/verify_release.sh`: 5 Playwright tests passed (1.3 minutes
+  for browser execution). Includes real PKCE, manual registration with upstream 503,
+  optional autofill, address edit, checkout, ownership/fulfillment, responsive
+  1440/1024/768/375/320 px and Axe checks. Its own containers/volumes were removed.
+- Governance preset passed after rule/ADR/model/documentation updates.
+- PlantUML syntax and both PNG renders passed using PlantUML 1.2026.0.
+- Python suite: 15 tests passed; after aligning sync_roadmap.py with V11–V16,
+  its three tests passed again. No GitHub synchronization was executed.
+- Maven initially blocked by inherited JAVA_HOME and sandbox cache permissions;
+  retry uses installed JDK 17 and approved access to cache and isolated DB.
+- No private configuration has been read or changed.
+
+## Final handoff
+
+- Implementation and required checks complete; no unresolved test failures.
+- [Delivery report](docs/others/manual-address-delivery.md) contains categorized
+  files, rollout/recovery limits and selective Git/PR commands.
+- Next step: user review and optional commit/publication. Nothing staged; no commit,
+  push, PR, production migration, identity reset or deployment performed.
+- Legacy CEP-only API calls remain external-dependent for compatibility; new web
+  calls always include `codigoIbge`. Manual entry cannot certify CEP/city matching.
+- Release package: generated with `scripts/package_release.py`; exact archive
+  metrics and SHA256 are reported in the final chat delivery.
+
+## Previous sprint context (historical)
+
+## Previous sprint
 
 ## Current objective
 

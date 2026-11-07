@@ -1,6 +1,6 @@
-# MouseTrap — Complete 3NF Domain & Relational Model (`V1`–`V15`)
+# MouseTrap — Complete 3NF Domain & Relational Model (`V1`–`V16`)
 
-Canonical domain and database modeling guide for the MouseTrap gaming-mouse e-commerce platform (`v1.0.0` → `v2.0.0`). Both PlantUML diagrams cover the **implemented 3NF schema (`V1`–`V9`)** and the **approved roadmap evolution (`V10`–`V15`)**, visually distinguishing active entities/tables from planned ones so every sprint can be implemented without architectural drift.
+Canonical domain and database modeling guide for the MouseTrap gaming-mouse e-commerce platform (`v1.0.0` → `v2.0.0`). Both PlantUML diagrams cover the **implemented 3NF schema (`V1`–`V9`)** and the **approved roadmap evolution (`V11`–`V16`)**, visually distinguishing active entities/tables from planned ones so every sprint can be implemented without architectural drift.
 
 Before changing any entity, migration, service invariant, or HTTP contract, consult:
 - [Authoritative Business Rules (`docs/BUSINESS_RULES.md`)](../BUSINESS_RULES.md) — mandatory `BR-*` catalog requiring explicit user approval before any rule change.
@@ -29,14 +29,18 @@ java -Djava.awt.headless=true -jar "${PLANTUML_JAR:?Set PLANTUML_JAR to your loc
 
 ---
 
-## 2. Visual Legend & Implementation Horizon (`V1`–`V15`)
+`V10__popular_municipios_ibge.sql` adds reference data only; the entity schema remains
+unchanged from V9. The next schema feature (categories) is planned for V11.
+See [ADR 0003](../adr/0003-independent-address-registration.md).
+
+## 2. Visual Legend & Implementation Horizon (`V1`–`V16`)
 
 | Visual Marker | Meaning | Flyway Horizon |
 | :--- | :--- | :--- |
 | **Blue (`<<Entity>>`)** | Implemented JPA entities and PostgreSQL 3NF tables active in code today. | `V1`–`V9` (`v1.0.0`–`v1.2.0 E1`) |
 | **Green (`<<Embeddable>>` / `<<Collection>>`)** | Embedded value objects (`EnderecoEntrega`) and collection tables (`mouse_conexao`, `mouse_pegada`) without surrogate IDs. | `V1`, `V3`, `V6` |
-| **Amber (`<<Planned>>` / `[Planejado V10–V15]`)** | Approved target tables, columns, and enum values scheduled in `docs/ROADMAP.md`. Do not treat planned items as active SQL until their epic migration lands. | `V10`–`V15` (`v1.2.0 E2`–`v2.0.0 E7`) |
-| **`<<legado V2>>` / `<<legado V3>>`** | Backward-compatible transitional columns retained alongside normalized 3NF FKs (`V9`) until frontend component selectors complete migration. | Retired from writes in `V10`+ |
+| **Amber (`<<Planned>>` / `[Planejado V11–V16]`)** | Approved target tables, columns, and enum values scheduled in `docs/ROADMAP.md`. Do not treat planned items as active SQL until their epic migration lands. | `V11`–`V16` (`v1.2.0 E2`–`v2.0.0 E7`) |
+| **`<<legado V2>>` / `<<legado V3>>`** | Backward-compatible transitional columns retained alongside normalized 3NF FKs (`V9`) until frontend component selectors complete migration. | Retired from writes in `V11`+ |
 
 ---
 
@@ -50,10 +54,10 @@ All persistent business entities inherit `DefaultEntity` (`id BIGINT GENERATED B
 | :--- | :---: | :--- |
 | `Pais` (`pais`) | **Implemented (`V9`)** | Normalized manufacturing origin country (`nome UNIQUE`, `sigla_iso CHAR(2) UNIQUE`). |
 | `Marca` (`marca`) | **Implemented (`V1`, `V8`, `V9`)** | Manufacturer metadata (`nome`, `ativo`, `logomarca_url`, `pais_origem_id`, `descricao`, `site_oficial`, `email_suporte`, `ano_fundacao`, `garantia_padrao_meses`, `versao`). |
-| `Categoria` (`categoria`) | **Planned (`V10` — Epic E2)** | Primary store taxonomy (`nome UNIQUE`, `slug UNIQUE`, `descricao`, `ativo`, `versao`) referenced by `mouse.categoria_id`. |
+| `Categoria` (`categoria`) | **Planned (`V11` — Epic E2)** | Primary store taxonomy (`nome UNIQUE`, `slug UNIQUE`, `descricao`, `ativo`, `versao`) referenced by `mouse.categoria_id`. |
 | `Sensor` (`sensor`) | **Implemented (`V9`)** | Eliminates 3NF transitive dependency on `mouse`: optical sensor specs (`modelo UNIQUE`, `fabricante`, `dpi_maximo`, `ips`, `aceleracao_g`, `ativo`, `versao`). |
 | `SwitchMouse` (`switch_mouse`) | **Implemented (`V9`)** | Eliminates 3NF transitive dependency (`modelo_switch → tipo_switch`): micro-switch specs (`modelo UNIQUE`, `fabricante`, `tipo_switch`, `durabilidade_milhoes_cliques`, `forca_atuacao_gf`, `ativo`, `versao`). |
-| `Mouse` (`mouse`) | **Implemented (`V1`, `V3`, `V9`) + Planned (`V10`, `V11`, `V15`)** | Sellable commercial SKU (each color is an independent SKU with its own price and stock), physical dimensions (`comprimento_mm`, `largura_mm`, `altura_mm`), battery life, warranty, `sensor_id`, `switch_id`, optimistic `@Version`, plus planned `categoria_id` (`V10`), `destaque`/`ordem_destaque` (`V11`), and `preco_centavos` (`V15`). |
+| `Mouse` (`mouse`) | **Implemented (`V1`, `V3`, `V9`) + Planned (`V11`, `V12`, `V16`)** | Sellable commercial SKU (each color is an independent SKU with its own price and stock), physical dimensions (`comprimento_mm`, `largura_mm`, `altura_mm`), battery life, warranty, `sensor_id`, `switch_id`, optimistic `@Version`, plus planned `categoria_id` (`V11`), `destaque`/`ordem_destaque` (`V12`), and `preco_centavos` (`V16`). |
 | `ImagemMouse` (`imagem_mouse`) | **Implemented (`V3`)** | Ordered product gallery (`url`, `texto_alternativo`, `ordem >= 0`, `UNIQUE(mouse_id, ordem)`); lowest `ordem` is cover image. |
 | `mouse_conexao` / `mouse_pegada` | **Implemented (`V1`, `V3`)** | Collection tables storing `Set<TipoConexao>` (`1..3`) and `Set<Pegada>` (`0..3`) with composite PKs and `ON DELETE CASCADE`. |
 
@@ -62,7 +66,7 @@ All persistent business entities inherit `DefaultEntity` (`id BIGINT GENERATED B
 | Entity / Table | Status | Primary Responsibility & 3NF Rationale |
 | :--- | :---: | :--- |
 | `Estado` (`estado`) | **Implemented (`V2`)** | Seeded 27 Brazilian federative units (`sigla CHAR(2) UNIQUE`, `nome`). |
-| `Municipio` (`municipio`) | **Implemented (`V2`)** | Brazilian municipality keyed by 7-digit IBGE code (`codigo_ibge UNIQUE`, `estado_id`), populated from authoritative ViaCEP responses. |
+| `Municipio` (`municipio`) | **Implemented (`V2`)** | Brazilian municipality keyed by 7-digit IBGE code (`codigo_ibge UNIQUE`, `estado_id`), seeded from the official IBGE snapshot by `V10`; existing IDs/relationships are preserved. Optional legacy ViaCEP resolution can still populate missing codes. |
 | `Cliente` (`cliente`) | **Implemented (`V2`, `V4`, `V9`)** | Customer profile linked 1:1 to Keycloak JWT `sub` (`identidade_subject UNIQUE`), normalized lowercase `email UNIQUE`, optional 11-digit `cpf UNIQUE`, `data_nascimento`, `ativo`, and `versao`. Legacy inline address columns from `V2` were made nullable in `V9` in favor of `Endereco`. |
 | `TelefoneCliente` (`telefone_cliente`) | **Implemented (`V9`)** | 1NF/3NF contact normalization (`1:N` phones per customer: `ddd`, `numero`, `tipo_telefone`, `principal`, `UNIQUE(cliente_id, ddd, numero)`). |
 | `Endereco` (`endereco`) | **Implemented (`V5`)** | Customer-owned delivery addresses (`1:N`), referencing `municipio_id` with partial unique index `uk_endereco_cliente_principal` (`WHERE principal = true`). |
@@ -73,14 +77,14 @@ All persistent business entities inherit `DefaultEntity` (`id BIGINT GENERATED B
 | :--- | :---: | :--- |
 | `Desejo` (`desejo`) | **Implemented (`V7`, `V9`)** | Persistent wishlist item scoped by `identidade_subject` (`UNIQUE(identidade_subject, mouse_id)`) and linked to `cliente_id` (`V9`). |
 | `Transportadora` (`transportadora`) | **Implemented (`V9`)** | Normalized shipping carrier (`nome UNIQUE`, `cnpj UNIQUE`, `url_rastreio_padrao`, `valor_base_frete`, `prazo_medio_dias`, `ativo`, `versao`). |
-| `Cupom` (`cupom`) | **Planned (`V12` — Epic E4)** | Promotional coupon (`codigo UNIQUE`, `tipo_desconto`, `valor_desconto`, `valor_minimo_pedido`, `limite_usos`, `quantidade_usada`, validity window, `ativo`, `versao`). |
-| `Pedido` (`pedido`) | **Implemented (`V6`, `V7`, `V9`) + Planned (`V12`, `V14`)** | Transactional order header with `chave_checkout` idempotency UUID, `requisicao_hash`, `status`, payment expiration `expira_em`, freight, `transportadora_id` + historical shipping snapshot, embedded `EnderecoEntrega`, plus planned coupon snapshot (`V12`) and refund metadata (`V14`). |
+| `Cupom` (`cupom`) | **Planned (`V13` — Epic E4)** | Promotional coupon (`codigo UNIQUE`, `tipo_desconto`, `valor_desconto`, `valor_minimo_pedido`, `limite_usos`, `quantidade_usada`, validity window, `ativo`, `versao`). |
+| `Pedido` (`pedido`) | **Implemented (`V6`, `V7`, `V9`) + Planned (`V13`, `V15`)** | Transactional order header with `chave_checkout` idempotency UUID, `requisicao_hash`, `status`, payment expiration `expira_em`, freight, `transportadora_id` + historical shipping snapshot, embedded `EnderecoEntrega`, plus planned coupon snapshot (`V13`) and refund metadata (`V15`). |
 | `ItemPedido` (`item_pedido`) | **Implemented (`V6`)** | Immutable commercial line-item snapshot (`sku`, `nome`, `cor`, `marca`, `quantidade`, `preco_unitario`, `UNIQUE(pedido_id, mouse_id)`). |
 | `EnderecoEntrega` (embedded in `pedido`) | **Implemented (`V6`)** | Immutable delivery address value object copied into `pedido.entrega_*` columns at checkout; detached from subsequent edits to `Endereco`. |
-| `Pagamento` (`pagamento`) | **Implemented (`V6`) + Planned (`V15`)** | Payment attempt (`chave_idempotencia` UUID, `forma`, `status`, `resultado_simulado`, `valor`, `processado_em`, `versao`) with partial unique index enforcing at most one `PENDENTE` or `APROVADO` attempt per order, plus planned external gateway references (`V15`). |
+| `Pagamento` (`pagamento`) | **Implemented (`V6`) + Planned (`V16`)** | Payment attempt (`chave_idempotencia` UUID, `forma`, `status`, `resultado_simulado`, `valor`, `processado_em`, `versao`) with partial unique index enforcing at most one `PENDENTE` or `APROVADO` attempt per order, plus planned external gateway references (`V16`). |
 | `EventoPedido` (`evento_pedido`) | **Implemented (`V7`)** | Append-only order timeline record (`status`, `ocorrido_em`, `descricao`, internal `responsavel_subject`). |
-| `Avaliacao` (`avaliacao`) | **Planned (`V13` — Epic E5)** | Purchase-verified 1–5 star product review (`UNIQUE(cliente_id, mouse_id)`, linked to `pedido_id`, moderated via `visivel`). |
-| `EventoWebhookPagamento` (`evento_webhook_pagamento`) | **Planned (`V15` — Epic E7)** | Idempotent external payment webhook deduplication log (`UNIQUE(provedor, evento_externo_id)`). |
+| `Avaliacao` (`avaliacao`) | **Planned (`V14` — Epic E5)** | Purchase-verified 1–5 star product review (`UNIQUE(cliente_id, mouse_id)`, linked to `pedido_id`, moderated via `visivel`). |
+| `EventoWebhookPagamento` (`evento_webhook_pagamento`) | **Planned (`V16` — Epic E7)** | Idempotent external payment webhook deduplication log (`UNIQUE(provedor, evento_externo_id)`). |
 
 ---
 
@@ -94,11 +98,11 @@ All domain enums persist explicit integer IDs via `@Converter(autoApply = false)
 | `TipoSwitch` | `switch_mouse.tipo_switch`, `mouse.tipo_switch` | `1` = `OPTICO`, `2` = `MECANICO` |
 | `Pegada` | `mouse_pegada.pegada` | `1` = `PALM`, `2` = `CLAW`, `3` = `FINGERTIP` |
 | `TipoTelefone` | `telefone_cliente.tipo_telefone` | `1` = `CELULAR`, `2` = `RESIDENCIAL`, `3` = `COMERCIAL` |
-| `StatusPedido` | `pedido.status`, `evento_pedido.status` | `1` = `AGUARDANDO_PAGAMENTO`, `2` = `PAGO`, `3` = `ENVIADO`, `4` = `ENTREGUE`, `5` = `CANCELADO`, `6` = `EXPIRADO`, `7` = `REEMBOLSADO` *(planned `V14`)* |
+| `StatusPedido` | `pedido.status`, `evento_pedido.status` | `1` = `AGUARDANDO_PAGAMENTO`, `2` = `PAGO`, `3` = `ENVIADO`, `4` = `ENTREGUE`, `5` = `CANCELADO`, `6` = `EXPIRADO`, `7` = `REEMBOLSADO` *(planned `V15`)* |
 | `FormaPagamento` | `pagamento.forma` | `1` = `PIX`, `2` = `CARTAO` |
-| `StatusPagamento` | `pagamento.status` | `1` = `PENDENTE`, `2` = `APROVADO`, `3` = `RECUSADO`, `4` = `CANCELADO`, `5` = `ESTORNADO` *(planned `V14`)* |
+| `StatusPagamento` | `pagamento.status` | `1` = `PENDENTE`, `2` = `APROVADO`, `3` = `RECUSADO`, `4` = `CANCELADO`, `5` = `ESTORNADO` *(planned `V15`)* |
 | `ResultadoSimulacao` | `pagamento.resultado_simulado` | `1` = `APROVAR`, `2` = `RECUSAR`, `3` = `PENDENTE` |
-| `TipoDesconto` *(planned `V12`)* | `cupom.tipo_desconto` | `1` = `PERCENTUAL`, `2` = `VALOR_FIXO` |
+| `TipoDesconto` *(planned `V13`)* | `cupom.tipo_desconto` | `1` = `PERCENTUAL`, `2` = `VALOR_FIXO` |
 
 ---
 
@@ -108,5 +112,5 @@ All domain enums persist explicit integer IDs via `@Converter(autoApply = false)
 2. **Deletion & Historical Integrity (`ON DELETE` Policy):**
    - `ON DELETE CASCADE` is restricted to dependent owned sub-collections (`mouse_conexao`, `mouse_pegada`, `imagem_mouse`, `telefone_cliente`, `endereco`, `desejo`).
    - Commercial history (`pedido`, `item_pedido`, `pagamento`, `evento_pedido`, `avaliacao`) and catalog parents (`marca`, `categoria`, `sensor`, `switch_mouse`, `pais`, `transportadora`, `cupom`) use `RESTRICT`/`NO ACTION`. Entities with commercial history must be deactivated (`ativo = false`), never hard-deleted.
-3. **Immutable Snapshots:** `Pedido` embeds `EnderecoEntrega` (`entrega_*`) and `ItemPedido` copies `sku`, `nome`, `cor`, `marca`, and `preco_unitario` at checkout time; `Pedido.transportadora` (and `codigo_cupom`/`valor_desconto` in `V12`) snapshot fulfillment and promotional terms so later catalog or profile edits never alter past orders.
-4. **Concurrency & Locking:** `Marca`, `Categoria` (`V10`), `Sensor`, `SwitchMouse`, `Mouse`, `Cliente`, `Transportadora`, `Cupom` (`V12`), `Pedido`, `Pagamento`, and `Avaliacao` (`V13`) carry `@Version` optimistic locking (`versao`). Checkout and stock mutations acquire deterministic `PESSIMISTIC_WRITE` locks ordered by `mouse.id ASC` alongside PostgreSQL transaction advisory locks on idempotency keys (`chave_checkout`, `chave_idempotencia`). Full details are codified in [`docs/BUSINESS_RULES.md`](../BUSINESS_RULES.md).
+3. **Immutable Snapshots:** `Pedido` embeds `EnderecoEntrega` (`entrega_*`) and `ItemPedido` copies `sku`, `nome`, `cor`, `marca`, and `preco_unitario` at checkout time; `Pedido.transportadora` (and `codigo_cupom`/`valor_desconto` in `V13`) snapshot fulfillment and promotional terms so later catalog or profile edits never alter past orders.
+4. **Concurrency & Locking:** `Marca`, `Categoria` (`V11`), `Sensor`, `SwitchMouse`, `Mouse`, `Cliente`, `Transportadora`, `Cupom` (`V13`), `Pedido`, `Pagamento`, and `Avaliacao` (`V14`) carry `@Version` optimistic locking (`versao`). Checkout and stock mutations acquire deterministic `PESSIMISTIC_WRITE` locks ordered by `mouse.id ASC` alongside PostgreSQL transaction advisory locks on idempotency keys (`chave_checkout`, `chave_idempotencia`). Full details are codified in [`docs/BUSINESS_RULES.md`](../BUSINESS_RULES.md).

@@ -6,6 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class MunicipioRepository implements PanacheRepository<Municipio> {
+    public java.util.List<Municipio> findByUf(String uf) {
+        return find("select m from Municipio m join fetch m.estado e where e.sigla = ?1 order by m.nome, m.codigoIbge", uf).list();
+    }
+
     public Municipio findByCodigoIbge(String codigoIbge) {
         return find("codigoIbge", codigoIbge).firstResult();
     }

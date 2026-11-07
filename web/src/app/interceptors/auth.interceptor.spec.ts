@@ -37,7 +37,12 @@ describe('authorization interceptor', () => {
   });
 
   it('does not require a session for public catalog and CEP requests', () => {
-    for (const path of ['/catalogo/mouses', '/ceps/01001000']) {
+    for (const path of [
+      '/catalogo/mouses',
+      '/ceps/01001000',
+      '/localidades/estados',
+      '/localidades/estados/TO/municipios',
+    ]) {
       client.get('http://localhost:8080' + path).subscribe();
       const request = http.expectOne('http://localhost:8080' + path);
       expect(request.request.headers.has('Authorization')).toBe(false);
