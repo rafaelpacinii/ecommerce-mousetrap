@@ -12,7 +12,8 @@ public record EnderecoDTO(
         @NotBlank @Size(max = 100) String bairro,
         @NotBlank @Size(max = 20) String numero,
         @Size(max = 100) String complemento,
-        Boolean principal) {
+        Boolean principal,
+        @Pattern(regexp = "[0-9]{7}") String codigoIbge) {
     public EnderecoDTO {
         apelido = apelido == null ? null : apelido.strip();
         destinatario = destinatario == null || destinatario.isBlank() ? null : destinatario.strip();

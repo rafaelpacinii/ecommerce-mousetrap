@@ -169,7 +169,10 @@ describe('App routing', () => {
     component.consultarCep();
     http
       .expectOne('http://localhost:8080/ceps/01001000')
-      .flush({ ...perfil, localidade: 'São Paulo', uf: 'SP' });
+      .flush({ ...perfil, localidade: 'São Paulo', uf: 'SP', ibge: '3550308' });
+    http.expectOne('http://localhost:8080/localidades/estados').flush([municipio.estado]);
+    fixture.detectChanges();
+    http.expectOne('http://localhost:8080/localidades/estados/SP/municipios').flush([municipio]);
     component.salvar();
     http.expectOne('http://localhost:8080/clientes/me').flush(perfil);
     http.expectOne('http://localhost:8080/clientes/me/enderecos').flush([endereco]);

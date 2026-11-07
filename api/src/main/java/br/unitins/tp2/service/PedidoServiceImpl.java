@@ -34,7 +34,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Inject ClienteRepository clientes;
     @Inject EnderecoRepository enderecos;
     @Inject TransportadoraRepository transportadoras;
-    @Inject CepService cep;
+    @Inject FreteService fretes;
     @Inject EntityManager em;
     @Inject JsonWebToken token;
     @Inject SecurityIdentity identity;
@@ -49,7 +49,7 @@ public class PedidoServiceImpl implements PedidoService {
     public RevisaoPedidoResponseDTO revisar(RevisaoPedidoDTO dto) {
         exigirSimulacao();
         Endereco endereco = enderecoDoCliente(dto.idEndereco());
-        var frete = cep.calcularFrete(endereco.getCep());
+        var frete = fretes.calcular(endereco.getCep(), endereco.getMunicipio());
         List<ItemPedido> itens = montarItens(dto.itens(), false);
         BigDecimal subtotal = itens.stream().map(ItemPedido::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         return new RevisaoPedidoResponseDTO(EnderecoEntregaResponseDTO.valueOf(EnderecoEntrega.valueOf(endereco)),
@@ -69,7 +69,7 @@ public class PedidoServiceImpl implements PedidoService {
             return PedidoResponseDTO.valueOf(existente);
         }
         Endereco endereco = enderecoDoCliente(dto.idEndereco());
-        var frete = cep.calcularFrete(endereco.getCep());
+        var frete = fretes.calcular(endereco.getCep(), endereco.getMunicipio());
         if (frete.valorFrete().compareTo(dto.freteEsperado()) != 0)
             throw new ConflitoPedidoException("O frete mudou. Atualize a revisão e confirme os novos valores.");
         List<ItemPedido> itens = montarItens(dto.itens(), true);

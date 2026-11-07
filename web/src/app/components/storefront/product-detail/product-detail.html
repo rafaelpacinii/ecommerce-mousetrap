@@ -135,7 +135,8 @@
             <p class="frete-resultado" role="status">
               <mat-icon aria-hidden="true">local_shipping</mat-icon>
               <span>
-                Frete para {{ frete.localidade }}/{{ frete.uf }}:
+                Frete para
+                {{ frete.localidade ? frete.localidade + '/' + frete.uf : 'o CEP ' + frete.cep }}:
                 <strong>{{ frete.valorFrete | currency: 'BRL' }}</strong>
                 (até {{ frete.prazoDiasUteis }} dias úteis)
               </span>

@@ -1,5 +1,6 @@
 import { Municipio } from './municipio.model';
 export interface ClienteDTO {
+  codigoIbge?: string;
   nome: string;
   email: string;
   cep: string;
@@ -28,6 +29,7 @@ export interface Frete {
   prazoDiasUteis: number;
 }
 export interface EnderecoDTO {
+  codigoIbge?: string;
   apelido: string;
   destinatario?: string;
   cep: string;

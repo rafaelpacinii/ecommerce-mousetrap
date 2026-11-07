@@ -52,14 +52,42 @@ class ClienteResourceTest {
         given().get("/ceps/01001000").then().statusCode(200).body("ibge", is("3550308"));
         given().get("/ceps/01001-000/frete").then().statusCode(200)
             .body("cep", is("01001000"))
-            .body("localidade", is("São Paulo"))
-            .body("uf", is("SP"))
+            .body("localidade", is(""))
+            .body("uf", is(""))
             .body("valorFrete", is(29.90f))
             .body("prazoDiasUteis", is(5));
         given().get("/ceps/123/frete").then().statusCode(400);
-        given().get("/ceps/99999999/frete").then().statusCode(400);
-        given().get("/ceps/88888888/frete").then().statusCode(503);
+        given().get("/ceps/99999999/frete").then().statusCode(200);
+        given().get("/ceps/88888888/frete").then().statusCode(200);
         given().delete("/clientes/" + Long.MAX_VALUE).then().statusCode(404);
+    }
+
+    @Test
+    void manualAddressIgnoresUnavailableLookupAndValidatesLocalMunicipality() {
+        var dto = dados();
+        dto.put("cep", "88888888"); // The fixture returns 503 for this postcode.
+        dto.put("codigoIbge", "3550308");
+        long id = given().contentType("application/json").body(dto).post("/clientes")
+                .then().statusCode(201).body("municipio.estado.sigla", is("SP"))
+                .extract().jsonPath().getLong("id");
+        try {
+            dto.put("codigoIbge", "1721000");
+            given().contentType("application/json").body(dto).put("/clientes/" + id)
+                    .then().statusCode(200).body("municipio.nome", is("Palmas"));
+            for (String codigo : new String[] {"9999999", "123", ""}) {
+                dto.put("codigoIbge", codigo);
+                given().contentType("application/json").body(dto).put("/clientes/" + id)
+                        .then().statusCode(400).body("errors.field", hasItem("codigoIbge"));
+            }
+            given().get("/clientes/" + id).then().statusCode(200)
+                    .body("municipio.codigoIbge", is("1721000"));
+            dto.put("codigoIbge", "3550308");
+            dto.put("cep", "123");
+            given().contentType("application/json").body(dto).put("/clientes/" + id)
+                    .then().statusCode(400).body("errors.field", hasItem("cep"));
+        } finally {
+            given().delete("/clientes/" + id).then().statusCode(204);
+        }
     }
 
     @Test

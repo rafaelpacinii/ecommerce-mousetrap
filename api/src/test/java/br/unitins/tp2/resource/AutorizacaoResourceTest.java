@@ -51,6 +51,47 @@ class AutorizacaoResourceTest {
         QuarkusTransaction.requiringNew().run(() -> criados.forEach(clientes::deleteById));
     }
 
+    @Test
+    @TestSecurity(user = "manual", roles = "customer")
+    @OidcSecurity(claims = {@Claim(key = "sub", value = "manual-address-owner"),
+            @Claim(key = "email", value = "manual-address@example.com"),
+            @Claim(key = "email_verified", value = "true", type = ClaimType.BOOLEAN)})
+    void manualProfileAndAddressesWorkDuringOutageAndKeepOwnership() {
+        var dto = new java.util.HashMap<String, Object>(perfil());
+        dto.put("cep", "88888888");
+        dto.put("codigoIbge", "3550308");
+        long cliente = given().contentType("application/json").body(dto).put("/clientes/me")
+                .then().statusCode(200).extract().jsonPath().getLong("id");
+        criados.add(cliente);
+        long principal = given().get("/clientes/me/enderecos").then().statusCode(200)
+                .extract().jsonPath().getLong("[0].id");
+        dto.put("apelido", "Manual");
+        dto.put("codigoIbge", "1721000");
+        long endereco = given().contentType("application/json").body(dto).post("/clientes/me/enderecos")
+                .then().statusCode(201).body("municipio.estado.sigla", is("TO"))
+                .extract().jsonPath().getLong("id");
+        dto.put("numero", "S/N");
+        given().contentType("application/json").body(dto).put("/clientes/me/enderecos/" + endereco)
+                .then().statusCode(200).body("numero", is("S/N"));
+        dto.put("codigoIbge", "9999999");
+        given().contentType("application/json").body(dto).put("/clientes/me/enderecos/" + endereco)
+                .then().statusCode(400).body("errors.field", hasItem("codigoIbge"));
+        dto.put("codigoIbge", "3550308");
+        long outro = outroCliente("manual-other@example.com", "manual-other");
+        long estrangeiro = QuarkusTransaction.requiringNew().call(() -> {
+            var e = new br.unitins.tp2.model.Endereco();
+            e.setCliente(clientes.findById(outro)); e.setApelido("Outro"); e.setDestinatario("Outro cliente");
+            e.setCep("88888888"); e.setLogradouro("Rua"); e.setBairro("Centro"); e.setNumero("1");
+            e.setMunicipio(municipios.findByCodigoIbge("3550308")); e.setPrincipal(true);
+            clientes.getEntityManager().persist(e); clientes.flush(); return e.getId();
+        });
+        given().contentType("application/json").body(dto).put("/clientes/me/enderecos/" + estrangeiro)
+                .then().statusCode(404);
+        given().delete("/clientes/me/enderecos/" + estrangeiro).then().statusCode(404);
+        given().delete("/clientes/me/enderecos/" + endereco).then().statusCode(204);
+        given().delete("/clientes/me/enderecos/" + principal).then().statusCode(400);
+    }
+
     @Test void visitanteConsultaCatalogoMasNaoAdministracaoOuPerfis() {
         given().get("/catalogo/mouses").then().statusCode(200);
         given().get("/catalogo/filtros").then().statusCode(200);

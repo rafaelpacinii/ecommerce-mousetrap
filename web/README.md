@@ -16,7 +16,7 @@ The full public catalog is at `/catalogo`; product detail is at `/catalogo/:id`.
   confirmation, success notifications and API error handling.
 - Server-side pagination/name search for administrative brand and mouse lists.
 - Mouse brand, multiple connection types, stock, price and version handling.
-- Customer registration/address editing with ViaCEP lookup and validation.
+- Customer registration/address editing with local municipality selection and optional ViaCEP autofill.
 - BRL formatting, semantic navigation and keyboard focus styles.
 
 Public catalog facets, product galleries and gaming specifications are implemented.
@@ -98,11 +98,13 @@ hosting environment. See [authentication and deployment requirements](../docs/ot
 
 ## Customer addresses
 
-The customer form accepts CEP with or without punctuation. A successful lookup
-fills city/state and permits completing street, neighborhood, number and optional
-complement. Changing the CEP cancels the previous lookup and invalidates its
-address result. Backend validation determines municipality/state from ViaCEP;
-create/edit operations depend on that service's availability.
+The customer form accepts CEP with or without punctuation. State/municipality
+selection uses the API's local reference catalog; street, neighborhood, number
+and optional complement remain editable. ViaCEP autofill is optional and can be
+cancelled. Editing fields cancels pending autofill without clearing entered data.
+The form submits `codigoIbge`; backend validation resolves municipality/UF locally.
+Public freight estimates show the postcode when no city is available; checkout
+uses the customer's saved address and does not call ViaCEP.
 
 ## Related documentation
 

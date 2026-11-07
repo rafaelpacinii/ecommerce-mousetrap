@@ -75,7 +75,7 @@ describe('ClienteFormComponent', () => {
       .flush({}, { status: 404, statusText: 'Not found' });
     expect(c.erroPerfil()).toBe('');
   });
-  it('valida campos e impede salvar antes de consultar CEP', () => {
+  it('rejects invalid required address fields', () => {
     const c = criar();
     c.form.patchValue({ nome: ' ', email: 'invalido', cep: '123' });
     c.salvar();
@@ -105,7 +105,7 @@ describe('ClienteFormComponent', () => {
     expect(req.request.body.email).toBe('cliente@example.com');
     req.flush({ id: 1 });
   });
-  it('cancela consulta anterior e invalida município quando o CEP muda', () => {
+  it('cancels stale lookup and preserves entered address when postcode changes', () => {
     const c = criar();
     c.form.controls.cep.setValue('01001000');
     c.consultarCep();
@@ -120,8 +120,8 @@ describe('ClienteFormComponent', () => {
       .flush({ ...cep, cep: '77001000', localidade: 'Palmas', uf: 'TO' });
     expect(c.municipio()).toBe('Palmas');
     c.form.controls.cep.setValue('12345678');
-    expect(c.municipio()).toBe('');
-    expect(c.form.controls.logradouro.value).toBe('');
+    expect(c.municipio()).toBe('Palmas');
+    expect(c.form.controls.logradouro.value).toBe('Praça da Sé');
   });
   it('trata CEP inexistente e exige endereço para CEP genérico', () => {
     const c = criar();
@@ -143,7 +143,7 @@ describe('ClienteFormComponent', () => {
     expect(c.form.controls.logradouro.invalid).toBe(true);
     expect(c.form.controls.bairro.invalid).toBe(true);
   });
-  it('carrega edição e envia PUT com município preservado pela consulta no backend', () => {
+  it('loads an existing address and sends its local municipality without a postcode lookup', () => {
     TestBed.inject(ActivatedRoute).snapshot.data = {
       cliente: {
         id: 7,
@@ -165,13 +165,91 @@ describe('ClienteFormComponent', () => {
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const fixture = TestBed.createComponent(ClienteFormComponent);
     fixture.detectChanges();
+    http
+      .expectOne('http://localhost:8080/localidades/estados')
+      .flush([{ id: 1, nome: 'São Paulo', sigla: 'SP' }]);
+    http
+      .expectOne('http://localhost:8080/localidades/estados/SP/municipios')
+      .flush([TestBed.inject(ActivatedRoute).snapshot.data['cliente'].municipio]);
     expect(fixture.nativeElement.textContent).toContain('Salvar Alterações');
     fixture.componentInstance.salvar();
     const req = http.expectOne('http://localhost:8080/clientes/7');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body.municipio).toBeUndefined();
+    expect(req.request.body.codigoIbge).toBe('3550308');
+    http.expectNone((r) => r.url.includes('/ceps/'));
     req.flush({ id: 7 });
   });
+  it('saves a manually completed address after lookup failure without losing entered data', () => {
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const c = criar();
+    c.form.patchValue({
+      nome: 'Manual',
+      email: 'manual@example.com',
+      cep: '88888-888',
+      logradouro: 'Rua preenchida',
+      bairro: 'Centro',
+      numero: 'S/N',
+      codigoIbge: '1721000',
+    });
+    c.consultarCep();
+    http
+      .expectOne('http://localhost:8080/ceps/88888888')
+      .flush({}, { status: 503, statusText: 'Unavailable' });
+    expect(c.form.controls.logradouro.value).toBe('Rua preenchida');
+    c.salvar();
+    const save = http.expectOne('http://localhost:8080/clientes');
+    expect(save.request.body.codigoIbge).toBe('1721000');
+    expect(save.request.body.cep).toBe('88888888');
+    save.flush({ id: 8 });
+  });
+
+  it('allows manual registration without ever querying the postcode service', () => {
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const c = criar();
+    c.form.patchValue({
+      nome: 'Manual',
+      email: 'manual@example.com',
+      cep: '88888888',
+      logradouro: 'Rua',
+      bairro: 'Centro',
+      numero: '10',
+    });
+    c.salvar();
+    http.expectNone((r) => r.method === 'POST');
+    c.form.controls.codigoIbge.setValue('1721000');
+    c.salvar();
+    http.expectNone((r) => r.url.includes('/ceps/'));
+    http.expectOne('http://localhost:8080/clientes').flush({ id: 8 });
+  });
+
+  it('cancels autofill when manual entry starts or the user edits a street', () => {
+    const c = criar();
+    c.form.controls.cep.setValue('01001000');
+    c.consultarCep();
+    const pending = http.expectOne('http://localhost:8080/ceps/01001000');
+    c.form.controls.logradouro.setValue('Minha rua');
+    expect(pending.cancelled).toBe(true);
+    expect(c.consultando()).toBe(false);
+    expect(c.form.controls.logradouro.value).toBe('Minha rua');
+    c.consultarCep();
+    const second = http.expectOne('http://localhost:8080/ceps/01001000');
+    c.preencherManualmente();
+    expect(second.cancelled).toBe(true);
+  });
+
+  it('cancels a saved-address lookup when switching to another address', () => {
+    const c = criar();
+    c.iniciarNovoEndereco();
+    c.formEndereco.controls.cep.setValue('01001000');
+    c.consultarCepEndereco();
+    const pending = http.expectOne('http://localhost:8080/ceps/01001000');
+    c.cancelarEdicaoEndereco();
+    expect(pending.cancelled).toBe(true);
+    c.iniciarNovoEndereco();
+    expect(c.formEndereco.controls.codigoIbge.value).toBe('');
+  });
+
   it('gerencia endereços salvos do cliente autenticado (/clientes/me/enderecos)', () => {
     TestBed.inject(ActivatedRoute).snapshot.data = { selfService: true };
     const c = criar();

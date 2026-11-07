@@ -2,7 +2,7 @@
 
 Java 17 / Quarkus 3.40 REST API with PostgreSQL 16, Panache repositories,
 transactional services, Java record DTOs, Bean Validation and RFC 7807 errors.
-Resources never bypass the service layer. Flyway migrations V1–V9 create the
+Resources never bypass the service layer. Flyway migrations V1–V10 create the
 3NF catalog (`pais`, `marca`, `sensor`, `switch_mouse`, `mouse`, `imagem_mouse`),
 owned profiles/addresses/phones (`cliente`, `telefone_cliente`, `endereco`, `municipio`, `estado`),
 transactional orders, events, carriers (`transportadora`) and wishlist (`desejo`).
@@ -10,6 +10,7 @@ transactional orders, events, carriers (`transportadora`) and wishlist (`desejo`
 ## Implemented contracts
 
 - Public active catalog: `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`.
+- Public local reference catalog: `GET /localidades/estados`, `/localidades/estados/{uf}/municipios`.
 - Public postcode and freight: `GET /ceps/{cep}` and `GET /ceps/{cep}/frete`.
 - Protected admin CRUD: `/marcas`, `/mouses`, `/clientes`, and R2 image upload `POST /imagens`.
 - Verified identity-owned profile: `GET/PUT /clientes/me`; saved addresses at `/clientes/me/enderecos`.

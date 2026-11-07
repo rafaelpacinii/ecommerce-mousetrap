@@ -12,7 +12,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const base = api.pathname.replace(/\/$/, '');
   if (target.origin !== api.origin || !target.pathname.startsWith(base + '/')) return next(request);
   const path = target.pathname.slice(base.length);
-  if (request.method === 'GET' && /^\/(catalogo|ceps)(\/|$)/.test(path)) return next(request);
+  if (request.method === 'GET' && /^\/(catalogo|ceps|localidades)(\/|$)/.test(path)) return next(request);
   const auth = inject(AuthService);
   const router = inject(Router);
   return from(auth.token()).pipe(

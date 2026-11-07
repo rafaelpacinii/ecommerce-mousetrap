@@ -1,3 +1,4 @@
+import { LocalidadeSelectComponent } from '../../shared/localidade-select/localidade-select';
 import { MatIconModule } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
@@ -20,6 +21,7 @@ import { mensagemErro, textoObrigatorio } from '../../../services/erro-api';
   selector: 'app-cliente-form',
   standalone: true,
   imports: [
+    LocalidadeSelectComponent,
     MatIconModule,
     NgTemplateOutlet,
     ReactiveFormsModule,
@@ -83,6 +85,7 @@ export class ClienteFormComponent {
       [Validators.required, textoObrigatorio, Validators.minLength(2), Validators.maxLength(100)],
     ],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    codigoIbge: ['', [Validators.required, Validators.pattern(/^[0-9]{7}$/)]],
     cep: ['', [Validators.required, Validators.pattern(/^[0-9]{5}-?[0-9]{3}$/)]],
     logradouro: ['', [Validators.required, textoObrigatorio, Validators.maxLength(200)]],
     bairro: ['', [Validators.required, textoObrigatorio, Validators.maxLength(100)]],
@@ -96,6 +99,7 @@ export class ClienteFormComponent {
       [Validators.required, textoObrigatorio, Validators.minLength(2), Validators.maxLength(60)],
     ],
     destinatario: ['', [Validators.maxLength(100)]],
+    codigoIbge: ['', [Validators.required, Validators.pattern(/^[0-9]{7}$/)]],
     cep: ['', [Validators.required, Validators.pattern(/^[0-9]{5}-?[0-9]{3}$/)]],
     logradouro: ['', [Validators.required, textoObrigatorio, Validators.maxLength(200)]],
     bairro: ['', [Validators.required, textoObrigatorio, Validators.maxLength(100)]],
@@ -112,7 +116,7 @@ export class ClienteFormComponent {
       this.carregarPerfil();
     }
     if (this.cliente) {
-      this.form.patchValue(this.cliente);
+      this.form.patchValue({ ...this.cliente, codigoIbge: this.cliente.municipio.codigoIbge });
       this.cepConfirmado.set(this.cliente.cep);
       this.municipio.set(this.cliente.municipio.nome);
       this.estado.set(this.cliente.municipio.estado.sigla);
@@ -120,21 +124,35 @@ export class ClienteFormComponent {
     this.form.controls.cep.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.consulta?.unsubscribe();
       this.cepConfirmado.set('');
-      this.municipio.set('');
-      this.estado.set('');
       this.erroCep.set('');
-      this.form.patchValue({ logradouro: '', bairro: '' });
     });
     this.formEndereco.controls.cep.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.consultaEndereco?.unsubscribe();
         this.cepEnderecoConfirmado.set('');
-        this.municipioEndereco.set('');
-        this.estadoEndereco.set('');
         this.erroCepEndereco.set('');
-        this.formEndereco.patchValue({ logradouro: '', bairro: '' });
       });
+    for (const campo of ['logradouro', 'bairro', 'codigoIbge'] as const) {
+      this.form.controls[campo].valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.preencherManualmente());
+      this.formEndereco.controls[campo].valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.preencherManualmente(true));
+    }
+  }
+
+  preencherManualmente(endereco = false): void {
+    if (endereco) {
+      this.consultaEndereco?.unsubscribe();
+      this.cepEnderecoConfirmado.set('');
+      this.erroCepEndereco.set('');
+    } else {
+      this.consulta?.unsubscribe();
+      this.cepConfirmado.set('');
+      this.erroCep.set('');
+    }
   }
 
   private abrirPagina(enderecos: boolean): void {
@@ -157,7 +175,10 @@ export class ClienteFormComponent {
         next: (cliente) => {
           this.perfilSalvo.set(true);
           this.nomeOriginal.set(cliente.nome);
-          this.form.patchValue({ ...cliente, email: this.auth.email() }, { emitEvent: false });
+          this.form.patchValue(
+            { ...cliente, email: this.auth.email(), codigoIbge: cliente.municipio.codigoIbge },
+            { emitEvent: false },
+          );
           this.cepConfirmado.set(cliente.cep);
           this.municipio.set(cliente.municipio.nome);
           this.estado.set(cliente.municipio.estado.sigla);
@@ -189,6 +210,7 @@ export class ClienteFormComponent {
           if (principal) {
             this.form.patchValue(
               {
+                codigoIbge: principal.municipio.codigoIbge,
                 cep: principal.cep,
                 logradouro: principal.logradouro,
                 bairro: principal.bairro,
@@ -208,11 +230,13 @@ export class ClienteFormComponent {
   }
 
   iniciarNovoEndereco(): void {
+    this.preencherManualmente(true);
     this.enderecoEditandoId.set(null);
     this.formEndereco.reset(
       {
         apelido: this.enderecos().length === 0 ? 'Principal' : 'Casa',
         destinatario: this.form.controls.nome.value || this.auth.nome(),
+        codigoIbge: '',
         cep: '',
         logradouro: '',
         bairro: '',
@@ -230,11 +254,13 @@ export class ClienteFormComponent {
   }
 
   editarEndereco(endereco: Endereco): void {
+    this.preencherManualmente(true);
     this.enderecoEditandoId.set(endereco.id);
     this.formEndereco.reset(
       {
         apelido: endereco.apelido,
         destinatario: endereco.destinatario,
+        codigoIbge: endereco.municipio.codigoIbge,
         cep: endereco.cep,
         logradouro: endereco.logradouro,
         bairro: endereco.bairro,
@@ -252,6 +278,7 @@ export class ClienteFormComponent {
   }
 
   cancelarEdicaoEndereco(): void {
+    this.preencherManualmente(true);
     this.exibindoFormEndereco.set(false);
     this.enderecoEditandoId.set(null);
   }
@@ -275,7 +302,10 @@ export class ClienteFormComponent {
       )
       .subscribe({
         next: (dados) => {
-          this.formEndereco.patchValue({ logradouro: dados.logradouro, bairro: dados.bairro });
+          this.formEndereco.patchValue(
+            { logradouro: dados.logradouro, bairro: dados.bairro, codigoIbge: dados.ibge },
+            { emitEvent: false },
+          );
           this.municipioEndereco.set(dados.localidade);
           this.estadoEndereco.set(dados.uf);
           this.cepEnderecoConfirmado.set(cep);
@@ -299,11 +329,8 @@ export class ClienteFormComponent {
       { emitEvent: false },
     );
     const cepLimpo = dados.cep.replace('-', '');
-    if (this.formEndereco.invalid || this.cepEnderecoConfirmado() !== cepLimpo) {
+    if (this.formEndereco.invalid) {
       this.formEndereco.markAllAsTouched();
-      if (!this.cepEnderecoConfirmado()) {
-        this.erroCepEndereco.set('Consulte o CEP antes de salvar o endereço.');
-      }
       return;
     }
     const payload = {
@@ -390,7 +417,10 @@ export class ClienteFormComponent {
       )
       .subscribe({
         next: (dados) => {
-          this.form.patchValue({ logradouro: dados.logradouro, bairro: dados.bairro });
+          this.form.patchValue(
+            { logradouro: dados.logradouro, bairro: dados.bairro, codigoIbge: dados.ibge },
+            { emitEvent: false },
+          );
           this.municipio.set(dados.localidade);
           this.estado.set(dados.uf);
           this.cepConfirmado.set(cep);
@@ -449,9 +479,8 @@ export class ClienteFormComponent {
       numero: dados.numero.trim(),
       complemento: dados.complemento.trim(),
     });
-    if (this.form.invalid || this.cepConfirmado() !== dados.cep.replace('-', '')) {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
-      if (!this.cepConfirmado()) this.erroCep.set('Consulte o CEP antes de salvar.');
       if (this.selfService) {
         const dadosInvalidos = this.form.controls.nome.invalid || this.form.controls.email.invalid;
         this.abrirPagina(!dadosInvalidos);

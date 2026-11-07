@@ -1,5 +1,12 @@
 :host {
   display: block;
+  --mat-button-text-label-text-color: var(--prussian-blue);
+  --mat-button-text-state-layer-color: var(--prussian-blue);
+  --mat-button-text-ripple-color: color-mix(in srgb, var(--prussian-blue) 12%, transparent);
+}
+:host :is(button[mat-button], a[mat-button]):not(:disabled):is(:hover, :focus-visible) {
+  background: var(--alice-blue);
+  color: var(--prussian-blue);
 }
 .formulario {
   width: min(760px, calc(100% - 32px));

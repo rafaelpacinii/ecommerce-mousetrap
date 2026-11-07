@@ -1,5 +1,5 @@
 @startuml diagrama-de-classes
-title E-commerce de mouses (MouseTrap) — modelo completo de domínio 3NF (implementado V1–V9 | planejado V10–V15)
+title E-commerce de mouses (MouseTrap) — modelo completo de domínio 3NF (implementado V1–V9 | planejado V11–V16)
 top to bottom direction
 skinparam shadowing false
 skinparam classAttributeIconSize 0
@@ -46,11 +46,11 @@ package "Catálogo e Merchandising (3NF)" {
   }
 
   class Categoria <<Planned>> {
-    - nome : String [Planejado V10]
-    - slug : String [Planejado V10]
-    - descricao : String [0..1] [Planejado V10]
-    - ativo : Boolean [Planejado V10]
-    - versao : Long <<Version>> [Planejado V10]
+    - nome : String [Planejado V11]
+    - slug : String [Planejado V11]
+    - descricao : String [0..1] [Planejado V11]
+    - ativo : Boolean [Planejado V11]
+    - versao : Long <<Version>> [Planejado V11]
   }
 
   class Sensor <<Entity>> {
@@ -97,9 +97,9 @@ package "Catálogo e Merchandising (3NF)" {
     - tiposConexao : Set<TipoConexao>
     - pegadas : Set<Pegada>
     --
-    - destaque : Boolean [Planejado V11]
-    - ordemDestaque : Integer [0..1] [Planejado V11]
-    - precoCentavos : Long [Planejado V15]
+    - destaque : Boolean [Planejado V12]
+    - ordemDestaque : Integer [0..1] [Planejado V12]
+    - precoCentavos : Long [Planejado V16]
   }
 
   class ImagemMouse <<Entity>> {
@@ -194,17 +194,17 @@ package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
   }
 
   class Cupom <<Planned>> {
-    - codigo : String [Planejado V12]
-    - descricao : String [0..1] [Planejado V12]
-    - tipoDesconto : TipoDesconto [Planejado V12]
-    - valorDesconto : BigDecimal [Planejado V12]
-    - valorMinimoPedido : BigDecimal [Planejado V12]
-    - limiteUsos : Integer [0..1] [Planejado V12]
-    - quantidadeUsada : Integer [Planejado V12]
-    - validoDe : Instant [Planejado V12]
-    - validoAte : Instant [Planejado V12]
-    - ativo : Boolean [Planejado V12]
-    - versao : Long <<Version>> [Planejado V12]
+    - codigo : String [Planejado V13]
+    - descricao : String [0..1] [Planejado V13]
+    - tipoDesconto : TipoDesconto [Planejado V13]
+    - valorDesconto : BigDecimal [Planejado V13]
+    - valorMinimoPedido : BigDecimal [Planejado V13]
+    - limiteUsos : Integer [0..1] [Planejado V13]
+    - quantidadeUsada : Integer [Planejado V13]
+    - validoDe : Instant [Planejado V13]
+    - validoAte : Instant [Planejado V13]
+    - ativo : Boolean [Planejado V13]
+    - versao : Long <<Version>> [Planejado V13]
     + estaVigente(agora : Instant) : boolean
     + calcularDesconto(subtotal : BigDecimal) : BigDecimal
   }
@@ -228,10 +228,10 @@ package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
     - enviadoEm : Instant [0..1]
     - entregueEm : Instant [0..1]
     --
-    - codigoCupom : String [0..1] [Planejado V12]
-    - valorDesconto : BigDecimal [Planejado V12]
-    - estornadoEm : Instant [0..1] [Planejado V14]
-    - motivoEstorno : String [0..1] [Planejado V14]
+    - codigoCupom : String [0..1] [Planejado V13]
+    - valorDesconto : BigDecimal [Planejado V13]
+    - estornadoEm : Instant [0..1] [Planejado V15]
+    - motivoEstorno : String [0..1] [Planejado V15]
     --
     + getSubtotal() : BigDecimal
     + getTotal() : BigDecimal
@@ -267,8 +267,8 @@ package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
     - versao : Long <<Version>>
     - processadoEm : Instant [0..1]
     --
-    - provedor : String [0..1] [Planejado V15]
-    - transacaoExternaId : String [0..1] [Planejado V15]
+    - provedor : String [0..1] [Planejado V16]
+    - transacaoExternaId : String [0..1] [Planejado V16]
   }
 
   class EventoPedido <<Entity>> {
@@ -279,20 +279,20 @@ package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
   }
 
   class Avaliacao <<Planned>> {
-    - nota : Integer [Planejado V13]
-    - titulo : String [0..1] [Planejado V13]
-    - comentario : String [0..1] [Planejado V13]
-    - visivel : Boolean [Planejado V13]
-    - versao : Long <<Version>> [Planejado V13]
+    - nota : Integer [Planejado V14]
+    - titulo : String [0..1] [Planejado V14]
+    - comentario : String [0..1] [Planejado V14]
+    - visivel : Boolean [Planejado V14]
+    - versao : Long <<Version>> [Planejado V14]
   }
 
   class EventoWebhookPagamento <<Planned>> {
-    - provedor : String [Planejado V15]
-    - eventoExternoId : String [Planejado V15]
-    - tipoEvento : String [Planejado V15]
-    - payloadHash : String [Planejado V15]
-    - statusProcessamento : String [Planejado V15]
-    - processadoEm : Instant [Planejado V15]
+    - provedor : String [Planejado V16]
+    - eventoExternoId : String [Planejado V16]
+    - tipoEvento : String [Planejado V16]
+    - payloadHash : String [Planejado V16]
+    - statusProcessamento : String [Planejado V16]
+    - processadoEm : Instant [Planejado V16]
   }
 
   enum StatusPedido {
@@ -302,7 +302,7 @@ package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
     ENTREGUE (4, "Entregue")
     CANCELADO (5, "Cancelado")
     EXPIRADO (6, "Expirado")
-    REEMBOLSADO (7, "Reembolsado") [Planejado V14]
+    REEMBOLSADO (7, "Reembolsado") [Planejado V15]
   }
 
   enum FormaPagamento {
@@ -315,7 +315,7 @@ package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
     APROVADO (2, "Aprovado")
     RECUSADO (3, "Recusado")
     CANCELADO (4, "Cancelado")
-    ESTORNADO (5, "Estornado") [Planejado V14]
+    ESTORNADO (5, "Estornado") [Planejado V15]
   }
 
   enum ResultadoSimulacao {
@@ -349,7 +349,7 @@ DefaultEntity <|-- EventoWebhookPagamento
 
 Pais "0..1" <-- "0..*" Marca : paisOrigem
 Marca "1" <-- "0..*" Mouse : marca
-Categoria "0..1" <.. "0..*" Mouse : categoria [V10]
+Categoria "0..1" <.. "0..*" Mouse : categoria [V11]
 Sensor "0..1" <-- "0..*" Mouse : sensorEntidade
 SwitchMouse "0..1" <-- "0..*" Mouse : switchEntidade
 SwitchMouse ..> TipoSwitch
@@ -368,18 +368,18 @@ Cliente "0..1" <-- "0..*" Desejo : cliente
 Desejo "0..*" --> "1" Mouse : mouse
 Cliente "1" <-- "0..*" Pedido : cliente
 Transportadora "0..1" <-- "0..*" Pedido : transportadoraEntidade
-Cupom "0..1" <.. "0..*" Pedido : cupom [V12]
+Cupom "0..1" <.. "0..*" Pedido : cupom [V13]
 Cupom ..> TipoDesconto
 Pedido "1" *-- "1..*" ItemPedido : itens
 ItemPedido "0..*" --> "1" Mouse : mouse
 Pedido "1" *-- "1" EnderecoEntrega : endereco
 Pedido "1" *-- "0..*" Pagamento : pagamentos
 Pedido "1" *-- "1..*" EventoPedido : eventos
-Pagamento "0..1" <.. "0..*" EventoWebhookPagamento : pagamento [V15]
+Pagamento "0..1" <.. "0..*" EventoWebhookPagamento : pagamento [V16]
 
-Cliente "1" <.. "0..*" Avaliacao : cliente [V13]
-Mouse "1" <.. "0..*" Avaliacao : mouse [V13]
-Pedido "1" <.. "0..*" Avaliacao : pedido [V13]
+Cliente "1" <.. "0..*" Avaliacao : cliente [V14]
+Mouse "1" <.. "0..*" Avaliacao : mouse [V14]
+Pedido "1" <.. "0..*" Avaliacao : pedido [V14]
 
 Pedido ..> StatusPedido
 EventoPedido ..> StatusPedido
@@ -395,7 +395,7 @@ end note
 
 legend left
   <<Entity>> (azul): Classes de domínio 3NF implementadas nas migrações V1–V9.
-  <<Planned>> (âmbar) e campos [Planejado V10–V15]: Evolução aprovada no ROADMAP (v1.2.0 → v2.0.0).
+  <<Planned>> (âmbar) e campos [Planejado V11–V16]: Evolução aprovada no ROADMAP (v1.2.0 → v2.0.0).
   <<Embeddable>> (verde): Objeto de valor embutido sem tabela própria.
   Todas as entidades persistentes herdam de DefaultEntity (id, dataCadastro, dataAlteracao).
   Enums possuem id Integer, label String, valueOf(Integer) e AttributeConverter em model.converterjpa.

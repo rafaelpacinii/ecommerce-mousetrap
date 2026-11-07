@@ -1,5 +1,10 @@
 # MouseTrap — Master Visual Roadmap (`v1.0.0` → `v2.0.0`)
 
+> Migration allocation update (2026-11-07): V10 now seeds the offline municipality
+> catalog. Planned E2–E7 migrations move to V11–V16, without changing their domain
+> scope or release targets. See [ADR 0003](adr/0003-independent-address-registration.md).
+
+
 This document is the canonical visual and technical roadmap for MouseTrap from its
 initial `v1.0.0` and `v1.1.0` releases through its final `v2.0.0` architecture.
 It pairs with [active task memory](../TASK.md), [system state](SYSTEM_STATE.md),
@@ -14,31 +19,31 @@ Milestones/Issues/Project board synchronized by `scripts/sync_roadmap.py`.
 ```mermaid
 flowchart TD
     subgraph Released["✅ COMPLETED & RELEASED"]
-        V10["v1.0.0 — Storefront, OIDC, Cart, Checkout,\nCustomer Portal, Admin & E2E (Migrations V1–V7)"]
-        V11["v1.1.0 — 4-Banner Carousel, Cloudflare R2 (V8),\nMonorepo CI/CD, Dependabot & AI Governance"]
-        V10 --> V11
+        V11["v1.0.0 — Storefront, OIDC, Cart, Checkout,\nCustomer Portal, Admin & E2E (Migrations V1–V7)"]
+        V12["v1.1.0 — 4-Banner Carousel, Cloudflare R2 (V8),\nMonorepo CI/CD, Dependabot & AI Governance"]
+        V11 --> V12
     end
 
     subgraph M12["🎯 Milestone v1.2.0 — 3NF Normalization & Enriched Catalog"]
         E1["Epic E1: 3NF Relational Restructuring &\nPlantUML Diagram/Model Alignment\n(Pais, Marca+, Sensor, SwitchMouse, Cliente+, Transportadora — V9)"]
-        E2["Epic E2: Product Categories & Technical Specs\n(Categoria CRUD, Sensor/Switch/Carrier Admin CRUD,\nCatalog Facets & Enriched Forms — V10)"]
-        V11 --> E1 --> E2
+        E2["Epic E2: Product Categories & Technical Specs\n(Categoria CRUD, Sensor/Switch/Carrier Admin CRUD,\nCatalog Facets & Enriched Forms — V11)"]
+        V12 --> E1 --> E2
     end
 
     subgraph M13["🎯 Milestone v1.3.0 — Merchandising & Promotions"]
-        E3["Epic E3: Real Merchandising\n(Curated Weekly Highlights & Real\n'Mais Vendidos' Sales Aggregation — V11)"]
-        E4["Epic E4: Discount Coupons\n(Cupom Admin CRUD, Validation Endpoint\n& Atomic Checkout Discount — V12)"]
+        E3["Epic E3: Real Merchandising\n(Curated Weekly Highlights & Real\n'Mais Vendidos' Sales Aggregation — V12)"]
+        E4["Epic E4: Discount Coupons\n(Cupom Admin CRUD, Validation Endpoint\n& Atomic Checkout Discount — V13)"]
         E2 --> E3 --> E4
     end
 
     subgraph M14["🎯 Milestone v1.4.0 — Post-Purchase Trust & Lifecycle"]
-        E5["Epic E5: Verified Customer Reviews\n(1–5 Star Ratings, Purchase Check, SEO\nAggregateRating & Admin Moderation — V13)"]
-        E6["Epic E6: Order Refunds & Restock\n(REEMBOLSADO / ESTORNADO, Atomic Stock\nRestoration & Timeline Audit — V14)"]
+        E5["Epic E5: Verified Customer Reviews\n(1–5 Star Ratings, Purchase Check, SEO\nAggregateRating & Admin Moderation — V14)"]
+        E6["Epic E6: Order Refunds & Restock\n(REEMBOLSADO / ESTORNADO, Atomic Stock\nRestoration & Timeline Audit — V15)"]
         E4 --> E5 --> E6
     end
 
     subgraph M20["🎯 Milestone v2.0.0 — External Gateways & Debt Closure"]
-        E7["Epic E7: R2 Orphan Cleanup, Pluggable\nPayment/Freight Gateways (V15), Integer-Cent\nPrice Migration & Production Hardening"]
+        E7["Epic E7: R2 Orphan Cleanup, Pluggable\nPayment/Freight Gateways (V16), Integer-Cent\nPrice Migration & Production Hardening"]
         E6 --> E7
     end
 ```
@@ -52,12 +57,12 @@ flowchart TD
 | **`v1.0.0`** | Slices 1–7: Storefront, Catalog, Auth, Cart, Checkout, Portal, Admin, Release Stack | ✅ **Done** | `V1`–`V7` | Public `/catalogo`, Keycloak PKCE, ViaCEP, atomic checkout/PIX/card demo, wishlist, admin orders, Playwright/Axe E2E |
 | **`v1.1.0`** | Post-1.0: Carousel, R2 Uploads, Setup Guides, Dependabot, Monorepo CI/CD, AI Governance | ✅ **Done** | `V8` | 4-banner hero carousel, `POST /imagens/{mouses\|marcas}`, R2 S3 adapter, scope-aware CI/CD, 13 skills, [ADR 0001](adr/0001-record-architecture-decisions.md) |
 | **`v1.2.0`** | **E1:** 3NF Database Normalization, Enriched Entities & PlantUML Reconciliation | ✅ **Done (`#43`)** | `V9` | Normalize `Pais`, enrich `Marca`, extract `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, link `Desejo.cliente`, update [PlantUML models](modelagem/README.md) |
-| **`v1.2.0`** | **E2:** Product Categories (`Categoria`) & Component CRUD Screens | 🔄 **Next (`#44`)** | `V10` | `Categoria` entity/repo/service/resource, `/admin/categorias` + `/admin/sensores` + `/admin/switches` + `/admin/transportadoras`, `/catalogo` facets |
-| **`v1.3.0`** | **E3:** Real Merchandising (Curated Weekly Highlights & Best-Sellers) | 📋 **Planned (`#45`)** | `V11` | `mouse.destaque` & `ordem_destaque`, real sales aggregation (`ordenar=mais-vendidos`), `GET /catalogo/mouses/destaques`, Home highlights |
-| **`v1.3.0`** | **E4:** Discount Coupons (`Cupom`) | 📋 **Planned (`#46`)** | `V12` | `Cupom` entity, `/admin/cupons` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & `Pedido` discount snapshot |
-| **`v1.4.0`** | **E5:** Verified Customer Reviews & Ratings (`Avaliacao`) | 📋 **Planned (`#47`)** | `V13` | Purchase-verified 1–5 star reviews, product rating summary + JSON-LD `aggregateRating`, `/admin/avaliacoes` moderation |
-| **`v1.4.0`** | **E6:** Order Refunds & Stock Restoration (`Estorno`) | 📋 **Planned (`#48`)** | `V14` | `StatusPedido.REEMBOLSADO (7)`, `StatusPagamento.ESTORNADO (5)`, atomic refund + single stock restoration, `EventoPedido` audit |
-| **`v2.0.0`** | **E7:** External Gateways, R2 Orphan Cleanup & Integer-Cent Migration | 📋 **Planned (`#49`)** | `V15` | R2 orphan cleanup, pluggable `PagamentoGateway`/`FreteGateway` + webhook idempotency (`V15`), integer-cent pricing, blocking Trivy |
+| **`v1.2.0`** | **E2:** Product Categories (`Categoria`) & Component CRUD Screens | 🔄 **Next (`#44`)** | `V11` | `Categoria` entity/repo/service/resource, `/admin/categorias` + `/admin/sensores` + `/admin/switches` + `/admin/transportadoras`, `/catalogo` facets |
+| **`v1.3.0`** | **E3:** Real Merchandising (Curated Weekly Highlights & Best-Sellers) | 📋 **Planned (`#45`)** | `V12` | `mouse.destaque` & `ordem_destaque`, real sales aggregation (`ordenar=mais-vendidos`), `GET /catalogo/mouses/destaques`, Home highlights |
+| **`v1.3.0`** | **E4:** Discount Coupons (`Cupom`) | 📋 **Planned (`#46`)** | `V13` | `Cupom` entity, `/admin/cupons` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & `Pedido` discount snapshot |
+| **`v1.4.0`** | **E5:** Verified Customer Reviews & Ratings (`Avaliacao`) | 📋 **Planned (`#47`)** | `V14` | Purchase-verified 1–5 star reviews, product rating summary + JSON-LD `aggregateRating`, `/admin/avaliacoes` moderation |
+| **`v1.4.0`** | **E6:** Order Refunds & Stock Restoration (`Estorno`) | 📋 **Planned (`#48`)** | `V15` | `StatusPedido.REEMBOLSADO (7)`, `StatusPagamento.ESTORNADO (5)`, atomic refund + single stock restoration, `EventoPedido` audit |
+| **`v2.0.0`** | **E7:** External Gateways, R2 Orphan Cleanup & Integer-Cent Migration | 📋 **Planned (`#49`)** | `V16` | R2 orphan cleanup, pluggable `PagamentoGateway`/`FreteGateway` + webhook idempotency (`V16`), integer-cent pricing, blocking Trivy |
 
 ---
 
@@ -67,7 +72,7 @@ To address the academic review of the domain model (`V1`–`V8`), the following
 normalizations eliminate transitive dependencies, multi-valued contact fields,
 and overly terse entities while keeping the domain focused on a gaming-mouse store:
 
-| Domain Area | Legacy State (`V1`–`V8`) | Normal Form / Modeling Issue | Normalized 3NF Target (`V9`–`V15`) |
+| Domain Area | Legacy State (`V1`–`V8`) | Normal Form / Modeling Issue | Normalized 3NF Target (`V9`–`V16`) |
 | :--- | :--- | :--- | :--- |
 | **Manufacturer (`Marca` & `Pais`)** | `marca` had only `id`, `nome`, `ativo`, `logomarca_url`. | Overly simple entity; unnormalized country of origin and missing warranty/support metadata. | Add **`pais`** (`id`, `nome`, `sigla_iso CHAR(2) UNIQUE`) and enrich **`marca`** with `pais_origem_id`, `descricao`, `site_oficial`, `email_suporte`, `ano_fundacao`, `garantia_padrao_meses`, `versao`. |
 | **Optical Sensor (`Sensor`)** | `mouse.sensor` (`varchar(100)`) and `mouse.dpi_maximo` stored inline on `mouse`. | **3NF Violation:** sensor specs (`fabricante`, `dpi_maximo`, `ips`, `aceleracao_g`) depend on the sensor model, not the individual mouse SKU. | Extract **`sensor`** (`id`, `modelo UNIQUE`, `fabricante`, `dpi_maximo`, `ips`, `aceleracao_g`, `ativo`, `versao`) referenced by `mouse.sensor_id`. |
@@ -137,7 +142,7 @@ erDiagram
 ### Epic E2 — Product Categories (`Categoria`) & Enriched Admin/Catalog UI (`v1.2.0`)
 
 - **Branch:** `feature/e2-categories-and-enriched-catalog`
-- **Flyway Migration:** `api/src/main/resources/db/migration/V10__criar_categorias.sql`
+- **Flyway Migration:** `api/src/main/resources/db/migration/V11__criar_categorias.sql`
   - Create `categoria` (`id`, `data_cadastro`, `data_alteracao`, `nome VARCHAR(100) NOT NULL UNIQUE`, `slug VARCHAR(120) NOT NULL UNIQUE`, `descricao VARCHAR(500)`, `ativo BOOLEAN NOT NULL DEFAULT TRUE`, `versao BIGINT NOT NULL DEFAULT 0`) + case-insensitive unique indexes.
   - Alter `mouse`: add `categoria_id BIGINT REFERENCES categoria(id) ON DELETE RESTRICT` and index `ix_mouse_categoria`.
 - **Backend & Frontend Deliverables:**
@@ -150,7 +155,7 @@ erDiagram
 ### Epic E3 — Real Merchandising: Curated Weekly Highlights & Best-Sellers (`v1.3.0`)
 
 - **Branch:** `feature/e3-merchandising-highlights-bestsellers`
-- **Flyway Migration:** `api/src/main/resources/db/migration/V11__adicionar_destaque_mouse.sql`
+- **Flyway Migration:** `api/src/main/resources/db/migration/V12__adicionar_destaque_mouse.sql`
   - Add `destaque BOOLEAN NOT NULL DEFAULT FALSE` and `ordem_destaque INTEGER CHECK (ordem_destaque IS NULL OR ordem_destaque >= 0)` to `mouse`.
 - **Backend & Frontend Deliverables:**
   - `ordenar=mais-vendidos` in `CatalogoServiceImpl` using real paid/shipped/delivered `ItemPedido` quantities.
@@ -161,7 +166,7 @@ erDiagram
 ### Epic E4 — Discount Coupons (`Cupom` — `v1.3.0`)
 
 - **Branch:** `feature/e4-discount-coupons`
-- **Flyway Migration:** `api/src/main/resources/db/migration/V12__criar_cupons_desconto.sql`
+- **Flyway Migration:** `api/src/main/resources/db/migration/V13__criar_cupons_desconto.sql`
   - Create `cupom` (`id`, `codigo`, `descricao`, `tipo_desconto` `1=PERCENTUAL / 2=VALOR_FIXO`, `valor_desconto`, `valor_minimo_pedido`, `limite_usos`, `quantidade_usada`, `valido_de`, `valido_ate`, `ativo`, `versao`, audit columns).
   - Alter `pedido`: add `cupom_id BIGINT REFERENCES cupom(id)`, `codigo_cupom VARCHAR(40)`, `valor_desconto NUMERIC(12,2) NOT NULL DEFAULT 0.00`.
 - **Backend & Frontend Deliverables:**
@@ -173,7 +178,7 @@ erDiagram
 ### Epic E5 — Verified Customer Reviews & Ratings (`Avaliacao` — `v1.4.0`)
 
 - **Branch:** `feature/e5-customer-reviews`
-- **Flyway Migration:** `api/src/main/resources/db/migration/V13__criar_avaliacoes_produto.sql`
+- **Flyway Migration:** `api/src/main/resources/db/migration/V14__criar_avaliacoes_produto.sql`
   - Create `avaliacao` (`id`, `mouse_id`, `cliente_id`, `pedido_id`, `nota` `1..5`, `titulo`, `comentario`, `visivel`, `versao`, audit columns, `UNIQUE(cliente_id, mouse_id)`).
 - **Backend & Frontend Deliverables:**
   - Purchase-verified review creation (`POST /catalogo/mouses/{id}/avaliacoes`), public paged reviews (`GET /catalogo/mouses/{id}/avaliacoes`), aggregate rating fields on catalog DTOs + JSON-LD `aggregateRating` in `SeoService`, and admin moderation (`PATCH /admin/avaliacoes/{id}/visibilidade`).
@@ -183,7 +188,7 @@ erDiagram
 ### Epic E6 — Order Refunds & Stock Restoration (`Estorno` — `v1.4.0`)
 
 - **Branch:** `feature/e6-order-refunds`
-- **Flyway Migration:** `api/src/main/resources/db/migration/V14__adicionar_estorno_pedido_pagamento.sql`
+- **Flyway Migration:** `api/src/main/resources/db/migration/V15__adicionar_estorno_pedido_pagamento.sql`
   - Expand `pedido.status` check to include `7` (`REEMBOLSADO`) and `pagamento.status` check to include `5` (`ESTORNADO`); add `estornado_em TIMESTAMPTZ` and `motivo_estorno VARCHAR(300)`.
 - **Backend & Frontend Deliverables:**
   - Atomic refund endpoint (`POST /admin/pedidos/{id}/estornar` and customer self-service refund request for unshipped `PAGO` orders), restoring stock once and recording an immutable `EventoPedido`.
@@ -193,7 +198,7 @@ erDiagram
 ### Epic E7 — External Gateways, R2 Cleanup & Integer-Cent Migration (`v2.0.0`)
 
 - **Branch:** `feature/e7-gateways-r2-cleanup-integer-cents`
-- **Flyway Migration:** `api/src/main/resources/db/migration/V15__criar_eventos_webhook.sql`
+- **Flyway Migration:** `api/src/main/resources/db/migration/V16__criar_eventos_webhook.sql`
   - Create `evento_webhook_pagamento` for idempotent external payment webhook deduplication.
 - **Backend, Frontend & CI/CD Deliverables:**
   - Admin R2 orphan image inspection/cleanup service; pluggable `PagamentoGateway` and `FreteGateway` adapters; integer-cent price fields (`precoCentavos`) for exact client math; blocking Trivy scan enforcement in `.github/workflows/{verify,cd}.yml`.

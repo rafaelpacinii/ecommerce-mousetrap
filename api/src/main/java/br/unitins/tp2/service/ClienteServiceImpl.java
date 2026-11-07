@@ -126,7 +126,7 @@ public class ClienteServiceImpl implements ClienteService {
     @RolesAllowed({ "customer", "admin" })
     public EnderecoResponseDTO criarMeuEndereco(EnderecoDTO dto) {
         Cliente cliente = buscarMeuClienteObrigatorio();
-        Municipio municipio = resolverMunicipioPorCep(dto.cep());
+        Municipio municipio = resolverMunicipio(dto.cep(), dto.codigoIbge());
         List<Endereco> existentes = enderecos.findByClienteId(cliente.getId());
         boolean tornarPrincipal = Boolean.TRUE.equals(dto.principal()) || existentes.isEmpty();
         if (tornarPrincipal) {
@@ -152,7 +152,7 @@ public class ClienteServiceImpl implements ClienteService {
         Endereco endereco = enderecos.findByIdAndClienteId(id, cliente.getId());
         if (endereco == null)
             throw new NotFoundException();
-        Municipio municipio = resolverMunicipioPorCep(dto.cep());
+        Municipio municipio = resolverMunicipio(dto.cep(), dto.codigoIbge());
         boolean tornarPrincipal = endereco.isPrincipal() || Boolean.TRUE.equals(dto.principal());
         if (tornarPrincipal && !endereco.isPrincipal()) {
             enderecos.desmarcarPrincipais(cliente.getId());
@@ -290,7 +290,16 @@ public class ClienteServiceImpl implements ClienteService {
         return cliente;
     }
 
-    private Municipio resolverMunicipioPorCep(String cepCodigo) {
+    private Municipio resolverMunicipio(String cepCodigo, String codigoIbge) {
+        if (codigoIbge != null) {
+            Municipio municipio = municipios.findByCodigoIbge(codigoIbge);
+            if (municipio == null) {
+                throw new ValidationException("codigoIbge", "Selecione um município cadastrado.");
+            }
+            return municipio;
+        }
+        // Compatibility for older clients that send only a postcode.
+
         CepResponseDTO cep = cepService.consultar(cepCodigo);
         Estado estado = estados.findBySigla(cep.uf());
         if (estado == null)
@@ -346,7 +355,7 @@ public class ClienteServiceImpl implements ClienteService {
                 cliente.getTelefones().add(tel);
             }
         }
-        Municipio municipio = resolverMunicipioPorCep(dto.cep());
+        Municipio municipio = resolverMunicipio(dto.cep(), dto.codigoIbge());
         cliente.setNome(dto.nome());
         cliente.setEmail(dto.email());
         cliente.setCep(dto.cep());
