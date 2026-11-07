@@ -5,12 +5,13 @@ description: "Plan and validate backward-compatible Flyway schema changes for Mo
 
 # Safe database migration
 
-1. Read [policy](../../../AGENTS.md), [ADRs](../../../docs/adr/0001-record-architecture-decisions.md),
+1. Read [policy](../../../AGENTS.md), [business rules](../../../docs/BUSINESS_RULES.md),
+   [ADRs](../../../docs/adr/0001-record-architecture-decisions.md),
    [API setup](../../../api/README.md), current entities/repositories and both
-   `api/docs/modelagem/` PlantUML files. Resolve new domain decisions before SQL.
+   [PlantUML files](../../../docs/modelagem/README.md). Resolve new domain decisions before SQL.
 2. Enumerate `api/src/main/resources/db/migration/`; choose the next free version
-   (V1–V8 currently exist). Never edit an applied migration to fix a new requirement.
-   Changing existing migration history requires explicit authorization.
+   (V1–V9 currently exist). Never edit an applied migration to fix a new requirement.
+   Changing existing migration history or any `BR-*` rule requires explicit authorization.
 3. Describe old/new reader/writer compatibility, null/default/backfill behavior,
    foreign keys, unique/check constraints, index/query justification and table-lock
    risk. Use expand → backfill → constrain/contract for incompatible deployments.

@@ -141,7 +141,7 @@ The local payment engine still requires explicit enablement outside development/
 
 - [`README.md`](../../README.md)
 - [`api/README.md`](../../api/README.md)
-- [`api/docs/modelagem/README.md`](../../api/docs/modelagem/README.md)
+- [`docs/modelagem/README.md`](../modelagem/README.md)
 - [`docs/others/authentication.md`](authentication.md)
 - [`docs/others/customer-portal-admin-orders.md`](customer-portal-admin-orders.md)
 - [`docs/others/implementation-backlog.md`](implementation-backlog.md)

@@ -11,6 +11,9 @@ R2 image uploads exist. Categories, refunds, carrier APIs and webhooks are plann
 
 - Read `TASK.md` before complex implementation. Inspect actual manifests, routes
   and tests; preserve unrelated work. Read `docs/SYSTEM_STATE.md` for limitations.
+- Always consult `docs/BUSINESS_RULES.md` and `docs/modelagem/README.md` before
+  changing domain entities, migrations, services, DTOs or workflows. Never bypass,
+  relax or alter any `BR-*` rule without **explicit prior user authorization**.
 - Consult `docs/adr/` before changing architectural decisions; record new ones
   with the next numbered ADR. Read applicable domain documentation, not every file.
 - Break work into testable subtasks in `TASK.md`. Mark each completed subtask
@@ -113,9 +116,10 @@ cd web && npm run audit
   runtime access to generated directories and lockfiles.
 - Never overwrite private configuration, prune Docker, delete existing volumes,
   reset identity data, stop unrelated processes or remove failing tests.
-- Ask before editing existing versioned migrations, breaking endpoints, choosing
-  new domain policies/providers or adding state/persistence frameworks. Existing
-  authorization covers routine implementation within the requested scope.
+- Ask before overriding any `BR-*` rule in `docs/BUSINESS_RULES.md`, editing
+  existing versioned migrations, breaking endpoints, choosing new domain policies/
+  providers or adding state/persistence frameworks. Existing authorization covers
+  routine implementation within the requested scope.
 - Use `db-migration-safe` for schema work and `security-and-payment-audit` for
   requested identity/checkout audits. An audit does not authorize deployment.
 

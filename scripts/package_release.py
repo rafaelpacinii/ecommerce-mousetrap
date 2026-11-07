@@ -19,7 +19,9 @@ SCRIPT_FILES = {'package_release.py', 'test_release.py', 'configure_stack.py', '
                 'export_hero_images.py'}
 EXCLUDED_SUFFIXES = {'.zip', '.tar', '.gz', '.tgz', '.class', '.jar', '.war', '.log',
                      '.pyc', '.pem', '.key', '.p12', '.pfx', '.jks', '.env', '.swp', '.orig'}
-REQUIRED = {'README.md', 'docs/others/release-readiness.md',
+REQUIRED = {'README.md', 'docs/BUSINESS_RULES.md', 'docs/modelagem/README.md',
+            'docs/modelagem/diagrama-de-classes.puml', 'docs/modelagem/banco-de-dados.puml',
+            'docs/others/release-readiness.md',
             'docs/ai/setup-environment.md', 'docs/ai/setup-integrations.md', 'docker-compose.yml',
             'api/pom.xml', 'api/mvnw', 'api/mvnw.cmd',
             'api/.mvn/wrapper/maven-wrapper.properties',

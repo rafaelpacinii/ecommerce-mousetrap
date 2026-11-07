@@ -14,6 +14,11 @@ REQUIRED = ('AGENTS.md', 'CLAUDE.md', 'TASK.md', '.codex/config.toml',
             '.agents/project.toml', '.agents/architect.md', '.agents/qa-tester.md',
             '.agents/code-reviewer.md', 'docs/CONVENTIONS.md', 'docs/SYSTEM_STATE.md',
             'docs/ai-governance.md', 'docs/adr/0001-record-architecture-decisions.md')
+REQUIRED_DOMAIN_DOCS = ('docs/BUSINESS_RULES.md', 'docs/ROADMAP.md',
+                        'docs/modelagem/README.md',
+                        'docs/modelagem/diagrama-de-classes.puml',
+                        'docs/modelagem/banco-de-dados.puml',
+                        '.agents/rules/business-rules.md')
 
 
 def metadata(text):
@@ -34,9 +39,14 @@ def metadata(text):
 
 def validate(root=ROOT):
     errors = []
-    for name in REQUIRED:
+    for name in REQUIRED + REQUIRED_DOMAIN_DOCS:
         if not (root / name).is_file():
             errors.append(f'Missing file: {name}')
+    if (root / 'api/docs/modelagem').exists():
+        errors.append('Legacy api/docs/modelagem must remain relocated to docs/modelagem')
+    business_rules = root / 'docs/BUSINESS_RULES.md'
+    if business_rules.is_file() and 'BR-GOV-03' not in business_rules.read_text():
+        errors.append('docs/BUSINESS_RULES.md must retain BR-GOV-03 authorization lock')
     alias = root / '.codex/skills'
     if not alias.is_symlink() or alias.resolve() != (root / '.agents/skills').resolve():
         errors.append('.codex/skills must alias ../.agents/skills')

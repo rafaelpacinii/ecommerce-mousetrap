@@ -5,10 +5,12 @@ description: "Plan and implement a MouseTrap feature across existing modules, ke
 
 # New feature workflow
 
-1. Read [policy](../../../AGENTS.md), [task memory](../../../TASK.md),
+1. Read [policy](../../../AGENTS.md), [business rules](../../../docs/BUSINESS_RULES.md),
+   [3NF models](../../../docs/modelagem/README.md), [task memory](../../../TASK.md),
    [system state](../../../docs/SYSTEM_STATE.md) and relevant `docs/adr/` records.
    Inspect Git status, current contracts, affected source and existing tests.
-2. Confirm the user-requested behavior and already approved domain decisions.
+2. Confirm the user-requested behavior and already approved `BR-*` rules; never
+   alter or bypass any rule in `docs/BUSINESS_RULES.md` without explicit user approval.
    Provide the Gitflow branch commands before implementation. Do not create a
    release, introduce tenants or choose a provider merely to complete a feature.
 3. Write a bounded objective, affected files, testable subtasks and acceptance

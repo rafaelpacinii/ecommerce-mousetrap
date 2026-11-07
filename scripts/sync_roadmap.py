@@ -120,7 +120,7 @@ EPICS = (
             '- [ ] Extract `Sensor` (`sensor`) and `SwitchMouse` (`switch_mouse`) to eliminate 3NF transitive dependencies on `mouse`, and add physical dimensions (`comprimento_mm`, `largura_mm`, `altura_mm`, `autonomia_bateria_horas`, `garantia_meses`).\n'
             '- [ ] Enrich `Cliente` (`cpf`, `data_nascimento`, `ativo`, `versao`), extract `TelefoneCliente` (`telefone_cliente` 1:N), and link `Desejo.cliente`.\n'
             '- [ ] Extract `Transportadora` (`transportadora`) referenced by `Pedido.transportadora` while preserving immutable order snapshots.\n'
-            '- [ ] Reconcile `api/docs/modelagem/diagrama-de-classes.puml`, `banco-de-dados.puml` and `README.md` with the 3NF schema.\n'
+            '- [ ] Reconcile `docs/modelagem/diagrama-de-classes.puml`, `banco-de-dados.puml` and `README.md` with the 3NF schema.\n'
             '- [ ] Add backend unit/integration tests verifying migration V9 backfill and backward-compatible DTO contracts.\n'
         ),
     },

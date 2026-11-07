@@ -109,7 +109,8 @@ create/edit operations depend on that service's availability.
 - [API execution and tests](../api/README.md).
 - [Catalog contracts and rules](../api/docs/catalogo.md).
 - [Customer and CEP contracts](../api/docs/clientes-cep.md).
-- [Domain planning](../api/docs/modelagem/README.md).
+- [Complete 3NF domain models](../docs/modelagem/README.md).
+- [Authoritative business rules](../docs/BUSINESS_RULES.md).
 - [Website icon assets](public/icons/README.md).
 
 ## Release verification

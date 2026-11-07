@@ -1,11 +1,17 @@
 @startuml banco-de-dados
-title E-commerce de mouses (MouseTrap) — modelo relacional 3NF implementado (V1–V9)
+title E-commerce de mouses (MouseTrap) — modelo relacional 3NF completo (implementado V1–V9 | planejado V10–V15)
 top to bottom direction
 hide circle
 skinparam linetype ortho
 skinparam shadowing false
-skinparam entityBackgroundColor #F5F9FF
-skinparam entityBorderColor #355473
+skinparam class {
+  BackgroundColor #F5F9FF
+  BorderColor #355473
+  BackgroundColor<<Planned>> #FFFBEB
+  BorderColor<<Planned>> #B45309
+  BackgroundColor<<Collection>> #EEFDF4
+  BorderColor<<Collection>> #15803D
+}
 
 entity pais {
   * id : bigint <<PK, identity>>
@@ -18,7 +24,7 @@ entity marca {
   * id : bigint <<PK, identity>>
   --
   pais_origem_id : bigint <<FK>>
-  * nome : varchar(100) <<UK>>
+  * nome : varchar(100) <<UK, UK lower(nome)>>
   * ativo : boolean
   logomarca_url : varchar(2048)
   descricao : varchar(1000)
@@ -29,10 +35,20 @@ entity marca {
   * versao : bigint
 }
 
+entity categoria <<Planned>> {
+  * id : bigint <<PK, identity>> [V10]
+  --
+  * nome : varchar(100) <<UK, UK lower(nome)>> [V10]
+  * slug : varchar(120) <<UK>> [V10]
+  descricao : varchar(500) [V10]
+  * ativo : boolean [V10]
+  * versao : bigint [V10]
+}
+
 entity sensor {
   * id : bigint <<PK, identity>>
   --
-  * modelo : varchar(100) <<UK>>
+  * modelo : varchar(100) <<UK, UK lower(modelo)>>
   * fabricante : varchar(100)
   * dpi_maximo : integer
   * ips : integer
@@ -44,7 +60,7 @@ entity sensor {
 entity switch_mouse {
   * id : bigint <<PK, identity>>
   --
-  * modelo : varchar(100) <<UK>>
+  * modelo : varchar(100) <<UK, UK lower(modelo)>>
   * fabricante : varchar(100)
   * tipo_switch : integer <<enum>>
   * durabilidade_milhoes_cliques : integer
@@ -59,6 +75,7 @@ entity mouse {
   * marca_id : bigint <<FK>>
   sensor_id : bigint <<FK>>
   switch_id : bigint <<FK>>
+  categoria_id : bigint <<FK>> [Planejado V10]
   * sku : varchar(50) <<UK>>
   * nome : varchar(150)
   * descricao : text
@@ -74,19 +91,23 @@ entity mouse {
   autonomia_bateria_horas : integer
   * garantia_meses : integer
   polling_rate : integer
-  sensor : varchar(100)
-  tipo_switch : integer <<enum>>
-  modelo_switch : varchar(100)
+  sensor : varchar(100) <<legado V3>>
+  tipo_switch : integer <<enum, legado V3>>
+  modelo_switch : varchar(100) <<legado V3>>
   * ativo : boolean
   * versao : bigint
+  --
+  * destaque : boolean [Planejado V11]
+  ordem_destaque : integer [Planejado V11]
+  * preco_centavos : bigint [Planejado V15]
 }
 
-entity mouse_conexao <<tabela de coleção>> {
+entity mouse_conexao <<Collection>> {
   * mouse_id : bigint <<PK, FK>>
   * tipo_conexao : integer <<PK, enum>>
 }
 
-entity mouse_pegada <<tabela de coleção>> {
+entity mouse_pegada <<Collection>> {
   * mouse_id : bigint <<PK, FK>>
   * pegada : integer <<PK, enum>>
 }
@@ -96,7 +117,7 @@ entity imagem_mouse {
   --
   * mouse_id : bigint <<FK>>
   * url : varchar(2048)
-  * texto_alternativo : varchar(150)
+  * texto_alternativo : varchar(200)
   * ordem : integer
   --
   UNIQUE (mouse_id, ordem)
@@ -113,7 +134,7 @@ entity municipio {
   * id : bigint <<PK, identity>>
   --
   * estado_id : bigint <<FK>>
-  * nome : varchar(120)
+  * nome : varchar(150)
   * codigo_ibge : varchar(7) <<UK>>
 }
 
@@ -127,6 +148,13 @@ entity cliente {
   data_nascimento : date
   * ativo : boolean
   * versao : bigint
+  --
+  cep : varchar(8) <<legado V2>>
+  logradouro : varchar(200) <<legado V2>>
+  bairro : varchar(100) <<legado V2>>
+  numero : varchar(20) <<legado V2>>
+  complemento : varchar(100) <<legado V2>>
+  municipio_id : bigint <<FK, legado V2>>
 }
 
 entity telefone_cliente {
@@ -147,13 +175,15 @@ entity endereco {
   * cliente_id : bigint <<FK>>
   * municipio_id : bigint <<FK>>
   * apelido : varchar(60)
-  * destinatario : varchar(100)
+  * destinatario : varchar(150)
   * cep : varchar(8)
   * logradouro : varchar(200)
   * numero : varchar(20)
   complemento : varchar(100)
   * bairro : varchar(100)
   * principal : boolean
+  --
+  UNIQUE (cliente_id) WHERE principal = true
 }
 
 entity desejo {
@@ -169,7 +199,7 @@ entity desejo {
 entity transportadora {
   * id : bigint <<PK, identity>>
   --
-  * nome : varchar(100) <<UK>>
+  * nome : varchar(100) <<UK, UK lower(nome)>>
   cnpj : varchar(14) <<UK>>
   url_rastreio_padrao : varchar(500)
   * valor_base_frete : numeric(12,2)
@@ -178,11 +208,28 @@ entity transportadora {
   * versao : bigint
 }
 
+entity cupom <<Planned>> {
+  * id : bigint <<PK, identity>> [V12]
+  --
+  * codigo : varchar(40) <<UK>> [V12]
+  descricao : varchar(300) [V12]
+  * tipo_desconto : integer <<enum>> [V12]
+  * valor_desconto : numeric(12,2) [V12]
+  * valor_minimo_pedido : numeric(12,2) [V12]
+  limite_usos : integer [V12]
+  * quantidade_usada : integer [V12]
+  * valido_de : timestamptz [V12]
+  * valido_ate : timestamptz [V12]
+  * ativo : boolean [V12]
+  * versao : bigint [V12]
+}
+
 entity pedido {
   * id : bigint <<PK, identity>>
   --
   * cliente_id : bigint <<FK>>
   transportadora_id : bigint <<FK>>
+  cupom_id : bigint <<FK>> [Planejado V12]
   * chave_checkout : uuid <<UK>>
   * requisicao_hash : varchar(64)
   * status : integer <<enum>>
@@ -191,19 +238,24 @@ entity pedido {
   * frete : numeric(12,2)
   * prazo_dias_uteis : integer
   * versao : bigint
-  transportadora : varchar(80)
-  codigo_rastreio : varchar(64)
+  transportadora : varchar(100) <<snapshot>>
+  codigo_rastreio : varchar(80)
   enviado_em : timestamptz
   entregue_em : timestamptz
   --
-  * entrega_destinatario : varchar(100)
+  codigo_cupom : varchar(40) [Planejado V12]
+  * valor_desconto : numeric(12,2) [Planejado V12]
+  estornado_em : timestamptz [Planejado V14]
+  motivo_estorno : varchar(300) [Planejado V14]
+  --
+  * entrega_destinatario : varchar(150)
   * entrega_cep : varchar(8)
   * entrega_logradouro : varchar(200)
   * entrega_numero : varchar(20)
   entrega_complemento : varchar(100)
   * entrega_bairro : varchar(100)
-  * entrega_municipio : varchar(120)
-  * entrega_uf : char(2)
+  * entrega_municipio : varchar(150)
+  * entrega_uf : varchar(2)
 }
 
 entity item_pedido {
@@ -229,9 +281,14 @@ entity pagamento {
   * forma : integer <<enum>>
   * status : integer <<enum>>
   * resultado_simulado : integer <<enum>>
-  * valor : numeric(12,2)
+  * valor : numeric(18,2)
   * versao : bigint
   processado_em : timestamptz
+  --
+  provedor : varchar(60) [Planejado V15]
+  transacao_externa_id : varchar(120) [Planejado V15]
+  --
+  UNIQUE (pedido_id) WHERE status IN (1, 2)
 }
 
 entity evento_pedido {
@@ -240,36 +297,74 @@ entity evento_pedido {
   * pedido_id : bigint <<FK>>
   * status : integer <<enum>>
   * ocorrido_em : timestamptz
-  * descricao : varchar(160)
+  * descricao : varchar(200)
   responsavel_subject : varchar(255)
 }
 
-pais ||--o{ marca : origem
+entity avaliacao <<Planned>> {
+  * id : bigint <<PK, identity>> [V13]
+  --
+  * mouse_id : bigint <<FK>> [V13]
+  * cliente_id : bigint <<FK>> [V13]
+  * pedido_id : bigint <<FK>> [V13]
+  * nota : integer [V13]
+  titulo : varchar(120) [V13]
+  comentario : varchar(2000) [V13]
+  * visivel : boolean [V13]
+  * versao : bigint [V13]
+  --
+  UNIQUE (cliente_id, mouse_id) [V13]
+}
+
+entity evento_webhook_pagamento <<Planned>> {
+  * id : bigint <<PK, identity>> [V15]
+  --
+  pagamento_id : bigint <<FK>> [V15]
+  * provedor : varchar(60) [V15]
+  * evento_externo_id : varchar(120) [V15]
+  * tipo_evento : varchar(80) [V15]
+  * payload_hash : varchar(64) [V15]
+  * status_processamento : varchar(40) [V15]
+  * processado_em : timestamptz [V15]
+  --
+  UNIQUE (provedor, evento_externo_id) [V15]
+}
+
+pais |o--o{ marca : origem
 marca ||--o{ mouse : fabrica
-sensor ||--o{ mouse : equipa
-switch_mouse ||--o{ mouse : aciona
+categoria |o..o{ mouse : classifica [V10]
+sensor |o--o{ mouse : equipa
+switch_mouse |o--o{ mouse : aciona
 mouse ||--|{ mouse_conexao : suporta
 mouse ||--o{ mouse_pegada : indica
 mouse ||--o{ imagem_mouse : apresenta
 estado ||--|{ municipio : pertence
+municipio |o--o{ cliente : legado_v2
 cliente ||--o{ telefone_cliente : contatos
 cliente ||--o{ endereco : cadastra
 municipio ||--o{ endereco : localiza
-cliente ||--o{ desejo : favorita
+cliente |o--o{ desejo : favorita
 mouse ||--o{ desejo : desejado
 cliente ||--o{ pedido : realiza
-transportadora ||--o{ pedido : entrega
+transportadora |o--o{ pedido : entrega
+cupom |o..o{ pedido : desconta [V12]
 pedido ||--|{ item_pedido : contém
 mouse ||--o{ item_pedido : referencia
 pedido ||--o{ pagamento : tentativas
 pedido ||--|{ evento_pedido : registra
+pagamento |o..o{ evento_webhook_pagamento : reconcilia [V15]
+cliente ||..o{ avaliacao : publica [V13]
+mouse ||..o{ avaliacao : avaliado [V13]
+pedido ||..o{ avaliacao : comprova [V13]
 
 legend left
   * = NOT NULL; sem * = aceita NULL.
   PK = chave primária; FK = chave estrangeira; UK = UNIQUE.
-  Todas as tabelas com id herdam de DefaultEntity:
+  Azul = Tabelas 3NF implementadas nas migrações Flyway V1–V9.
+  Âmbar (<<Planned>> e campos [Planejado V10–V15]) = Evolução relacional aprovada no ROADMAP (v1.2.0 → v2.0.0).
+  Verde (<<Collection>>) = Tabelas de coleção sem id artificial nem herança de DefaultEntity.
+  Todas as demais tabelas possuem colunas herdadas de DefaultEntity:
     data_cadastro timestamp NOT NULL
     data_alteracao timestamp NULL
-  Modelo normalizado em 3NF até a migração Flyway V9.
 endlegend
 @enduml

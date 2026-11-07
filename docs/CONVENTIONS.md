@@ -1,7 +1,9 @@
 # Conventions beyond automated checks
 
-Read [repository policy](../AGENTS.md) first. Executable sources take precedence
-over historical release notes when identifying implemented behavior.
+Read [repository policy](../AGENTS.md), [business rules](BUSINESS_RULES.md), and
+[3NF domain models](modelagem/README.md) first. Executable sources take precedence
+over historical release notes when identifying implemented behavior, and no `BR-*`
+business rule may be altered without explicit prior user approval.
 
 ## API contracts and persistence
 

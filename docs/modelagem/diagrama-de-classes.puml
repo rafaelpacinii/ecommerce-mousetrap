@@ -1,25 +1,38 @@
 @startuml diagrama-de-classes
-title E-commerce de mouses (MouseTrap) — modelo de domínio 3NF implementado (V1–V9)
+title E-commerce de mouses (MouseTrap) — modelo completo de domínio 3NF (implementado V1–V9 | planejado V10–V15)
 top to bottom direction
 skinparam shadowing false
 skinparam classAttributeIconSize 0
-skinparam classBackgroundColor #F5F9FF
-skinparam classBorderColor #355473
+skinparam packageStyle rectangle
+skinparam groupInheritance 2
+skinparam nodesep 45
+skinparam ranksep 55
+skinparam class {
+  BackgroundColor #F5F9FF
+  BorderColor #355473
+  BackgroundColor<<Planned>> #FFFBEB
+  BorderColor<<Planned>> #B45309
+  BackgroundColor<<Embeddable>> #EEFDF4
+  BorderColor<<Embeddable>> #15803D
+  BackgroundColor<<MappedSuperclass>> #F3F4F6
+  BorderColor<<MappedSuperclass>> #4B5563
+}
 hide empty methods
 
 abstract class DefaultEntity <<MappedSuperclass>> {
   - id : Long
   - dataCadastro : LocalDateTime
-  - dataAlteracao : LocalDateTime
+  - dataAlteracao : LocalDateTime [0..1]
   + registrarDataCadastro() : void
   + registrarDataAlteracao() : void
 }
 
-package "Catálogo (3NF)" {
+package "Catálogo e Merchandising (3NF)" {
   class Pais <<Entity>> {
     - nome : String
     - siglaIso : String
   }
+
   class Marca <<Entity>> {
     - nome : String
     - ativo : Boolean
@@ -31,6 +44,15 @@ package "Catálogo (3NF)" {
     - garantiaPadraoMeses : Integer
     - versao : Long <<Version>>
   }
+
+  class Categoria <<Planned>> {
+    - nome : String [Planejado V10]
+    - slug : String [Planejado V10]
+    - descricao : String [0..1] [Planejado V10]
+    - ativo : Boolean [Planejado V10]
+    - versao : Long <<Version>> [Planejado V10]
+  }
+
   class Sensor <<Entity>> {
     - modelo : String
     - fabricante : String
@@ -40,6 +62,7 @@ package "Catálogo (3NF)" {
     - ativo : Boolean
     - versao : Long <<Version>>
   }
+
   class SwitchMouse <<Entity>> {
     - modelo : String
     - fabricante : String
@@ -49,6 +72,7 @@ package "Catálogo (3NF)" {
     - ativo : Boolean
     - versao : Long <<Version>>
   }
+
   class Mouse <<Entity>> {
     - sku : String
     - nome : String
@@ -65,28 +89,36 @@ package "Catálogo (3NF)" {
     - autonomiaBateriaHoras : Integer [0..1]
     - garantiaMeses : Integer
     - pollingRate : Integer [0..1]
-    - sensor : String [0..1]
-    - tipoSwitch : TipoSwitch [0..1]
-    - modeloSwitch : String [0..1]
+    - sensor : String [0..1] <<legado V3>>
+    - tipoSwitch : TipoSwitch [0..1] <<legado V3>>
+    - modeloSwitch : String [0..1] <<legado V3>>
     - ativo : Boolean
     - versao : Long <<Version>>
     - tiposConexao : Set<TipoConexao>
     - pegadas : Set<Pegada>
+    --
+    - destaque : Boolean [Planejado V11]
+    - ordemDestaque : Integer [0..1] [Planejado V11]
+    - precoCentavos : Long [Planejado V15]
   }
+
   class ImagemMouse <<Entity>> {
     - url : String
     - textoAlternativo : String
     - ordem : Integer
   }
+
   enum TipoConexao {
     USB (1, "USB")
     BLUETOOTH (2, "Bluetooth")
     RECEPTOR_USB (3, "Receptor USB sem fio")
   }
+
   enum TipoSwitch {
     OPTICO (1, "Óptico")
     MECANICO (2, "Mecânico")
   }
+
   enum Pegada {
     PALM (1, "Palm")
     CLAW (2, "Claw")
@@ -103,13 +135,21 @@ package "Clientes e Localização (3NF)" {
     - dataNascimento : LocalDate [0..1]
     - ativo : Boolean
     - versao : Long <<Version>>
+    --
+    - cep : String [0..1] <<legado V2>>
+    - logradouro : String [0..1] <<legado V2>>
+    - bairro : String [0..1] <<legado V2>>
+    - numero : String [0..1] <<legado V2>>
+    - complemento : String [0..1] <<legado V2>>
   }
+
   class TelefoneCliente <<Entity>> {
     - ddd : String
     - numero : String
     - tipoTelefone : TipoTelefone
     - principal : Boolean
   }
+
   class Endereco <<Entity>> {
     - apelido : String
     - destinatario : String
@@ -120,14 +160,17 @@ package "Clientes e Localização (3NF)" {
     - bairro : String
     - principal : Boolean
   }
+
   class Municipio <<Entity>> {
     - nome : String
     - codigoIbge : String
   }
+
   class Estado <<Entity>> {
     - nome : String
     - sigla : String
   }
+
   enum TipoTelefone {
     CELULAR (1, "Celular")
     RESIDENCIAL (2, "Residencial")
@@ -135,10 +178,11 @@ package "Clientes e Localização (3NF)" {
   }
 }
 
-package "Compras, Pagamento e Logística (3NF)" {
+package "Compras, Promoções, Pós-Venda e Pagamentos (3NF)" {
   class Desejo <<Entity>> {
     - identidadeSubject : String
   }
+
   class Transportadora <<Entity>> {
     - nome : String
     - cnpj : String [0..1]
@@ -148,6 +192,28 @@ package "Compras, Pagamento e Logística (3NF)" {
     - ativo : Boolean
     - versao : Long <<Version>>
   }
+
+  class Cupom <<Planned>> {
+    - codigo : String [Planejado V12]
+    - descricao : String [0..1] [Planejado V12]
+    - tipoDesconto : TipoDesconto [Planejado V12]
+    - valorDesconto : BigDecimal [Planejado V12]
+    - valorMinimoPedido : BigDecimal [Planejado V12]
+    - limiteUsos : Integer [0..1] [Planejado V12]
+    - quantidadeUsada : Integer [Planejado V12]
+    - validoDe : Instant [Planejado V12]
+    - validoAte : Instant [Planejado V12]
+    - ativo : Boolean [Planejado V12]
+    - versao : Long <<Version>> [Planejado V12]
+    + estaVigente(agora : Instant) : boolean
+    + calcularDesconto(subtotal : BigDecimal) : BigDecimal
+  }
+
+  enum TipoDesconto <<Planned>> {
+    PERCENTUAL (1, "Percentual")
+    VALOR_FIXO (2, "Valor fixo")
+  }
+
   class Pedido <<Entity>> {
     - chaveCheckout : UUID
     - requisicaoHash : String
@@ -157,13 +223,20 @@ package "Compras, Pagamento e Logística (3NF)" {
     - frete : BigDecimal
     - prazoDiasUteis : Integer
     - versao : Long <<Version>>
-    - transportadora : String [0..1]
+    - transportadora : String [0..1] <<snapshot>>
     - codigoRastreio : String [0..1]
     - enviadoEm : Instant [0..1]
     - entregueEm : Instant [0..1]
+    --
+    - codigoCupom : String [0..1] [Planejado V12]
+    - valorDesconto : BigDecimal [Planejado V12]
+    - estornadoEm : Instant [0..1] [Planejado V14]
+    - motivoEstorno : String [0..1] [Planejado V14]
+    --
     + getSubtotal() : BigDecimal
     + getTotal() : BigDecimal
   }
+
   class ItemPedido <<Entity>> {
     - sku : String
     - nome : String
@@ -173,6 +246,7 @@ package "Compras, Pagamento e Logística (3NF)" {
     - precoUnitario : BigDecimal
     + getSubtotal() : BigDecimal
   }
+
   class EnderecoEntrega <<Embeddable>> {
     - destinatario : String
     - cep : String
@@ -183,6 +257,7 @@ package "Compras, Pagamento e Logística (3NF)" {
     - municipio : String
     - uf : String
   }
+
   class Pagamento <<Entity>> {
     - chaveIdempotencia : UUID
     - forma : FormaPagamento
@@ -191,13 +266,35 @@ package "Compras, Pagamento e Logística (3NF)" {
     - valor : BigDecimal
     - versao : Long <<Version>>
     - processadoEm : Instant [0..1]
+    --
+    - provedor : String [0..1] [Planejado V15]
+    - transacaoExternaId : String [0..1] [Planejado V15]
   }
+
   class EventoPedido <<Entity>> {
     - status : StatusPedido
     - ocorridoEm : Instant
     - descricao : String
     - responsavelSubject : String [0..1]
   }
+
+  class Avaliacao <<Planned>> {
+    - nota : Integer [Planejado V13]
+    - titulo : String [0..1] [Planejado V13]
+    - comentario : String [0..1] [Planejado V13]
+    - visivel : Boolean [Planejado V13]
+    - versao : Long <<Version>> [Planejado V13]
+  }
+
+  class EventoWebhookPagamento <<Planned>> {
+    - provedor : String [Planejado V15]
+    - eventoExternoId : String [Planejado V15]
+    - tipoEvento : String [Planejado V15]
+    - payloadHash : String [Planejado V15]
+    - statusProcessamento : String [Planejado V15]
+    - processadoEm : Instant [Planejado V15]
+  }
+
   enum StatusPedido {
     AGUARDANDO_PAGAMENTO (1, "Aguardando pagamento")
     PAGO (2, "Pago")
@@ -205,17 +302,22 @@ package "Compras, Pagamento e Logística (3NF)" {
     ENTREGUE (4, "Entregue")
     CANCELADO (5, "Cancelado")
     EXPIRADO (6, "Expirado")
+    REEMBOLSADO (7, "Reembolsado") [Planejado V14]
   }
+
   enum FormaPagamento {
     PIX (1, "Pix simulado")
     CARTAO (2, "Cartão simulado")
   }
+
   enum StatusPagamento {
     PENDENTE (1, "Pendente")
     APROVADO (2, "Aprovado")
     RECUSADO (3, "Recusado")
     CANCELADO (4, "Cancelado")
+    ESTORNADO (5, "Estornado") [Planejado V14]
   }
+
   enum ResultadoSimulacao {
     APROVAR (1, "Aprovar")
     RECUSAR (2, "Recusar")
@@ -225,6 +327,7 @@ package "Compras, Pagamento e Logística (3NF)" {
 
 DefaultEntity <|-- Pais
 DefaultEntity <|-- Marca
+DefaultEntity <|-- Categoria
 DefaultEntity <|-- Sensor
 DefaultEntity <|-- SwitchMouse
 DefaultEntity <|-- Mouse
@@ -236,13 +339,17 @@ DefaultEntity <|-- Municipio
 DefaultEntity <|-- Estado
 DefaultEntity <|-- Desejo
 DefaultEntity <|-- Transportadora
+DefaultEntity <|-- Cupom
 DefaultEntity <|-- Pedido
 DefaultEntity <|-- ItemPedido
 DefaultEntity <|-- Pagamento
 DefaultEntity <|-- EventoPedido
+DefaultEntity <|-- Avaliacao
+DefaultEntity <|-- EventoWebhookPagamento
 
 Pais "0..1" <-- "0..*" Marca : paisOrigem
 Marca "1" <-- "0..*" Mouse : marca
+Categoria "0..1" <.. "0..*" Mouse : categoria [V10]
 Sensor "0..1" <-- "0..*" Mouse : sensorEntidade
 SwitchMouse "0..1" <-- "0..*" Mouse : switchEntidade
 SwitchMouse ..> TipoSwitch
@@ -253,6 +360,7 @@ Mouse ..> Pegada : mouse_pegada (0..3)
 Cliente "1" *-- "0..*" TelefoneCliente : telefones
 TelefoneCliente ..> TipoTelefone
 Cliente "1" -- "0..*" Endereco : enderecos
+Cliente "0..*" --> "0..1" Municipio : municipio <<legado V2>>
 Endereco "0..*" --> "1" Municipio : municipio
 Municipio "0..*" --> "1" Estado : estado
 
@@ -260,11 +368,19 @@ Cliente "0..1" <-- "0..*" Desejo : cliente
 Desejo "0..*" --> "1" Mouse : mouse
 Cliente "1" <-- "0..*" Pedido : cliente
 Transportadora "0..1" <-- "0..*" Pedido : transportadoraEntidade
+Cupom "0..1" <.. "0..*" Pedido : cupom [V12]
+Cupom ..> TipoDesconto
 Pedido "1" *-- "1..*" ItemPedido : itens
 ItemPedido "0..*" --> "1" Mouse : mouse
 Pedido "1" *-- "1" EnderecoEntrega : endereco
 Pedido "1" *-- "0..*" Pagamento : pagamentos
 Pedido "1" *-- "1..*" EventoPedido : eventos
+Pagamento "0..1" <.. "0..*" EventoWebhookPagamento : pagamento [V15]
+
+Cliente "1" <.. "0..*" Avaliacao : cliente [V13]
+Mouse "1" <.. "0..*" Avaliacao : mouse [V13]
+Pedido "1" <.. "0..*" Avaliacao : pedido [V13]
+
 Pedido ..> StatusPedido
 EventoPedido ..> StatusPedido
 Pagamento ..> FormaPagamento
@@ -278,8 +394,10 @@ note bottom of EnderecoEntrega
 end note
 
 legend left
-  Classes de domínio 3NF implementadas até a migração V9.
-  Todas as entidades herdam de DefaultEntity (id, dataCadastro, dataAlteracao).
+  <<Entity>> (azul): Classes de domínio 3NF implementadas nas migrações V1–V9.
+  <<Planned>> (âmbar) e campos [Planejado V10–V15]: Evolução aprovada no ROADMAP (v1.2.0 → v2.0.0).
+  <<Embeddable>> (verde): Objeto de valor embutido sem tabela própria.
+  Todas as entidades persistentes herdam de DefaultEntity (id, dataCadastro, dataAlteracao).
   Enums possuem id Integer, label String, valueOf(Integer) e AttributeConverter em model.converterjpa.
   Autenticação e papéis (admin, customer) são geridos via Keycloak OIDC e vinculados por Cliente.identidadeSubject.
 endlegend

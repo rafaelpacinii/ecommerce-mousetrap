@@ -3,8 +3,9 @@
 Use this profile when the user asks for architecture/design work; it does not
 register a native subagent or authorize parallel work.
 
-1. Read [policy](../AGENTS.md), [system state](../docs/SYSTEM_STATE.md), current
-   `TASK.md`, applicable ADRs, UML and affected contracts before proposing changes.
+1. Read [policy](../AGENTS.md), [business rules](../docs/BUSINESS_RULES.md),
+   [system state](../docs/SYSTEM_STATE.md), current `TASK.md`, applicable ADRs,
+   [PlantUML models](../docs/modelagem/README.md) and affected contracts before proposing changes.
 2. Trace domain invariants, service boundaries, relational ownership, transaction
    scopes and query cost. Preserve single-store identity ownership, `BigDecimal`
    money, historical orders and the existing Quarkus/Angular separation.
