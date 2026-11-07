@@ -12,7 +12,8 @@ PostgreSQL. Public freight estimates and checkout no longer call ViaCEP.
 - API contracts and behavior: customer/profile/address DTOs, ClienteServiceImpl,
   localities Resource/Service/Repository chain, FreteService and Cep/Pedido delegation.
 - Database: V10__popular_municipios_ibge.sql (official snapshot and source checksum).
-- Web: shared LocalidadeSelectComponent, localities service, customer/address forms,
+- Web: shared LocalidadeSelectComponent, localities service, customer/address forms
+  (including scoped Material text-button contrast using `--prussian-blue` / `--alice-blue`),
   models, public-localities interceptor handling and postcode-based freight labels.
 - Verification: API locality/manual/ownership/checkout regressions, Angular form,
   selector/route/interceptor tests, disposable ViaCEP fixture and Playwright purchase.
@@ -42,10 +43,11 @@ with their domain policies and release targets unchanged. No GitHub sync ran.
 - Web preset: typecheck and 135 tests across 27 files passed. Production build passed.
 - Governance preset: passed. Python suite: 15 passed; roadmap tests (3) rerun after
   migration-number alignment passed. PlantUML syntax and both PNG renders passed.
-- Browser: `sh scripts/verify_release.sh` passed all 5 tests, including real PKCE,
+- Browser: `sh scripts/verify_release.sh` passed all 5 tests (1.1m), including real PKCE,
   manual first-address entry with upstream 503, optional autofill, secondary-address
-  edit, checkout, ownership/fulfillment, 1440/1024/768/375/320 px and Axe.
-  The runner removed only its disposable containers and volumes.
+  edit, explicit hover/keyboard-focus Axe `color-contrast` checks on address assistance
+  actions in `.profile-form` and `.form-endereco`, checkout, ownership/fulfillment,
+  1440/1024/768/375/320 px and Axe. The runner removed only its disposable containers and volumes.
 - Initial failures: inherited JAVA_HOME and sandbox Maven-cache permissions were
   resolved using the installed JDK 17 and approved test access. The first web run
   had an outdated route fixture (missing code/locality requests); corrected and
@@ -63,11 +65,11 @@ availability remain outside this change. No real payment/carrier provider was ad
 
 ## Git status and delivery commands
 
-Branch: `feature/manual-address-resilience`. Changes are unstaged, new files are
-untracked, nothing is staged. No commit, push, PR or deployment was executed.
-The pre-existing `feature/manual-address-fallback` branch was preserved.
+Branch: `feature/manual-address-resilience` (ahead of `develop` with commit `21c16a7`).
+Follow-up contrast fix and E2E assertions are unstaged; nothing is staged. No new
+commit, push, PR or deployment was executed.
 
-Review and selectively stage only this delivery (recheck status before executing):
+Review and selectively stage only this follow-up fix (recheck status before executing):
 
 ```bash
 git status --short --branch
@@ -75,61 +77,18 @@ git diff --check
 git diff --stat
 git add -- \
   TASK.md \
-  api/README.md \
-  api/docs/clientes-cep.md \
-  api/src/main/java/br/unitins/tp2/dto/ClienteDTO.java \
-  api/src/main/java/br/unitins/tp2/dto/EnderecoDTO.java \
-  api/src/main/java/br/unitins/tp2/dto/PerfilClienteDTO.java \
-  api/src/main/java/br/unitins/tp2/repository/MunicipioRepository.java \
-  api/src/main/java/br/unitins/tp2/resource/LocalidadeResource.java \
-  api/src/main/java/br/unitins/tp2/service/CepServiceImpl.java \
-  api/src/main/java/br/unitins/tp2/service/ClienteServiceImpl.java \
-  api/src/main/java/br/unitins/tp2/service/FreteService.java \
-  api/src/main/java/br/unitins/tp2/service/FreteServiceImpl.java \
-  api/src/main/java/br/unitins/tp2/service/LocalidadeService.java \
-  api/src/main/java/br/unitins/tp2/service/LocalidadeServiceImpl.java \
-  api/src/main/java/br/unitins/tp2/service/PedidoServiceImpl.java \
-  api/src/main/resources/db/migration/V10__popular_municipios_ibge.sql \
-  api/src/test/java/br/unitins/tp2/resource/AutorizacaoResourceTest.java \
-  api/src/test/java/br/unitins/tp2/resource/ClienteResourceTest.java \
-  api/src/test/java/br/unitins/tp2/resource/LocalidadeResourceTest.java \
-  api/src/test/java/br/unitins/tp2/resource/PedidoResourceTest.java \
-  docs/BUSINESS_RULES.md \
-  docs/ROADMAP.md \
-  docs/SYSTEM_STATE.md \
-  docs/adr/0003-independent-address-registration.md \
-  docs/modelagem/README.md \
-  docs/modelagem/banco-de-dados.png \
-  docs/modelagem/banco-de-dados.puml \
-  docs/modelagem/diagrama-de-classes.png \
-  docs/modelagem/diagrama-de-classes.puml \
-  docs/others/external-dependencies.md \
   docs/others/manual-address-delivery.md \
-  infra/testing/viacep.py \
-  scripts/sync_roadmap.py \
-  web/README.md \
   web/e2e/purchase.spec.ts \
-  web/src/app/app.spec.ts \
-  web/src/app/components/clientes/cliente-form/cliente-form.html \
-  web/src/app/components/clientes/cliente-form/cliente-form.spec.ts \
-  web/src/app/components/clientes/cliente-form/cliente-form.ts \
-  web/src/app/components/shared/localidade-select/localidade-select.spec.ts \
-  web/src/app/components/shared/localidade-select/localidade-select.ts \
-  web/src/app/components/storefront/cart/cart.html \
-  web/src/app/components/storefront/product-detail/product-detail.html \
-  web/src/app/interceptors/auth.interceptor.spec.ts \
-  web/src/app/interceptors/auth.interceptor.ts \
-  web/src/app/models/cliente.model.ts \
-  web/src/app/services/localidade.service.ts
+  web/src/app/components/clientes/cliente-form/cliente-form.css
 git diff --cached --stat
 git diff --cached
-git commit -m "feat(addresses): support manual registration without ViaCEP"
+git commit -m "fix(web): ensure accessible text-button contrast in address forms"
 ```
 
 Push separately, only when publication is authorized:
 
 ```bash
-git push -u origin feature/manual-address-resilience
+git push origin feature/manual-address-resilience
 ```
 
 PR targets develop, also requiring publication authorization. A prepared body is

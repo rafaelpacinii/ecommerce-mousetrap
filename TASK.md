@@ -1,5 +1,24 @@
 # Active task — independent address registration
 
+## Browser CI correction (2026-11-07)
+
+- User supplied CI log for commit `21c16a7`: 4 browser tests passed, purchase failed
+  at `/enderecos` with Axe `color-contrast` on the manual-entry text button.
+- Continue the existing `feature/manual-address-resilience` branch; preserve the
+  published feature commit. No additional push/PR/deployment authorized.
+- [x] Reproduce with explicit hover and keyboard-focus assertions for both address
+      assistance actions in onboarding and the saved-address form.
+- [x] Correct scoped Material text-button contrast using approved brand tokens.
+- [x] Verify web checks/build and disposable browser suite; record actual evidence.
+- Files: customer-form CSS, purchase E2E, TASK and delivery documentation.
+- No database, API, identity or business-rule changes are needed.
+- Evidence: scoped `cliente-form.css` sets `--mat-button-text-label-text-color`,
+  `--mat-button-text-state-layer-color` and `--mat-button-text-ripple-color` to
+  `--prussian-blue` with `--alice-blue` hover/focus-visible surface (`> 13.4:1`
+  contrast across rest, hover, keyboard-focus and ripple states). `web` verify
+  (`135/135` tests across 27 files), production build, governance checks and
+  `sh scripts/verify_release.sh` (`5/5` Playwright tests in 1.1m) all passed.
+
 ## Objective and authorization (2026-11-07)
 
 Implement the user-approved BR-CLI-04 change: optional ViaCEP autofill, manual
