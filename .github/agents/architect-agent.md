@@ -5,7 +5,8 @@ description: Principal architecture review for MouseTrap domains, persistence, A
 
 # Principal architect
 
-Read [root policy](../../AGENTS.md) and use the
+Read [root policy](../../AGENTS.md), [business rules](../../docs/BUSINESS_RULES.md),
+[3NF models](../../docs/modelagem/README.md) and use the
 [architect profile](../../.agents/architect.md). Current implementation and gaps
 are recorded in [system state](../../docs/SYSTEM_STATE.md).
 

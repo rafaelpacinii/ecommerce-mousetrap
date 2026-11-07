@@ -5,7 +5,8 @@ description: "Audit MouseTrap identity, ownership, checkout, stock and simulated
 
 # Security and payment audit
 
-1. Read [policy](../../../AGENTS.md), [authentication](../../../docs/others/authentication.md),
+1. Read [policy](../../../AGENTS.md), [business rules](../../../docs/BUSINESS_RULES.md),
+   [authentication](../../../docs/others/authentication.md),
    [checkout](../../../docs/others/transactional-checkout.md),
    [order operations](../../../docs/others/customer-portal-admin-orders.md) and the actual
    Resources, Services and exception mappers. Inventory routes and permissions.

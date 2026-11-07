@@ -116,7 +116,7 @@ Automated coverage includes authoritative totals, price/freight conflicts, owner
 
 - [`README.md`](../../README.md)
 - [`api/README.md`](../../api/README.md)
-- [`api/docs/modelagem/README.md`](../../api/docs/modelagem/README.md)
+- [`docs/modelagem/README.md`](../modelagem/README.md)
 - [`docs/others/implementation-backlog.md`](implementation-backlog.md)
 - [`docs/others/transactional-checkout.md`](transactional-checkout.md)
 - [`docs/others/visual-alignment.md`](visual-alignment.md)

@@ -5,9 +5,10 @@ description: "Implement or review MouseTrap Angular standalone components, routi
 
 # Angular frontend
 
-1. Read [policy](../../../AGENTS.md), [web setup](../../../web/README.md), relevant
-   domain contracts and `TASK.md`. Inspect existing component/service/model/resolver
-   patterns, `web/package.json` and the matching canonical SVG before editing.
+1. Read [policy](../../../AGENTS.md), [business rules](../../../docs/BUSINESS_RULES.md),
+   [web setup](../../../web/README.md), relevant domain contracts and `TASK.md`.
+   Inspect existing component/service/model/resolver patterns, `web/package.json`
+   and the matching canonical SVG before editing.
 2. Reuse standalone components, Material/CDK, Reactive Forms, functional resolvers
    and services/signals. Do not invent API endpoints, fields, role names or global
    state libraries. New contracts/backend/dependency changes need task authorization.

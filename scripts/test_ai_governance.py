@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from ai_checks import context_allowed, execute_presets, load_manifest, selected_paths
+import check_ai_governance
 
 
 class ContextTests(unittest.TestCase):
@@ -87,6 +88,14 @@ class CommandTests(unittest.TestCase):
             manifest.write_text('version = 99\n')
             with self.assertRaises(ValueError):
                 load_manifest(manifest)
+
+    def test_governance_validator_enforces_business_rules_and_global_uml(self):
+        self.assertGreaterEqual(check_ai_governance.validate(), 13)
+        for public_doc in ('docs/BUSINESS_RULES.md', 'docs/modelagem/README.md',
+                           'docs/modelagem/diagrama-de-classes.puml',
+                           'docs/modelagem/banco-de-dados.puml'):
+            with self.subTest(public_doc=public_doc):
+                self.assertTrue(context_allowed(public_doc, load_manifest()))
 
 
 if __name__ == '__main__':

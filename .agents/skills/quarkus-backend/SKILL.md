@@ -5,10 +5,12 @@ description: "Implement or review MouseTrap Java/Quarkus Resources, Services, Re
 
 # Quarkus backend
 
-1. Read [policy](../../../AGENTS.md), [conventions](../../../docs/CONVENTIONS.md),
+1. Read [policy](../../../AGENTS.md), [business rules](../../../docs/BUSINESS_RULES.md),
+   [3NF models](../../../docs/modelagem/README.md), [conventions](../../../docs/CONVENTIONS.md),
    relevant domain docs and `TASK.md`. Inspect `api/pom.xml`, the affected
    Resource/Service/Repository/DTO chain and neighboring tests before editing.
-2. Identify approved behavior and unresolved domain decisions. Preserve Java 17,
+2. Identify approved `BR-*` invariants and unresolved domain decisions; never relax
+   or alter a business rule without explicit user approval. Preserve Java 17,
    Quarkus-managed versions and existing endpoint paths; do not invent fields,
    entities or cross-module contracts. Ask only for genuinely new decisions.
 3. Keep Resource → Service interface/implementation → Panache Repository → Entity.

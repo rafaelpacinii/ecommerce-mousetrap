@@ -5,9 +5,10 @@ description: "Create or reconcile MouseTrap PlantUML class/database diagrams wit
 
 # UML class modeling
 
-1. Read [policy](../../../AGENTS.md), relevant domain docs and
-   `api/docs/modelagem/README.md`. Compare `diagrama-de-classes.puml` and
-   `banco-de-dados.puml` with actual `api/src/main/java/br/unitins/tp2/model/`.
+1. Read [policy](../../../AGENTS.md), [business rules](../../../docs/BUSINESS_RULES.md),
+   relevant domain docs and [global modeling](../../../docs/modelagem/README.md).
+   Compare `docs/modelagem/diagrama-de-classes.puml` and `docs/modelagem/banco-de-dados.puml`
+   with actual `api/src/main/java/br/unitins/tp2/model/`.
 2. Check private attributes, coherent Java/SQL types, `DefaultEntity` inheritance,
    multiplicities, enum converters and composition/aggregation against lifecycle.
    Represent actual customer ownership; do not insert tenant relationships.

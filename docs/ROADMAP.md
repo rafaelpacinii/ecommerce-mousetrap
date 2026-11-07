@@ -3,6 +3,7 @@
 This document is the canonical visual and technical roadmap for MouseTrap from its
 initial `v1.0.0` and `v1.1.0` releases through its final `v2.0.0` architecture.
 It pairs with [active task memory](../TASK.md), [system state](SYSTEM_STATE.md),
+[business rules](BUSINESS_RULES.md), [3NF domain models](modelagem/README.md),
 [ADR 0002](adr/0002-post-1-1-roadmap-and-domain-evolution.md), and the GitHub
 Milestones/Issues/Project board synchronized by `scripts/sync_roadmap.py`.
 
@@ -50,7 +51,7 @@ flowchart TD
 | :--- | :--- | :---: | :---: | :--- |
 | **`v1.0.0`** | Slices 1–7: Storefront, Catalog, Auth, Cart, Checkout, Portal, Admin, Release Stack | ✅ **Done** | `V1`–`V7` | Public `/catalogo`, Keycloak PKCE, ViaCEP, atomic checkout/PIX/card demo, wishlist, admin orders, Playwright/Axe E2E |
 | **`v1.1.0`** | Post-1.0: Carousel, R2 Uploads, Setup Guides, Dependabot, Monorepo CI/CD, AI Governance | ✅ **Done** | `V8` | 4-banner hero carousel, `POST /imagens/{mouses\|marcas}`, R2 S3 adapter, scope-aware CI/CD, 13 skills, [ADR 0001](adr/0001-record-architecture-decisions.md) |
-| **`v1.2.0`** | **E1:** 3NF Database Normalization, Enriched Entities & PlantUML Reconciliation | ✅ **Done (`#43`)** | `V9` | Normalize `Pais`, enrich `Marca`, extract `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, link `Desejo.cliente`, update [PlantUML models](../api/docs/modelagem/README.md) |
+| **`v1.2.0`** | **E1:** 3NF Database Normalization, Enriched Entities & PlantUML Reconciliation | ✅ **Done (`#43`)** | `V9` | Normalize `Pais`, enrich `Marca`, extract `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, link `Desejo.cliente`, update [PlantUML models](modelagem/README.md) |
 | **`v1.2.0`** | **E2:** Product Categories (`Categoria`) & Component CRUD Screens | 🔄 **Next (`#44`)** | `V10` | `Categoria` entity/repo/service/resource, `/admin/categorias` + `/admin/sensores` + `/admin/switches` + `/admin/transportadoras`, `/catalogo` facets |
 | **`v1.3.0`** | **E3:** Real Merchandising (Curated Weekly Highlights & Best-Sellers) | 📋 **Planned (`#45`)** | `V11` | `mouse.destaque` & `ordem_destaque`, real sales aggregation (`ordenar=mais-vendidos`), `GET /catalogo/mouses/destaques`, Home highlights |
 | **`v1.3.0`** | **E4:** Discount Coupons (`Cupom`) | 📋 **Planned (`#46`)** | `V12` | `Cupom` entity, `/admin/cupons` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & `Pedido` discount snapshot |
@@ -129,7 +130,7 @@ erDiagram
 - **Backend & Modeling Deliverables:**
   - Create JPA entities `Pais`, `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, enum `TipoTelefone` + `TipoTelefoneConverter`, and update `Marca`, `Mouse`, `Cliente`, `Desejo`, `Pedido`.
   - Preserve backward-compatible fields on existing DTOs while exposing normalized objects/IDs.
-  - Reconcile [diagrama-de-classes.puml](../api/docs/modelagem/diagrama-de-classes.puml), [banco-de-dados.puml](../api/docs/modelagem/banco-de-dados.puml), and [modelagem README](../api/docs/modelagem/README.md) with the 3NF model and clean up stale R2 notes in [api/README.md](../api/README.md) and [implementation-backlog.md](others/implementation-backlog.md).
+  - Reconcile [diagrama-de-classes.puml](modelagem/diagrama-de-classes.puml), [banco-de-dados.puml](modelagem/banco-de-dados.puml), and [modelagem README](modelagem/README.md) with the 3NF model and clean up stale R2 notes in [api/README.md](../api/README.md) and [implementation-backlog.md](others/implementation-backlog.md).
 
 ---
 

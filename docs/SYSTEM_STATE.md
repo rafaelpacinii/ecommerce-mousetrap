@@ -1,10 +1,11 @@
 # System state
 
-Inventory verified from source on 2026-11-05 (`develop` at `59efe94`; `main` at
+Inventory verified from source on 2026-11-07 (`develop` at `a97c954`; `main` at
 `v1.1.0` / `4ff1a36`). Status describes implementation, not a claim of a publicly
 operated production environment. Update this map when capabilities change; use
-[TASK.md](../TASK.md) for active sprint state and [ROADMAP.md](ROADMAP.md) for the
-complete `v1.0.0` → `v2.0.0` visual execution plan.
+[TASK.md](../TASK.md) for active sprint state, [BUSINESS_RULES.md](BUSINESS_RULES.md)
+for mandatory `BR-*` domain invariants, [docs/modelagem/](modelagem/README.md) for
+complete `V1`–`V15` PlantUML models, and [ROADMAP.md](ROADMAP.md) for the `v1.0.0` → `v2.0.0` plan.
 
 ## Module map
 
@@ -19,7 +20,7 @@ complete `v1.0.0` → `v2.0.0` visual execution plan.
 | Object storage                                        | Implemented (`v1.1.0`); orphan cleanup in `v2.0.0`   | `POST /imagens/{mouses\|marcas}`, `ImagemStorageServiceImpl`, AWS SDK S3 (`2.57.8`) for Cloudflare R2; public catalog URLs                                 |
 | Persistence                                           | Implemented (`V1`–`V9`); 3NF evolution `V10`–`V15`   | PostgreSQL 16, Flyway V1–V9 (`V9` normalizes `pais`, `sensor`, `switch_mouse`, `telefone_cliente`, `transportadora`), Hibernate schema validation; next migration is `V10` |
 | Verification, CI/CD & packaging                       | Implemented (`v1.1.0`)                               | `.github/workflows/{verify,cd}.yml` (path-based scope detection, Trivy scan, GHCR, SSH Compose deploy), Dependabot, Playwright/Axe stack, deterministic ZIP |
-| AI governance & visual roadmap                        | Implemented (`v1.1.0` + [ROADMAP.md](ROADMAP.md))    | `AGENTS.md`, `CLAUDE.md`, `.codex/config.toml`, `.agents/project.toml`, 13 skills, `scripts/ai_checks.py`, `scripts/sync_roadmap.py`, ADRs [0001](adr/0001-record-architecture-decisions.md) & [0002](adr/0002-post-1-1-roadmap-and-domain-evolution.md) |
+| AI governance, business rules & roadmap               | Implemented (`v1.1.0` + `BUSINESS_RULES.md`)         | `AGENTS.md`, `docs/BUSINESS_RULES.md`, `docs/modelagem/`, `.agents/rules/business-rules.md`, 13 skills, `scripts/ai_checks.py`, `scripts/sync_roadmap.py`, ADRs [0001](adr/0001-record-architecture-decisions.md) & [0002](adr/0002-post-1-1-roadmap-and-domain-evolution.md) |
 | 3NF normalization & Categories (`E1`–`E2`)            | `E1` (`V9`) implemented; `E2` (`V10`) next           | `Pais`, enriched `Marca`, `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, and PlantUML reconciliation implemented in `V9`; `Categoria` + admin UI in `V10` |
 | Merchandising & Discount Coupons (`E3`–`E4`)          | Specified for `v1.3.0` (`V11`–`V12`)                 | Curated weekly highlights, real `mais-vendidos` sales aggregation, and `Cupom` checkout discounts                                                          |
 | Customer Reviews & Order Refunds (`E5`–`E6`)          | Specified for `v1.4.0` (`V13`–`V14`)                 | Purchase-verified `Avaliacao` (1–5 stars + JSON-LD `aggregateRating`) and atomic `REEMBOLSADO`/`ESTORNADO` stock restoration                               |

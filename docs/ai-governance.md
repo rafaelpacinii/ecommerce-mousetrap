@@ -18,6 +18,7 @@ Read [policy](../AGENTS.md), [current task](../TASK.md),
 | `.agents/rules/*.md`                                       | Antigravity adapters with valid `trigger` metadata                                |
 | `.github/agents/*.md`                                      | Existing explicit GitHub/persona entrypoints, now linked to canonical guidance    |
 | `TASK.md`                                                  | One active task, acceptance criteria, decisions and actual evidence               |
+| `docs/BUSINESS_RULES.md`, `docs/modelagem/`                | Authoritative `BR-*` business rules lock and complete `V1`–`V15` PlantUML models  |
 | `docs/CONVENTIONS.md`, `docs/SYSTEM_STATE.md`, `docs/adr/` | Durable conventions, inventory and architecture decisions                         |
 
 Start a new conversation after adding skills/configuration. In Codex, invoke a

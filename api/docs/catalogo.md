@@ -123,6 +123,6 @@ As regras de negócio ficam nos serviços, acessados pelos recursos REST. Reposi
 
 ## Evolução do domínio
 
-O [modelo completo](modelagem/README.md) prevê imagens, usuários, endereços, lista de desejos, pedidos e pagamentos. Esses recursos ainda não fazem parte da implementação do catálogo. O carrinho será mantido no frontend; o checkout validará os itens, preços e estoque no backend.
+O [modelo completo](../../docs/modelagem/README.md) e o [catálogo de regras de negócio](../../docs/BUSINESS_RULES.md) detalham imagens, clientes, endereços, lista de desejos, pedidos, cupons, avaliações e pagamentos. O carrinho é mantido no frontend; o checkout valida os itens, preços e estoque no backend.
 
 Para configurar a API e executar sua suíte de testes, consulte o [README da API](../README.md).

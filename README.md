@@ -51,9 +51,10 @@ This loopback-only stack is a release rehearsal. Before public deployment, follo
 ## Architecture and contracts
 
 The API follows Resource → Service → Repository with Java record DTOs and
-incremental Flyway migrations V1–V8. The SPA uses standalone components, Angular
+incremental Flyway migrations V1–V9. The SPA uses standalone components, Angular
 Material, services/signals and lazy routes. Backend roles and ownership are
-mandatory; guards only improve navigation.
+mandatory; guards only improve navigation. See [complete 3NF models](docs/modelagem/README.md)
+and [authoritative business rules](docs/BUSINESS_RULES.md).
 
 | Area | Routes / documentation |
 | --- | --- |
