@@ -1,7 +1,7 @@
 name: mousetrap-identity
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.1
+    image: quay.io/keycloak/keycloak:26.8.2-2
     command: [start-dev, --import-realm]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
@@ -15,7 +15,7 @@ services:
     depends_on:
       - mailpit
   mailpit:
-    image: axllent/mailpit:v1.33.0
+    image: axllent/mailpit:v1.33.1
     ports:
       - 127.0.0.1:8025:8025
 volumes:
