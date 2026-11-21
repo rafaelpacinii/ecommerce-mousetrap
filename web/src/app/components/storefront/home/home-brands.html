@@ -1,0 +1,67 @@
+<section id="marcas" class="brands-section" aria-labelledby="brands-title">
+  <div class="store-container brands-heading">
+    <h2 id="brands-title">Marcas para o seu jogo.</h2>
+    <p>Escolha uma marca para ver os modelos disponíveis.</p>
+  </div>
+  <div class="brands-content" [attr.aria-busy]="loading()">
+    @if (loading()) {
+      <p class="brands-state" role="status">Carregando marcas…</p>
+    } @else if (error()) {
+      <div class="brands-state" role="status">
+        <p>Não foi possível carregar as marcas.</p>
+        <button type="button" class="store-button store-button-dark" (click)="retry()">
+          Tentar novamente
+        </button>
+      </div>
+    } @else if (!logos().length) {
+      <p class="brands-state">
+        Nenhuma logomarca disponível no momento. <a routerLink="/catalogo">Explorar catálogo</a>
+      </p>
+    } @else {
+      <div class="brand-viewport" [class.running]="sectionWidth() > 0">
+        <div class="brand-track" [style.--tiles-per-cycle]="logos().length * copies().length">
+          @for (cycle of cycles; track cycle) {
+            @for (copy of copies(); track copy) {
+              <ng-container
+                [ngTemplateOutlet]="brandRow"
+                [ngTemplateOutletContext]="{ duplicate: cycle !== 0 || copy !== 0 }"
+              />
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+<ng-template #brandRow let-duplicate="duplicate">
+  <ul
+    class="brand-list"
+    [class.brand-copy]="duplicate"
+    [attr.aria-hidden]="duplicate ? 'true' : null"
+    [attr.aria-label]="duplicate ? null : 'Marcas do catálogo'"
+  >
+    @for (brand of logos(); track brand.id) {
+      <li>
+        <a
+          class="brand-link"
+          routerLink="/catalogo"
+          [queryParams]="{ marca: [brand.id] }"
+          [attr.aria-label]="'Ver mouses da ' + brand.nome"
+          [attr.tabindex]="duplicate ? -1 : null"
+          (mousedown)="preventCopyFocus(duplicate, $event)"
+        >
+          <img
+            [src]="brand.logomarcaUrl"
+            alt=""
+            width="160"
+            height="62"
+            loading="lazy"
+            decoding="async"
+            (error)="logoFailed(brand.logomarcaUrl)"
+          />
+        </a>
+      </li>
+    }
+  </ul>
+</ng-template>

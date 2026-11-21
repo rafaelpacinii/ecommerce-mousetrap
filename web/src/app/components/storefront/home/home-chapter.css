@@ -1,0 +1,116 @@
+:host {
+  display: block;
+}
+.chapter {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background: transparent;
+  color: white;
+  scroll-margin-top: 24px;
+}
+.chapter::before {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at var(--chapter-glow-origin, 74%) 43%,
+    var(--chapter-glow, rgba(115, 179, 237, 0.12)),
+    transparent 61%
+  );
+  content: '';
+  pointer-events: none;
+}
+.opening {
+  --chapter-glow: rgba(109, 192, 242, 0.21);
+}
+.reverse {
+  --chapter-glow-origin: 24%;
+  --chapter-glow: rgba(143, 110, 224, 0.14);
+}
+.finale {
+  --chapter-glow: rgba(134, 210, 198, 0.13);
+}
+.chapter-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 580px;
+  padding-block: 72px 88px;
+}
+.opening .chapter-stage {
+  min-height: 680px;
+}
+.finale .chapter-stage {
+  min-height: 540px;
+}
+.reverse .chapter-stage {
+  justify-content: flex-end;
+}
+.chapter-art {
+  position: absolute;
+  inset: 0 -2% 0 auto;
+  width: 60%;
+  z-index: 0;
+}
+.chapter-art app-mouse-scene {
+  height: 100%;
+}
+.reverse .chapter-art {
+  inset: 0 auto 0 -2%;
+}
+.chapter-content {
+  position: relative;
+  z-index: 2;
+  width: 48%;
+  text-shadow: 0 4px 24px rgba(7, 18, 32, 0.92);
+}
+.chapter-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+  color: var(--light-cyan);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+h1,
+h2 {
+  margin: 0;
+  color: white;
+  font: 800 clamp(38px, 4.5vw, 64px)/1.03 var(--font-heading);
+  letter-spacing: -0.05em;
+  overflow-wrap: break-word;
+}
+.opening h1 {
+  font-size: clamp(44px, 5.2vw, 76px);
+}
+.chapter-description {
+  max-width: 430px;
+  margin: 24px 0 22px;
+  color: var(--alice-blue);
+  font-size: 16px;
+  line-height: 1.75;
+}
+@media (max-width: 699px) {
+  .chapter-stage,
+  .opening .chapter-stage,
+  .finale .chapter-stage {
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+    padding-block: 36px 28px;
+  }
+  .chapter-content {
+    order: -1;
+    width: auto;
+    padding: 20px 18px;
+  }
+  .chapter-art,
+  .reverse .chapter-art {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: clamp(245px, 72vw, 340px);
+  }
+}

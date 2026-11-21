@@ -1,0 +1,57 @@
+.telemetry-card {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--home-glass, #071220);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(209, 245, 255, 0.28);
+  box-shadow: var(--home-glass-shadow);
+}
+.telemetry-primary {
+  top: 10%;
+  right: 6%;
+}
+.telemetry-secondary {
+  bottom: 16%;
+  right: 6%;
+}
+:host([data-kind='ultraleves']) .telemetry-primary,
+:host([data-kind='ultraleves']) .telemetry-secondary {
+  right: auto;
+  left: 6%;
+}
+.telemetry-value {
+  font: 800 18px/1.1 var(--font-heading);
+  letter-spacing: -0.03em;
+  color: var(--golden-glow);
+}
+.telemetry-caption {
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  color: var(--surface-pure);
+}
+@media (max-width: 699px) {
+  .telemetry-card {
+    padding: 8px 11px;
+    border-radius: 10px;
+  }
+  .telemetry-value {
+    font-size: 14px;
+  }
+  .telemetry-caption {
+    font-size: 8px;
+  }
+  .telemetry-primary {
+    top: 6%;
+    right: 4%;
+  }
+  .telemetry-secondary {
+    bottom: 8%;
+    right: 4%;
+  }
+}

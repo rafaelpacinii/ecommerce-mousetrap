@@ -250,9 +250,20 @@ describe('App routing', () => {
       const fixture = TestBed.createComponent(App);
       await TestBed.inject(Router).navigateByUrl(path);
       fixture.detectChanges();
-      http
-        .expectOne('http://localhost:8080/catalogo/mouses?page=0&pageSize=3')
-        .flush({ items: [], page: 0, pageSize: 12, totalItems: 0, totalPages: 0 });
+      http.expectOne('http://localhost:8080/catalogo/filtros').flush({ marcas: [] });
+      const shelves = http.match(
+        (request) => request.url === 'http://localhost:8080/catalogo/mouses',
+      );
+      expect(shelves).toHaveLength(3);
+      shelves.forEach((request) =>
+        request.flush({
+          items: [],
+          page: 0,
+          pageSize: 4,
+          totalItems: 0,
+          totalPages: 0,
+        }),
+      );
       fixture.detectChanges();
       const element = fixture.nativeElement as HTMLElement;
       expect(TestBed.inject(Router).url).toBe('/');

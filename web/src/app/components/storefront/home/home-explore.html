@@ -1,0 +1,44 @@
+<section class="explore-section" aria-labelledby="explore-title">
+  <div class="store-container">
+    <div class="explore-heading">
+      <p class="explore-eyebrow">ENCONTRE O SEU RITMO</p>
+      <h2 id="explore-title"><span>Seu jogo.</span>{{ ' ' }}<span>Suas escolhas.</span></h2>
+      <p>Três caminhos para encontrar seu próximo mouse.</p>
+    </div>
+    <div class="explore-grid">
+      @for (selection of selections; track selection.id) {
+        <div class="explore-entry">
+          <a
+            class="explore-panel"
+            routerLink="/"
+            [fragment]="selection.id"
+            [attr.aria-label]="'Explorar ' + selection.label"
+          >
+            <div class="panel-top">
+              <span>{{ selection.label }}</span>
+              <mat-icon aria-hidden="true">{{ selection.icon }}</mat-icon>
+            </div>
+            <div class="panel-art" aria-hidden="true">
+              <span class="panel-orbit"></span>
+              <img
+                [src]="'images/home-scenes/g-pro-superlight-' + selection.image + '.webp'"
+                width="1024"
+                height="1024"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="panel-copy">
+              <h3>{{ selection.title }}</h3>
+              <p>{{ selection.description }}</p>
+              <span class="panel-link"
+                >Explorar seleção <mat-icon aria-hidden="true">arrow_forward</mat-icon></span
+              >
+            </div>
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</section>

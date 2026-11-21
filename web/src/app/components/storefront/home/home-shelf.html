@@ -1,0 +1,93 @@
+<section class="shelf" [id]="shelf().id" [attr.aria-labelledby]="shelf().id + '-title'">
+  <div class="store-container shelf-inner">
+    <div class="section-track" aria-hidden="true"><span class="section-progress"></span></div>
+    <div class="shelf-heading">
+      <div class="shelf-copy">
+        <p class="eyebrow">{{ shelf().eyebrow }}</p>
+        <h2 [id]="shelf().id + '-title'">{{ shelf().title }}</h2>
+        <p class="shelf-description">{{ shelf().description }}</p>
+      </div>
+      <a class="catalog-link" routerLink="/catalogo" [queryParams]="shelf().filters">
+        {{ shelf().searchable ? 'Ver catálogo completo' : 'Ver seleção completa' }}
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </a>
+    </div>
+    @if (shelf().searchable) {
+      <form
+        id="busca"
+        class="catalog-search"
+        role="search"
+        aria-label="Buscar novidades do catálogo"
+        (ngSubmit)="search()"
+      >
+        <label for="mouse-search">Qual mouse você procura?</label>
+        <div class="search-controls">
+          <input
+            id="mouse-search"
+            name="termo"
+            type="search"
+            [(ngModel)]="term"
+            placeholder="Buscar por nome"
+            maxlength="150"
+          />
+          <button class="store-button store-button-dark" type="submit">
+            <mat-icon aria-hidden="true">search</mat-icon>Buscar
+          </button>
+          @if (currentTerm()) {
+            <button class="clear-search" type="button" (click)="clear()">Limpar</button>
+          }
+        </div>
+      </form>
+    }
+    <div class="catalog-results" [attr.aria-busy]="loading()">
+      @if (loading()) {
+        <p class="catalog-state" role="status">Buscando mouses para você…</p>
+      } @else if (error()) {
+        <div class="catalog-state" role="status">
+          <mat-icon class="state-icon" aria-hidden="true">error_outline</mat-icon>
+          <h3>Não foi possível carregar esta seleção.</h3>
+          <p>Tente novamente em instantes.</p>
+          <button class="store-button store-button-dark" type="button" (click)="retry()">
+            <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
+          </button>
+        </div>
+      } @else if (!products().length) {
+        <div class="catalog-state" role="status">
+          <mat-icon class="state-icon" aria-hidden="true">{{
+            currentTerm() ? 'search_off' : 'inbox'
+          }}</mat-icon>
+          <h3>
+            {{
+              currentTerm()
+                ? 'Nenhum mouse encontrado.'
+                : 'Nenhum mouse nesta seleção por enquanto.'
+            }}
+          </h3>
+          <p>
+            {{
+              currentTerm()
+                ? 'Experimente outro nome para continuar a busca.'
+                : 'Explore outras possibilidades no catálogo.'
+            }}
+          </p>
+          @if (currentTerm()) {
+            <button class="store-button store-button-dark" type="button" (click)="clear()">
+              Limpar busca
+            </button>
+          } @else {
+            <a class="store-button store-button-dark" routerLink="/catalogo">Explorar catálogo</a>
+          }
+        </div>
+      } @else {
+        <p class="visually-hidden" role="status">{{ products().length }} mouses nesta seleção.</p>
+        <div class="product-grid">
+          @for (product of products(); track product.id; let i = $index) {
+            <div class="product-entry" [style.--card-order]="i">
+              <div class="product-reveal"><app-product-card [produto]="product" /></div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>

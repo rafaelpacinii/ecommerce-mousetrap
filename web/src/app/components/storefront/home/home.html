@@ -1,110 +1,61 @@
-<div class="store-container home">
-  <app-hero-carousel />
+<div class="home">
+  @for (shelf of shelves; track shelf.id; let i = $index) {
+    <app-home-chapter [chapter]="chapters[i]" [opening]="i === 0" />
+    @if (i === 0) {
+      <app-home-brands />
+      <app-home-explore />
+    }
+    <app-home-shelf [shelf]="shelf" />
+  }
 
   <section id="pegadas" class="grip-section" aria-labelledby="grip-title">
-    <div class="section-heading visually-hidden">
-      <div>
-        <p class="section-label">FEITO PARA A SUA MÃO</p>
-        <h2 id="grip-title">Qual é a sua pegada?</h2>
+    <div class="store-container grip-inner">
+      <div class="section-track" aria-hidden="true"><span class="section-progress"></span></div>
+      <div class="grip-heading">
+        <h2 id="grip-title">Encontre sua pegada.</h2>
+        <p>O conforto começa na forma de segurar. Conheça as diferenças.</p>
       </div>
-      <p>O conforto começa na forma de segurar.</p>
-    </div>
-    <div class="grip-grid">
-      @for (pegada of pegadas; track pegada.nome) {
-        <details class="grip-card">
-          <summary>
-            <span class="grip-icon"
-              ><mat-icon aria-hidden="true">{{ pegada.icone }}</mat-icon></span
-            >
-            <span
-              ><strong>Pegada {{ pegada.nome }}</strong
-              ><small>{{ pegada.resumo }}</small></span
-            >
-            <mat-icon aria-hidden="true" class="grip-plus">add</mat-icon>
-          </summary>
-          <p>{{ pegada.descricao }}</p>
-        </details>
-      }
+      <div class="grip-grid">
+        @for (grip of grips; track grip.id) {
+          <div class="grip-entry">
+            <div class="grip-reveal">
+              <details class="grip-card">
+                <summary>
+                  <mat-icon class="grip-icon" aria-hidden="true">{{ grip.icon }}</mat-icon>
+                  <span>
+                    <strong>{{ grip.name }}</strong>
+                    <small>{{ grip.summary }}</small>
+                  </span>
+                  <mat-icon class="grip-plus" aria-hidden="true">add</mat-icon>
+                </summary>
+                <div class="grip-body">
+                  <p>{{ grip.description }}</p>
+                  <a routerLink="/catalogo" [queryParams]="{ pegada: [grip.id] }">
+                    Ver mouses para {{ grip.name }}
+                    <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                  </a>
+                </div>
+              </details>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   </section>
 
-  <section id="catalogo" class="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-heading">
-      <div>
-        <h2 id="catalog-title">Conheça o catálogo</h2>
-      </div>
-      <a class="catalog-link" routerLink="/catalogo"
-        >Ver catálogo completo <mat-icon aria-hidden="true">arrow_forward</mat-icon></a
-      >
-    </div>
-    <details class="home-search">
-      <summary><mat-icon aria-hidden="true">search</mat-icon>Buscar no catálogo</summary>
-      <form id="busca" class="catalog-search" role="search" (ngSubmit)="buscar()">
-        <label for="mouse-search">Buscar por nome</label>
-        <div class="search-controls">
-          <input
-            id="mouse-search"
-            name="termo"
-            type="search"
-            [(ngModel)]="termo"
-            placeholder="Qual mouse você procura?"
-            maxlength="150"
-          />
-          <button class="store-button store-button-dark" type="submit">
-            <mat-icon aria-hidden="true">search</mat-icon>Buscar
-          </button>
-          @if (termoAtual()) {
-            <button class="clear-search" type="button" (click)="limpar()">
-              <mat-icon aria-hidden="true">clear</mat-icon>Limpar
-            </button>
-          }
-        </div>
-      </form>
+  <app-home-chapter [chapter]="chapters[3]" />
+
+  <div class="store-container">
+    <details class="media-credits">
+      <summary>Créditos da imagem</summary>
+      <p>
+        Modelo
+        <a href="https://sketchfab.com/3d-models/computer-mouse-6e7940d9e2144efeae3468a906f27e07"
+          >Computer mouse</a
+        >, de zhe_kan, sob licença
+        <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Materiais, iluminação
+        e renderização adaptados para a MouseTrap.
+      </p>
     </details>
-    <div class="catalog-results" [attr.aria-busy]="carregando()">
-      @if (carregando()) {
-        <p class="catalog-state" role="status">
-          <mat-icon aria-hidden="true">hourglass_empty</mat-icon>Buscando mouses para você…
-        </p>
-      } @else if (erro()) {
-        <div class="catalog-state" role="status">
-          <mat-icon aria-hidden="true" class="state-icon">error_outline</mat-icon>
-          <h3>Não foi possível carregar os mouses.</h3>
-          <p>Tente novamente em instantes.</p>
-          <button class="store-button store-button-dark" type="button" (click)="buscar()">
-            <mat-icon aria-hidden="true">refresh</mat-icon>Tentar novamente
-          </button>
-        </div>
-      } @else if (!produtos().length) {
-        <div class="catalog-state" role="status">
-          <mat-icon aria-hidden="true" class="state-icon">{{
-            termoAtual() ? 'search_off' : 'inbox'
-          }}</mat-icon>
-          <h3>{{ termoAtual() ? 'Nenhum mouse encontrado.' : 'Novos mouses a caminho.' }}</h3>
-          <p>
-            {{
-              termoAtual()
-                ? 'Experimente outro nome para continuar a busca.'
-                : 'Volte em breve para conhecer os produtos do catálogo.'
-            }}
-          </p>
-          @if (termoAtual()) {
-            <button class="store-button store-button-dark" type="button" (click)="limpar()">
-              <mat-icon aria-hidden="true">clear</mat-icon>Limpar busca
-            </button>
-          }
-        </div>
-      } @else {
-        <p class="catalog-caption visually-hidden" role="status">
-          {{ termoAtual() ? 'Uma seleção para a sua busca.' : 'Uma seleção para você conhecer.' }}
-          Exibindo até 3 mouses.
-        </p>
-        <div class="product-grid">
-          @for (produto of produtos(); track produto.id) {
-            <app-product-card [produto]="produto" />
-          }
-        </div>
-      }
-    </div>
-  </section>
+  </div>
 </div>

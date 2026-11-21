@@ -1,143 +1,173 @@
-# Active task — independent address registration
+# Active task — Static homepage artwork and native scroll effects (2026-11-21)
 
-## Browser CI correction (2026-11-07)
+- [x] Replace mouse playback with static artwork and native scrolling effects.
+- [x] Verify the rightward brand marquee with edge fades and logo-only tiles.
+- [x] Verify storefront interactions, artwork containment, and responsive motion.
+- [x] Update homepage documentation and regenerate the submission archive.
 
-- User supplied CI log for commit `21c16a7`: 4 browser tests passed, purchase failed
-  at `/enderecos` with Axe `color-contrast` on the manual-entry text button.
-- Continue the existing `feature/manual-address-resilience` branch; preserve the
-  published feature commit. No additional push/PR/deployment authorized.
-- [x] Reproduce with explicit hover and keyboard-focus assertions for both address
-      assistance actions in onboarding and the saved-address form.
-- [x] Correct scoped Material text-button contrast using approved brand tokens.
-- [x] Verify web checks/build and disposable browser suite; record actual evidence.
-- Files: customer-form CSS, purchase E2E, TASK and delivery documentation.
-- No database, API, identity or business-rule changes are needed.
-- Evidence: scoped `cliente-form.css` sets `--mat-button-text-label-text-color`,
-  `--mat-button-text-state-layer-color` and `--mat-button-text-ripple-color` to
-  `--prussian-blue` with `--alice-blue` hover/focus-visible surface (`> 13.4:1`
-  contrast across rest, hover, keyboard-focus and ripple states). `web` verify
-  (`135/135` tests across 27 files), production build, governance checks and
-  `sh scripts/verify_release.sh` (`5/5` Playwright tests in 1.1m) all passed.
+Keep existing catalog queries, links, business rules and unrelated workspace changes.
+Use native CSS view timelines for the editorial content and preserve static layouts
+for reduced motion and unsupported browsers. Keep previous raw renders offline.
+The final production build, 137 Angular tests, and six Chromium cases passed.
+Browser checks covered five widths, scroll reversal, fixed artwork, the brand
+loop seam, keyboard access, image-only tiles, and Axe. The local storefront
+loaded its one registered logo from the real catalog. Governance, four packaging
+tests, and diff checks passed. The regenerated `dist/mousetrap_submission.zip`
+passed integrity checks with 539 files, 68,556,073 compressed bytes, and SHA-256
+`a9ebd7b2eaa833e56343d417c36ebbbbe8f1414d23b8be9e3d02a7323c151eff`.
 
-## Objective and authorization (2026-11-07)
+# Completed task — S3 image download and orphan cleanup (2026-11-21)
 
-Implement the user-approved BR-CLI-04 change: optional ViaCEP autofill, manual
-addresses validated against a local municipality catalog, and freight independent
-of ViaCEP. Branch: `feature/manual-address-resilience` (the initially proposed
-branch already existed and was preserved). No push, PR or deployment authorized.
+- [x] Deliver an attachment download for the selected public product image.
+- [x] Deliver paginated admin inspection and deletion of R2 orphans with `BR-CAT-13` protection.
+- [x] Verify the HTTP, concurrency, migration and Angular behavior with isolated fixtures.
+- [x] Refresh storage guidance and regenerate the verified submission archive.
 
-## Subtasks and acceptance
+The scope covers image download and cleanup in the existing Cloudflare R2 adapter,
+public gallery and catalog administration. Use a short PostgreSQL reservation
+transaction before deleting from R2. Retain
+reservations across ambiguous provider failures so a retry cannot break a new link.
+Verification uses isolated test data and simulated storage.
 
-- [x] Seed official IBGE municipalities additively; PostgreSQL upgrade V1–V9 → V10
-      passed with 5,571 rows, existing IDs/names/FKs preserved and idempotent insert.
-      Fresh Flyway V1–V10 and Hibernate validation passed in the API suite.
-- [x] Add local reference endpoints and optional `codigoIbge` to address DTOs;
-      validate locally, retaining the legacy CEP-only API path.
-- [x] Decouple public estimates and checkout freight from external lookup.
-- [x] Implement accessible manual selection, optional autofill and cancellation
-      without losing entered fields in admin/profile/address forms.
-- [x] Cover outage, invalid municipality, ownership and checkout regressions.
-- [x] Run API/web/governance/build and disposable browser checks; record outcomes.
-- [x] Synchronize rules, ADR, models, system state, dependency inventory and delivery.
+Quarkus clean verify passed 65 tests on disposable PostgreSQL 18.6, including
+fresh Flyway V1–V11, HTTP attachments, authorization, reference checks, grace
+period, a concurrent save during deletion, retry, and S3 request construction.
+Failsafe remains skipped by the repository configuration. Angular full-suite
+failures in homepage and routing were reproduced from the earlier audit.
 
-## Decisions and affected files
+The Flyway upgrade from V10 to V11 preserved an existing brand logo URL and
+enforced the new key constraint on a separate disposable database. Angular
+production build and 11 focused tests passed. Governance and diff checks passed.
+Chromium verified the cross-origin attachment bytes and admin confirmation and
+deletion with simulated identity, catalog and storage at 1440, 1024, 768, 375,
+and 320 px. Axe passed on both affected sections at all five widths.
+The regenerated `dist/mousetrap_submission.zip` passed archive checks with
+1,029 files, 75,576,686 compressed bytes, and SHA-256
+`b70079bbbc53e8c6980f9f810146090b3deabfbc94e802f76dda4fe60af481af`.
 
-- API: DTOs, Cliente/Cep/Pedido services, new localities/freight services/resources,
-  repositories, new V10 municipality seed and API tests.
-- Web: shared location selector, customer form, models/services, freight text,
-  public interceptor exception and tests.
-- Database: existing tables/IDs/FKs unchanged; insert missing official municipalities
-  only. Future roadmap migration numbers must move after the allocated V10.
-- Manual registration validates format and municipality, not actual postal existence
-  or CEP-to-city correspondence. Keep totals/ownership/stock/idempotency unchanged.
-- Web typecheck passed; first web suite: 126 passed / 9 failures caused by an outdated
-  route fixture (missing IBGE code/locality requests). Corrected: 135/135 tests pass
-  across 27 files. Production build passed without budget warnings.
-- API preset: 60 tests pass, zero failures/errors/skips. Fresh V1–V10 migrations
-  applied on PostgreSQL 16.15 and Hibernate validated the schema. Full release
-  `clean verify` passed (same 60 tests); Failsafe remains skipped by configuration.
-- Disposable `sh scripts/verify_release.sh`: 5 Playwright tests passed (1.3 minutes
-  for browser execution). Includes real PKCE, manual registration with upstream 503,
-  optional autofill, address edit, checkout, ownership/fulfillment, responsive
-  1440/1024/768/375/320 px and Axe checks. Its own containers/volumes were removed.
-- Governance preset passed after rule/ADR/model/documentation updates.
-- PlantUML syntax and both PNG renders passed using PlantUML 1.2026.0.
-- Python suite: 15 tests passed; after aligning sync_roadmap.py with V11–V16,
-  its three tests passed again. No GitHub synchronization was executed.
-- Maven initially blocked by inherited JAVA_HOME and sandbox cache permissions;
-  retry uses installed JDK 17 and approved access to cache and isolated DB.
-- No private configuration has been read or changed.
+# Superseded task — Automatic hero, animated content and catalog brands (2026-11-17)
 
-## Final handoff
+## Objective and scope
 
-- Implementation and required checks complete; no unresolved test failures.
-- [Delivery report](docs/others/manual-address-delivery.md) contains categorized
-  files, rollout/recovery limits and selective Git/PR commands.
-- Next step: user review and optional commit/publication. Nothing staged; no commit,
-  push, PR, production migration, identity reset or deployment performed.
-- Legacy CEP-only API calls remain external-dependent for compatibility; new web
-  calls always include `codigoIbge`. Manual entry cannot certify CEP/city matching.
-- Release package: generated with `scripts/package_release.py`; exact archive
-  metrics and SHA256 are reported in the final chat delivery.
+The user requests an automatically animated mouse confined to the first section,
+more varied component entrances AND exits below, and a brand showcase inspired by
+https://www.serko.ai/. Keep category shelves, existing renders, shopping and identity
+contracts. Use public catalog facets for real brands/logos, with no invented partners.
+No API/schema/BR-* or dependency change. Preserve the dirty feature/home-scroll-redesign
+branch and unrelated work; no staging, commit, push or publication.
 
-## Previous sprint context (historical)
+- [ ] Inspect Serko, public brand contracts and existing motion/player behavior.
+- [ ] Replace full-page scroll sequence with a bounded automatic hero and pause control.
+- [ ] Add real brand showcase with loading/empty/error/logo-fallback and catalog links.
+- [ ] Add distinct reversible exits without disrupting reading or keyboard interaction.
+- [ ] Verify web, browser/Axe, responsive lifecycle and archive; update delivery docs.
 
-## Previous sprint
+Skills: angular-frontend, ui-frontend, testes-frontend, new-feature-workflow (already read).
+Files: home hero/player, brands component, motion/styles, tests, home/ADR/state/wireframe docs.
+Next: inspect Serko screenshots and implement hero lifecycle plus public brand showcase.
 
-## Current objective
+---
 
-Establish the **Complete Global 3NF PlantUML Model (`docs/modelagem/`, `V1`–`V15`)** and
-the **Authoritative Business Rules & AI Governance Lock (`docs/BUSINESS_RULES.md`)**
-on branch `feature/complete-uml-and-business-rules`, then advance to
-**Epic E2 (`#44` — Product Categories & Component CRUD Screens, `V10`)**.
+# Previous task — Refine homepage scroll choreography
 
-## Current checkpoint (2026-11-07)
+## Objective and scope
 
-- **Released baselines:** `v1.0.0` (`fbcabb6`) and `v1.1.0` (`4ff1a36` on `main`);
-  `develop` is at `a97c954` (includes **Epic E1 / `PR #50`** with Flyway `V9`).
-- **Completed in this sprint (`feature/complete-uml-and-business-rules`):**
-  - Relocated and expanded PlantUML domain and relational diagrams from `api/docs/modelagem/`
-    to global [docs/modelagem/](docs/modelagem/README.md) (`diagrama-de-classes.puml`,
-    `banco-de-dados.puml`, `README.md`, and rendered `.png` previews) covering implemented
-    `V1`–`V9` entities/tables and approved planned `V10`–`V15` evolution.
-  - Created [docs/BUSINESS_RULES.md](docs/BUSINESS_RULES.md) codifying 73 numbered rules
-    (`BR-GOV`, `BR-IAM`, `BR-CAT`, `BR-CLI`, `BR-CRT`, `BR-PRC`, `BR-ORD`, `BR-PAY`, `BR-REV`),
-    including `BR-IAM-09` locking in-memory tokens + Keycloak `HttpOnly` SSO cookies (zero `localStorage`).
-  - Enriched Angular `AuthService` with computed signals (`iniciaisUsuario`, `perfilPrincipal`) and
-    `hasAnyRole` to match the professor's session-signal patterns without storing tokens in `localStorage`.
-  - Wired mandatory business-rule consultation and explicit user-authorization locks into
-    `AGENTS.md`, `.agents/rules/business-rules.md`, domain skills, `scripts/check_ai_governance.py`,
-    and `scripts/package_release.py`.
+The user approved the Blender frames and identified scrolling as the remaining issue.
+Preserve all 240 desktop/mobile renders and fallback artwork. Diagnose and refine
+scroll response, stage trajectory and frame delivery within existing GSAP/Canvas.
+Keep native scrolling, reduced motion, responsive layout, shopping and footer limits.
+No API/schema/business-rule/dependency change; no staging/commit/publication.
+Preserve the dirty feature/home-scroll-redesign branch and unrelated auth/source work.
 
-## Master execution queue (`v1.2.0` → `v2.0.0`)
+- [x] Reproduce scroll timing/trajectory issues with public browser fixtures.
+- [x] Synchronize scene progress and correct evidenced frame-delivery discontinuities.
+- [x] Review responsive forward/reverse motion, rapid seeks and layout refreshes.
+- [x] Run web typecheck/unit/build and browser/Axe regression checks.
+- [ ] Update behavior/delivery documentation and verified source archive.
 
-- [x] **Release `v1.0.0` (`#41`):** Slices 1–7 storefront, OIDC PKCE, cart, checkout, portal, admin & E2E (`V1`–`V7`).
-- [x] **Release `v1.1.0` (`#42`):** 4-banner carousel, Cloudflare R2 uploads (`V8`), Dependabot, monorepo CI/CD & AI governance.
-- [x] **Roadmap foundation (`PR #40`):** `docs/ROADMAP.md`, `ADR 0002`, and `scripts/sync_roadmap.py` covering Epics `E1`–`E7`.
-- [x] **Epic E1 (`v1.2.0` — `#43` / `PR #50`):** 3NF Database Normalization (`V9`: `Pais`, enriched `Marca`, `Sensor`, `SwitchMouse`, enriched `Cliente` + `TelefoneCliente`, `Desejo.cliente`, `Transportadora`).
-- [x] **Global UML & Business Rules Lock (current branch):** Complete `V1`–`V15` PlantUML suite in `docs/modelagem/` + `docs/BUSINESS_RULES.md` + AI governance enforcement.
-- [ ] **Epic E2 (`v1.2.0` — `#44` Next):** Product Categories (`V10`: `Categoria` entity/service/resource) & admin/catalog UI for normalized 3NF components (`/admin/categorias`, `/admin/sensores`, `/admin/switches`, `/admin/transportadoras`, `/catalogo` facets).
-- [ ] **Epic E3 (`v1.3.0` — `#45`):** Real Merchandising (`V11`: curated weekly highlights `GET /catalogo/mouses/destaques` & real sales-based `ordenar=mais-vendidos`).
-- [ ] **Epic E4 (`v1.3.0` — `#46`):** Discount Coupons (`V12`: `Cupom` CRUD, `POST /cupons/validar`, atomic checkout lock/redemption & order snapshot).
-- [ ] **Epic E5 (`v1.4.0` — `#47`):** Verified Customer Reviews (`V13`: `Avaliacao` 1–5 star ratings, purchase ownership check, JSON-LD `aggregateRating` & admin moderation).
-- [ ] **Epic E6 (`v1.4.0` — `#48`):** Order Refunds & Restock (`V14`: `StatusPedido.REEMBOLSADO`, `StatusPagamento.ESTORNADO`, atomic single stock restoration & `EventoPedido`).
-- [ ] **Epic E7 (`v2.0.0` — `#49`):** External Gateways, R2 Orphan Cleanup & Integer-Cent Price Migration (`V15`: `evento_webhook_pagamento`, `PagamentoGateway`/`FreteGateway`, `precoCentavos` & blocking Trivy gates).
+User clarification: visible stutter/jumps are the priority. Browser samples reproduced
+instant stage movement while rotation lagged; a new unit regression failed because
+fast seeks waited behind three obsolete requests. Fixed a shared 160 ms scrub clock,
+obsolete request cancellation, directional prefetch, async decoding, monotonic pose
+selection and one canvas paint per RAF. Eight focused frame-delivery tests now pass.
+Final typecheck, 142 tests / 28 files, production build and 11 browser/Axe cases
+passed (49.3 s). Native-frame/footer checks cover 1440/1024/768/375/320 px. All 480
+approved frame hashes and the unrelated auth edit remain unchanged. Initial bundle
+347.83 kB; home lazy chunk 42.41 kB; no budget warnings.
+Continuous-scroll review caught over-aggressive cancellation (74 distinct poses).
+Preserving nearby decodes restored progress (178 poses in eight seconds, 204 RAF
+callbacks, p95 50.1 ms). The final regression now checks that nearby decoding survives
+continuous movement while large seeks still bypass obsolete requests. No 60 FPS claim.
+Next: finish final checks, docs/governance and archive verification.
+Applicable skills: angular-frontend, ui-frontend, testes-frontend, new-feature-workflow.
 
-## Completed subtasks (`feature/complete-uml-and-business-rules`)
+---
 
-- [x] Move `api/docs/modelagem/` to global `docs/modelagem/`, expand `diagrama-de-classes.puml`, `banco-de-dados.puml`, and `README.md` across `V1`–`V15`, and render `.png` exports locally.
-- [x] Create `docs/BUSINESS_RULES.md` documenting all implemented (`V1`–`V9`) and planned (`V10`–`V15`) `BR-*` business rules.
-- [x] Enforce `docs/BUSINESS_RULES.md` and `docs/modelagem/` across `AGENTS.md`, `.agents/rules/business-rules.md`, skills, all repository Markdown links, `scripts/check_ai_governance.py`, and `scripts/package_release.py`.
-- [x] Validate PlantUML syntax/rendering, AI governance checks, Python test suite, and deterministic release packaging.
+# Previous delivery — Real-3D Logitech homepage animation
 
-## Session decisions
+## Objective and authorization (2026-11-14)
 
-- Keep `docs/BUSINESS_RULES.md` and `docs/modelagem/README.md` comprehensive without artificial 180-line truncation, while enforcing their presence, `BR-GOV-03` lock, and valid Markdown links in `scripts/check_ai_governance.py` alongside a concise `always_on` `.agents/rules/business-rules.md` adapter (`<= 180` lines).
-- Visually separate implemented (`V1`–`V9`, blue `<<Entity>>`) from approved planned (`V10`–`V15`, amber `<<Planned>>`) items in PlantUML so agents never mistake planned tables for active SQL prior to their Flyway migration.
+The user explicitly requests completing implementation using the supplied Logitech
+G PRO X SUPERLIGHT GLB and installed Blender. Render the full coherent sequence,
+replace the rejected AI/optical-flow assets, integrate matching fallbacks, inspect
+motion and responsive layout, verify and package. No publication/staging/commits.
+Preserve the dirty `feature/home-scroll-redesign` branch and unrelated auth/source work.
 
-## Validation evidence
+- [x] Benchmark and render all 240 continuous native-resolution transparent frames.
+- [x] Encode/verify alpha WebP, source/frame hashes, manifest and matching fallbacks.
+- [x] Integrate smaller mobile URLs, coherent Superlight fallback names, public CC BY 4.0
+      attribution and calibrated stage scale/glass opacity. Final visual acceptance pending.
+- [x] Inspect actual sequence/contact sheets and desktop/mobile page composition.
+- [x] Run web typecheck/unit/build and public browser/Axe acceptance checks.
+- [x] Update behavior/state/ADR/delivery, governance/diff and release archive evidence.
 
-- PlantUML syntax & PNG rendering (`plantuml.jar -checkonly` and `-tpng` on `docs/modelagem/banco-de-dados.puml` and `docs/modelagem/diagrama-de-classes.puml`): passed.
-- `python3 scripts/ai_checks.py verify --scope governance`: passed.
-- `python3 -m unittest discover -s scripts -p 'test_*.py' -v`: passed.
-- `python3 scripts/package_release.py`: passed.
+Files: offline Blender/render/export tools, sequence/fallback assets, home player,
+scoped styles/tests, public media attribution and existing home documentation.
+No API/schema/DTO/payment/price/BR-* change or application dependency is needed.
+
+Source: `computer-mouse/source/SF Mouse.glb`, SHA256
+`c03ccc8f0d762800cc58938c5e4cb433ab5c8237312790c5eff19c555dc9c7bc`.
+13 meshes, 48,638 triangles, 10 materials, 12 embedded 4K images. Blender 4.5.16 LTS
+is installed at `~/.local/bin/blender`; four Cycles proofs and a packed scene are
+in `docs/others/homepage-product-render/`. The rejected AI sequence is replaced by 240 verified real-3D frames, version
+`9bf895c9db23`: desktop 5,889,266 bytes; mobile 1,957,820 bytes. No image interpolation.
+
+Complete: final assets installed, code/browser/visual checks passed, archive verified.
+No pending implementation; physical-device smoothness is the remaining validation limit.
+Final web typecheck and 136 unit tests / 28 files passed. Production build passed
+without budget warnings (347.83 kB initial, 41.79 kB home lazy chunk). All nine public
+Playwright/Axe cases passed in 43.7 s, including final-frame/opaque-product alignment
+and mobile-only assets/credits. Preview playback/seeks/reduced-motion passed. Governance (38 entrypoints,
+13 skills, eight Python checks) and diff checks passed. Native render completed 240/240 frames with STUDIO_COMPLETE. All 480 WebPs passed
+alpha equality/dimension checks; 240 unique render/pixel/frame hashes.
+Opening composition reviewed at all five widths using completed real frames.
+Fixed desktop artwork alignment and clamped sticky-endpoint vertical compensation.
+The browser suite now checks the actual opaque product against the finale art area.
+GPU compute enumeration confirmed CPU-only across CUDA/OptiX/HIP/oneAPI backends.
+Decisions: one coherent 3D asset/material set for every frame, alpha compositing over
+home navy, existing lazy GSAP/canvas architecture and responsive/motion fallbacks.
+
+## Previous iterations
+
+- [Real-model studio proof](docs/others/homepage-product-render/README.md).
+- [Homepage history and delivery](docs/others/homepage-scroll-delivery.md).
+- Rejected [AI pose generation](docs/others/homepage-generated-poses/README.md) and
+  [earlier Flow keyframes](docs/others/homepage-keyframes/README.md) are historical.
+- Unrelated address work: [delivery](docs/others/manual-address-delivery.md).
+
+Local headless motion diagnostics: controlled warm eight-second sweep yielded 222
+RAF callbacks, 200 distinct frames, p95 50 ms. Removing the mask did not reproduce
+an improvement; retained validated glass/footer styling. No 60 FPS claim; target
+physical-device performance remains unverified. One temporary diagnostic harness
+rejected empty CSS, fixed before completing the comparison.
+
+## Previous archive and Git state
+
+`dist/mousetrap_submission.zip`: 75,534,526 compressed bytes / 87,163,089
+uncompressed bytes; 13.34% reduction; 1,001 files. SHA256:
+`5a1062b3654efa43f258a535ebededada97611f71144ef1cab1926a8ea946685`.
+Packaging integrity/exclusions, `unzip -l`, 240 desktop + 240 mobile entries and
+packed scene/preview presence verified. Metrics: `dist/homepage-release-metrics.json`.
+Branch `feature/home-scroll-redesign`: zero staged entries, 22 unstaged entries,
+27 untracked entries (directories are collapsed). Nothing committed/pushed/published.
+Selective Git/PR commands and categorized files: homepage-scroll-delivery.md.

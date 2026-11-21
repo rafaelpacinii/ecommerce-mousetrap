@@ -20,7 +20,9 @@ class PackagingTests(unittest.TestCase):
                      'web/.env': 'secret', 'infra/private.key': 'secret',
                      'infra/settings.env.local': 'secret', '.local/stack.env': 'secret',
                      'web/node_modules/package/index.js': 'dependency',
-                     'api/target/application.jar': 'binary', 'web/dist/main.js': 'build'}
+                     'api/target/application.jar': 'binary', 'web/dist/main.js': 'build',
+                     'web/public/images/home-sequence/frame_001.webp': 'retired frame',
+                     'web/public/images/home-scenes/g-pro-superlight-speed.webp': 'static artwork'}
             for name, content in files.items():
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -34,7 +36,8 @@ class PackagingTests(unittest.TestCase):
             with zipfile.ZipFile(first['archive']) as archive:
                 self.assertEqual(set(archive.namelist()), required | {
                     'docs/others/release-readiness.md',
-                    'api/src/main/resources/application.properties.example'})
+                    'api/src/main/resources/application.properties.example',
+                    'web/public/images/home-scenes/g-pro-superlight-speed.webp'})
                 self.assertEqual(archive.getinfo('api/mvnw').external_attr >> 16, 0o100755)
 
     def test_default_requirements_accept_relocated_docs_without_deleted_setup_guide(self):

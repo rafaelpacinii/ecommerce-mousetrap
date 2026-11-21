@@ -38,6 +38,8 @@ def allowed(relative: PurePosixPath) -> bool:
         return False
     if parts[0] == 'scripts' and relative.name not in SCRIPT_FILES:
         return False
+    if parts[:4] == ('web', 'public', 'images', 'home-sequence'):
+        return False
     name = relative.name
     if name in {'application.properties', '.gitignore', '.gitattributes', '.DS_Store', 'Thumbs.db'}:
         return False

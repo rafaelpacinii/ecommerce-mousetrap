@@ -23,7 +23,7 @@
               {
                 "glob": "**/*",
                 "input": "public",
-                "ignore": ["Hero*.jpg"]
+                "ignore": ["Hero*.jpg", "images/home-sequence/**"]
               }
             ],
             "styles": ["src/material-theme.scss", "src/styles.css"]
