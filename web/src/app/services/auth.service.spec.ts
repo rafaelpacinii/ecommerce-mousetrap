@@ -1,80 +1,180 @@
 import { TestBed } from '@angular/core/testing';
-import { AUTH_CLIENT, AuthService, safeReturnUrl } from './auth.service';
+import { provideRouter, Router } from '@angular/router';
+import { AuthService, safeReturnUrl } from './auth.service';
+import { SessaoAuthResponse } from '../models/auth.model';
 
-describe('authentication session', () => {
-  const settings = {
-    apiUrl: 'http://localhost:8080',
-    identityUrl: 'http://localhost:8180',
-    realm: 'mousetrap',
-    clientId: 'mousetrap-web',
+describe('authentication session (backend-mediated)', () => {
+  const sessaoCliente: SessaoAuthResponse = {
+    accessToken: 'jwt-memory-token',
+    expiresIn: 300,
+    usuario: {
+      subject: 'sub-cliente-1',
+      nome: 'Rafael Pacini',
+      email: 'rafael@example.com',
+      roles: ['customer'],
+      perfilCompleto: true,
+    },
   };
-  let adapter: any;
+
+  let fetchMock: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
-    adapter = {
-      authenticated: true,
-      realmAccess: { roles: ['customer'] },
-      token: 'memory-token',
-      tokenParsed: { name: 'Cliente', email: 'cliente@example.com' },
-      init: vi.fn().mockResolvedValue(true),
-      updateToken: vi.fn().mockResolvedValue(false),
-      login: vi.fn().mockResolvedValue(undefined),
-      register: vi.fn().mockResolvedValue(undefined),
-      clearToken: vi.fn(),
-      logout: vi.fn().mockResolvedValue(undefined),
-    };
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => settings }));
+    fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === '/config.json') {
+        return new Response(JSON.stringify({ apiUrl: 'http://localhost:8080/' }), { status: 200 });
+      }
+      if (url === 'http://localhost:8080/auth/refresh') {
+        return new Response(JSON.stringify(sessaoCliente), { status: 200 });
+      }
+      if (url === 'http://localhost:8080/auth/logout') {
+        return new Response(null, { status: 204 });
+      }
+      return new Response('{}', { status: 404 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({
-      providers: [{ provide: AUTH_CLIENT, useValue: async () => adapter }],
+      providers: [provideRouter([])],
     });
     sessionStorage.clear();
     localStorage.clear();
   });
+
   afterEach(() => {
     vi.unstubAllGlobals();
     sessionStorage.clear();
+    localStorage.clear();
   });
 
-  it('initializes once with PKCE and keeps tokens out of browser storage', async () => {
+  it('initializes once via /config.json and Quarkus /auth/refresh without browser storage', async () => {
     const auth = TestBed.inject(AuthService);
     await Promise.all([auth.initialize(), auth.initialize()]);
-    expect(adapter.init).toHaveBeenCalledTimes(1);
-    expect(adapter.init).toHaveBeenCalledWith(
-      expect.objectContaining({ pkceMethod: 'S256', flow: 'standard' }),
-    );
+
     expect(auth.authenticated()).toBe(true);
-    expect(await auth.token()).toBe('memory-token');
-    expect(adapter.updateToken).toHaveBeenCalledWith(30);
+    expect(await auth.token()).toBe('jwt-memory-token');
+    expect(auth.subject()).toBe('sub-cliente-1');
+    expect(auth.email()).toBe('rafael@example.com');
+    expect(sessionStorage.length + localStorage.length).toBe(0);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8080/auth/refresh',
+      expect.objectContaining({ method: 'POST', credentials: 'include' }),
+    );
+  });
+
+  it('authenticates credentials through POST /auth/login and resolves role-aware destinations', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === '/config.json') {
+        return new Response(JSON.stringify({ apiUrl: 'http://localhost:8080' }), { status: 200 });
+      }
+      if (url === 'http://localhost:8080/auth/refresh') {
+        return new Response('{}', { status: 401 });
+      }
+      if (url === 'http://localhost:8080/auth/login') {
+        return new Response(
+          JSON.stringify({
+            accessToken: 'admin-jwt',
+            expiresIn: 300,
+            usuario: {
+              subject: 'sub-admin',
+              nome: 'Operador Loja',
+              email: 'admin@example.com',
+              roles: ['admin', 'customer'],
+              perfilCompleto: true,
+            },
+          }),
+          { status: 200 },
+        );
+      }
+      return new Response('{}', { status: 404 });
+    });
+
+    const auth = TestBed.inject(AuthService);
+    const destPadrao = await auth.entrar({ email: 'ADMIN@EXAMPLE.COM ', senha: 'Secret123' });
+    expect(destPadrao).toBe('/admin/pedidos');
+    expect(auth.admin()).toBe(true);
+    expect(auth.perfilPrincipal()).toBe('Administrador');
+
+    const destRetorno = await auth.entrar(
+      { email: 'admin@example.com', senha: 'Secret123' },
+      '/catalogo?nome=mouse',
+    );
+    expect(destRetorno).toBe('/catalogo?nome=mouse');
+    expect(auth.destination()).toBe('/admin/pedidos');
+  });
+
+  it('registers new customers via POST /auth/cadastro and directs incomplete profiles to /enderecos', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === '/config.json') {
+        return new Response(JSON.stringify({ apiUrl: 'http://localhost:8080' }), { status: 200 });
+      }
+      if (url === 'http://localhost:8080/auth/refresh') {
+        return new Response('{}', { status: 401 });
+      }
+      if (url === 'http://localhost:8080/auth/cadastro') {
+        return new Response(
+          JSON.stringify({
+            accessToken: 'novo-jwt',
+            expiresIn: 300,
+            usuario: {
+              subject: 'sub-novo',
+              nome: 'Novo Cliente',
+              email: 'novo@example.com',
+              roles: ['customer'],
+              perfilCompleto: false,
+            },
+          }),
+          { status: 201 },
+        );
+      }
+      return new Response('{}', { status: 404 });
+    });
+
+    const auth = TestBed.inject(AuthService);
+    const destino = await auth.cadastrar({
+      nome: 'Novo Cliente',
+      email: 'novo@example.com',
+      senha: 'SenhaForte1',
+    });
+    expect(destino).toBe('/enderecos');
+    expect(auth.authenticated()).toBe(true);
+    expect(auth.customer()).toBe(true);
     expect(sessionStorage.length + localStorage.length).toBe(0);
   });
 
-  it('clears session when token refresh fails', async () => {
+  it('clears session when token refresh fails on expiry', async () => {
     const auth = TestBed.inject(AuthService);
+    fetchMock.mockImplementationOnce(async () =>
+      new Response(JSON.stringify({ apiUrl: 'http://localhost:8080' }), { status: 200 }),
+    );
+    fetchMock.mockImplementationOnce(async () =>
+      new Response(
+        JSON.stringify({
+          ...sessaoCliente,
+          expiresIn: 5,
+        }),
+        { status: 200 },
+      ),
+    );
     await auth.initialize();
-    adapter.updateToken.mockRejectedValue(new Error('Expired'));
+    fetchMock.mockImplementationOnce(async () => new Response('{}', { status: 401 }));
+
     await expect(auth.token()).rejects.toThrow('Session expired');
     expect(auth.authenticated()).toBe(false);
     expect(auth.roles()).toEqual([]);
   });
 
-  it('prevents concurrent clicks from starting multiple sign-in transactions', async () => {
-    const auth = TestBed.inject(AuthService);
-    await Promise.all([auth.login('/meus-dados'), auth.login('/meus-dados')]);
-    expect(adapter.login).toHaveBeenCalledTimes(1);
-    expect(auth.redirecting()).toBe(false);
-  });
-
-  it('uses role-aware destinations and consumes a safe return path once', async () => {
+  it('logs out via POST /auth/logout, wipes memory state, and navigates to home', async () => {
+    const router = TestBed.inject(Router);
+    const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     const auth = TestBed.inject(AuthService);
     await auth.initialize();
-    auth.roles.set(['admin']);
-    expect(auth.destination()).toBe('/admin/pedidos');
-    await auth.login('/catalogo?nome=mouse');
-    expect(auth.destination()).toBe('/catalogo?nome=mouse');
-    expect(auth.destination()).toBe('/admin/pedidos');
-    expect(adapter.login).toHaveBeenCalledWith({
-      redirectUri: location.origin + '/auth/callback',
-      locale: 'pt-BR',
-    });
+
+    await auth.logout();
+    expect(auth.authenticated()).toBe(false);
+    expect(await auth.token()).toBeUndefined();
+    expect(navSpy).toHaveBeenCalledWith('/');
   });
 
   it.each([
@@ -84,13 +184,14 @@ describe('authentication session', () => {
     '/auth/callback',
     '/login',
     '/cadastro',
+    '/acesso-negado',
     '/a\nb',
   ])('rejects unsafe or looping return path %s', (value) => {
     expect(safeReturnUrl(value)).toBeUndefined();
   });
 
-  it('leaves public browsing available when identity initialization fails', async () => {
-    adapter.init.mockRejectedValue(new Error('Unavailable'));
+  it('leaves public browsing available when /config.json fails', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('Offline'));
     const auth = TestBed.inject(AuthService);
     await auth.initialize();
     expect(auth.authenticated()).toBe(false);
@@ -98,7 +199,6 @@ describe('authentication session', () => {
   });
 
   it('computes user initials, principal role label, and role membership via Angular Signals', async () => {
-    adapter.tokenParsed = { name: 'Rafael Pacini', email: 'rafael@example.com', sub: 'sub-1' };
     const auth = TestBed.inject(AuthService);
     await auth.initialize();
     expect(auth.iniciaisUsuario()).toBe('RP');

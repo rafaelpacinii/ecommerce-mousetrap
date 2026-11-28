@@ -1,0 +1,124 @@
+:host {
+  display: block;
+  --tile-width: clamp(140px, 16vw, 198px);
+}
+.brands-section {
+  padding-block: clamp(28px, 4vw, 52px);
+  border-block: 1px solid rgba(10, 18, 42, 0.12);
+  background: var(--alice-blue);
+  color: var(--prussian-blue);
+}
+.brands-heading {
+  margin-bottom: 22px;
+}
+h2 {
+  margin: 0 0 8px;
+  font: 800 clamp(28px, 3.5vw, 43px)/1.12 var(--font-heading);
+  letter-spacing: -0.04em;
+}
+.brands-heading p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.brand-viewport {
+  overflow-x: auto;
+  padding-block: 4px 8px;
+  scroll-padding-inline: 8px;
+  scroll-snap-type: x proximity;
+}
+.brand-track {
+  display: flex;
+  width: max-content;
+  margin-inline: auto;
+}
+.brand-list {
+  display: flex;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.brand-list li {
+  flex: 0 0 var(--tile-width);
+  width: var(--tile-width);
+  min-width: 0;
+  padding-inline: 6px;
+  scroll-snap-align: start;
+}
+.brand-copy {
+  display: none;
+}
+.brand-link {
+  display: grid;
+  place-items: center;
+  min-height: 98px;
+  height: 100%;
+  padding: 10px;
+  border: 1px solid rgba(10, 18, 42, 0.14);
+  border-radius: 12px;
+  background: var(--surface-pure);
+  color: var(--prussian-blue);
+  text-decoration: none;
+  text-align: center;
+}
+.brand-link img {
+  display: block;
+  width: 100%;
+  height: 62px;
+  object-fit: contain;
+}
+.brand-link:hover {
+  border-color: var(--slate-blue);
+}
+.brand-link:focus-visible {
+  outline: 3px solid var(--slate-blue);
+  outline-offset: 2px;
+}
+.brands-state {
+  min-height: 98px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  margin: 0;
+  padding-inline: 24px;
+  text-align: center;
+  line-height: 1.5;
+}
+.brands-state a {
+  color: var(--prussian-blue);
+  text-decoration: underline;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brand-viewport.running:not(:has(.brand-link:focus-visible)) {
+    overflow: clip;
+    scroll-snap-type: none;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black clamp(26px, 8vw, 116px),
+      black calc(100% - clamp(26px, 8vw, 116px)),
+      transparent
+    );
+  }
+  .brand-viewport.running:not(:has(.brand-link:focus-visible)) .brand-copy {
+    display: flex;
+  }
+  .brand-viewport.running:not(:has(.brand-link:focus-visible)) .brand-track {
+    animation: brand-drift calc(var(--tiles-per-cycle) * 3.8s) linear infinite;
+  }
+  @media (hover: hover) {
+    .brand-viewport.running:hover .brand-track {
+      animation-play-state: paused;
+    }
+  }
+}
+@keyframes brand-drift {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

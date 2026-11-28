@@ -51,7 +51,8 @@ export const routes: Routes = [
             'Revise sua compra, escolha o endereço de entrega e informe a forma de pagamento.',
         },
       },
-      ...['login', 'cadastro', 'auth/callback', 'acesso-negado'].map((path) => ({
+      { path: 'auth/callback', pathMatch: 'full', redirectTo: 'login' },
+      ...['login', 'cadastro', 'acesso-negado'].map((path) => ({
         path,
         data: {
           mode: path,
@@ -63,7 +64,7 @@ export const routes: Routes = [
             ? 'Criar conta | MouseTrap'
             : path === 'acesso-negado'
               ? 'Acesso restrito | MouseTrap'
-              : 'Sua conta | MouseTrap',
+              : 'Entrar | MouseTrap',
       })),
       {
         path: '',

@@ -389,6 +389,9 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     private void sincronizarEnderecoPrincipal(Cliente cliente) {
+        if (cliente.getMunicipio() == null || cliente.getCep() == null) {
+            return;
+        }
         Endereco principal = enderecos.findPrincipalByClienteId(cliente.getId());
         boolean novo = principal == null;
         if (novo) {

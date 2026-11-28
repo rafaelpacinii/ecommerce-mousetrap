@@ -1,0 +1,44 @@
+:host {
+  display: block;
+  pointer-events: none;
+}
+.scene-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.scene-guide {
+  position: absolute;
+  inset: 8%;
+  width: 84%;
+  height: 84%;
+  fill: none;
+  stroke: var(--light-cyan);
+  stroke-width: 1;
+  opacity: 0.3;
+}
+.guide-accent {
+  stroke: var(--golden-glow);
+  stroke-width: 2;
+}
+.mouse-object {
+  position: absolute;
+  z-index: 2;
+  inset: 4% 0% 6%;
+}
+.mouse-cutout {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 28px 34px rgba(10, 18, 42, 0.36));
+}
+:host([data-kind='precisao']) .mouse-object {
+  inset: 8% 14%;
+}
+:host([data-kind='ultraleves']) .mouse-object {
+  inset: 8% 10%;
+}
+:host([data-kind='deslizamento']) .mouse-object {
+  inset: -5% -5% 6%;
+}

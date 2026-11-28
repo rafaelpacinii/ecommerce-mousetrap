@@ -54,27 +54,61 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
   const exceptions: string[] = [];
   const cardLeaks: string[] = [];
   const fontRequests: string[] = [];
+  const directIdentityCalls: string[] = [];
+
+  function attachGuards(page: Page, onToken: (t: string) => void) {
+    page.on('pageerror', (error) => exceptions.push(error.message));
+    page.on('request', (req) => {
+      if (req.url().startsWith(identity)) directIdentityCalls.push(req.url());
+      if (/fonts\.(googleapis|gstatic)\.com/.test(req.url())) fontRequests.push(req.url());
+      if (req.url().startsWith(api + '/')) {
+        if (req.headers()['authorization'])
+          onToken(req.headers()['authorization'].replace(/^Bearer /, ''));
+        if (/1234.?5678.?9012.?3456|"cvv"|"validade"|"titular"/.test(req.postData() ?? ''))
+          cardLeaks.push(new URL(req.url()).pathname);
+      }
+    });
+  }
+
+  async function registerCustomer(account: { email: string; password: string }) {
+    const context = await browser.newContext();
+    contexts.push(context);
+    const page = await context.newPage();
+    let token = '';
+    attachGuards(page, (t) => {
+      token = t;
+    });
+    await page.goto(web + '/cadastro');
+    await audit(page, 'app-auth-page form');
+    await page.locator('app-auth-page [formControlName="nome"]').fill('Cliente Release QA');
+    await page.locator('app-auth-page [formControlName="email"]').fill(account.email);
+    await page.locator('app-auth-page [formControlName="senha"]').fill(account.password);
+    await page.locator('app-auth-page [formControlName="confirmarSenha"]').fill(account.password);
+    await page.locator('app-auth-page button[type="submit"]').click();
+    await expect(page).toHaveURL(web + '/enderecos');
+    await page.goto(web + '/lista-de-desejos');
+    await expect.poll(() => token).not.toBe('');
+    return {
+      page,
+      get token() {
+        return token;
+      },
+    };
+  }
 
   async function login(kind: keyof typeof accounts) {
     const context = await browser.newContext();
     contexts.push(context);
     const page = await context.newPage();
-    page.on('pageerror', (error) => exceptions.push(error.message));
     let token = '';
-    page.on('request', (req) => {
-      if (/fonts\.(googleapis|gstatic)\.com/.test(req.url())) fontRequests.push(req.url());
-      if (req.url().startsWith(api + '/')) {
-        if (req.headers()['authorization'])
-          token = req.headers()['authorization'].replace(/^Bearer /, '');
-        if (/1234.?5678.?9012.?3456|"cvv"|"validade"|"titular"/.test(req.postData() ?? ''))
-          cardLeaks.push(new URL(req.url()).pathname);
-      }
+    attachGuards(page, (t) => {
+      token = t;
     });
     await page.goto(web + '/login');
-    await page.locator('app-auth-page button').click();
-    await page.locator('#username').fill(accounts[kind].email);
-    await page.locator('#password').fill(accounts[kind].password);
-    await page.locator('#kc-login').click();
+    await audit(page, 'app-auth-page form');
+    await page.locator('app-auth-page [formControlName="email"]').fill(accounts[kind].email);
+    await page.locator('app-auth-page [formControlName="senha"]').fill(accounts[kind].password);
+    await page.locator('app-auth-page button[type="submit"]').click();
     await expect(page).toHaveURL(kind === 'admin' ? web + '/admin/pedidos' : web + '/');
     await page.goto(web + '/lista-de-desejos');
     await expect.poll(() => token).not.toBe('');
@@ -160,7 +194,8 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
   }
 
   try {
-    for (const [kind, account] of Object.entries(accounts)) {
+    for (const kind of ['other', 'admin'] as const) {
+      const account = accounts[kind];
       const response = await request.post(realm + '/users', {
         headers,
         data: {
@@ -212,7 +247,7 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
         { url: web + '/icons/icon-192.png', textoAlternativo: 'Mouse Release QA', ordem: 0 },
       ],
     });
-    const buyer = await login('customer');
+    const buyer = await registerCustomer(accounts.customer);
     const page = buyer.page;
     await page.goto(web + '/');
     await audit(page, 'app-home h1');
@@ -402,15 +437,11 @@ test('real PKCE purchase, ownership, administrative fulfillment, responsive UI a
     }
     expect(cardLeaks).toEqual([]);
     expect(fontRequests).toEqual([]);
+    expect(directIdentityCalls).toEqual([]);
     expect(exceptions).toEqual([]);
     const configResponse = await request.get(web + '/config.json');
     expect(configResponse.headers()['cache-control']).toContain('no-cache');
-    expect(Object.keys(await configResponse.json()).sort()).toEqual([
-      'apiUrl',
-      'clientId',
-      'identityUrl',
-      'realm',
-    ]);
+    expect(Object.keys(await configResponse.json()).sort()).toEqual(['apiUrl']);
     expect((await request.get(web + '/missing-release-chunk.js')).status()).toBe(404);
     expect((await request.get(web + '/meus-dados')).headers()['x-robots-tag']).toBe(
       'noindex, nofollow',

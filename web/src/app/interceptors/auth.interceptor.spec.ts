@@ -36,7 +36,7 @@ describe('authorization interceptor', () => {
     external.flush({});
   });
 
-  it('does not require a session for public catalog and CEP requests', () => {
+  it('does not require a session for public catalog, CEP and /auth endpoints', () => {
     for (const path of [
       '/catalogo/mouses',
       '/ceps/01001000',
@@ -48,7 +48,22 @@ describe('authorization interceptor', () => {
       expect(request.request.headers.has('Authorization')).toBe(false);
       request.flush({});
     }
+    client.post('http://localhost:8080/auth/login', { email: 'a@b.c', senha: 'x' }).subscribe();
+    const loginReq = http.expectOne('http://localhost:8080/auth/login');
+    expect(loginReq.request.headers.has('Authorization')).toBe(false);
+    loginReq.flush({});
     expect(auth.token).not.toHaveBeenCalled();
+  });
+
+  it('preserves session on 403 Forbidden without triggering a login redirect loop', async () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    client.get('http://localhost:8080/admin/pedidos').subscribe({ error: () => {} });
+    await Promise.resolve();
+    http
+      .expectOne('http://localhost:8080/admin/pedidos')
+      .flush({ detail: 'Acesso negado' }, { status: 403, statusText: 'Forbidden' });
+    expect(auth.clear).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('redirects on expiration without replaying a write', async () => {

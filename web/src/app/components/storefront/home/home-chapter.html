@@ -1,0 +1,63 @@
+<section
+  class="chapter"
+  [class.opening]="opening()"
+  [class.reverse]="chapter().id === 'ultraleves'"
+  [attr.data-scene]="chapter().id"
+  [class.finale]="chapter().id === 'deslizamento'"
+  [attr.id]="chapter().id"
+  [attr.aria-labelledby]="chapter().id + '-title'"
+>
+  <div class="chapter-stage store-container">
+    <div class="chapter-art">
+      <app-mouse-scene [kind]="chapter().id" [priority]="opening()" />
+    </div>
+    <div class="chapter-content">
+      <p class="chapter-eyebrow">{{ chapter().eyebrow }}</p>
+      @if (opening()) {
+        <h1 [id]="chapter().id + '-title'" [attr.aria-label]="chapter().title">
+          <ng-container [ngTemplateOutlet]="headline" />
+        </h1>
+      } @else {
+        <h2 [id]="chapter().id + '-title'" [attr.aria-label]="chapter().title">
+          <ng-container [ngTemplateOutlet]="headline" />
+        </h2>
+      }
+      <p class="chapter-description">{{ chapter().description }}</p>
+      <ul class="chapter-highlights" aria-label="Destaques técnicos do capítulo">
+        @for (item of chapter().highlights; track item) {
+          <li class="highlight-pill">{{ item }}</li>
+        }
+      </ul>
+      <div class="chapter-actions">
+        <a
+          class="store-button store-button-gold"
+          routerLink="/catalogo"
+          [queryParams]="chapter().filters"
+        >
+          {{ chapter().cta }} <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
+        @if (opening()) {
+          <a class="explore-link" routerLink="/" fragment="catalogo">
+            Ver novidades <mat-icon aria-hidden="true">south</mat-icon>
+          </a>
+        } @else if (chapter().nextFragment) {
+          <a class="explore-link" routerLink="/" [fragment]="chapter().nextFragment">
+            {{ chapter().nextLabel }} <mat-icon aria-hidden="true">south</mat-icon>
+          </a>
+        }
+      </div>
+    </div>
+    <div class="chapter-caption" aria-hidden="true">
+      <span>{{ chapter().theme }}</span>
+      <span class="caption-line"><span class="caption-progress"></span></span>
+    </div>
+  </div>
+</section>
+
+<ng-template #headline>
+  @for (word of words(); track $index; let i = $index) {
+    <span class="title-word" aria-hidden="true"
+      ><span class="title-word-inner" [style.--word-index]="i">{{ word }}</span></span
+    >{{ $last ? '' : ' ' }}
+  }
+</ng-template>

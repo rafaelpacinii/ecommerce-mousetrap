@@ -1,0 +1,31 @@
+.section-track {
+  height: 1px;
+  margin-bottom: 32px;
+  background: var(--home-glass-border);
+}
+.section-progress {
+  display: block;
+  height: 100%;
+  background: var(--golden-glow);
+  transform-origin: left center;
+}
+@supports (animation-timeline: view()) and (animation-range: cover 0% cover 100%) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-track {
+      view-timeline-name: --section-rule;
+    }
+    .section-progress {
+      animation: section-rule auto linear both;
+      animation-timeline: --section-rule;
+      animation-range: cover 4% cover 68%;
+    }
+  }
+}
+@keyframes section-rule {
+  from {
+    transform: scaleX(0.08);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

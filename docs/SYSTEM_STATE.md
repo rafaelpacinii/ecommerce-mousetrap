@@ -11,20 +11,20 @@ complete `V1`–`V16` PlantUML models, and [ROADMAP.md](ROADMAP.md) for the `v1.
 
 | Module                                                | Status                                               | Sources and practical limits                                                                                                                               |
 | ----------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public storefront/catalog                             | Implemented (`v1.1.0`); 3NF enrichment in `v1.2.0`   | `web/src/app`, `CatalogoResource`; four-banner carousel, combined filters, gallery and specifications                                                      |
+| Public storefront/catalog                             | Implemented (`v1.1.0`); 3NF enrichment in `v1.2.0`   | `web/src/app`, `CatalogoResource`; four static-art chapters with native scroll effects, independent recent/DPI/under-60g shelves, combined filters, gallery and specifications                                                      |
 | Catalog administration                                | Implemented (`v1.1.0`); component CRUD in `v1.2.0`   | Protected brands/mice/customer CRUD; R2 image/logo uploads, paging, sorting and version conflict handling                                                  |
-| Identity/customer ownership                           | Implemented (`v1.0.0`)                               | Keycloak realm, PKCE, `ClienteResource`, subject-scoped addresses/orders/wishlist                                                                          |
+| Identity/customer ownership                           | Implemented (`v1.0.0`, `ADR 0007`)                   | Backend-mediated Keycloak OIDC (`/auth/*`, `mousetrap-backend`), `ClienteResource`, subject-scoped addresses/orders/wishlist                               |
 | Cart/checkout                                         | Implemented (`v1.0.0`)                               | Browser persistence; API revalidates stock, prices, delivery and totals                                                                                    |
 | Orders/fulfillment                                    | Implemented (`v1.0.0`)                               | Atomic stock, idempotency, expiry/cancellation and recorded transitions                                                                                    |
 | Payments                                              | Implemented demo; pluggable gateway in `v2.0.0`      | PIX payload/QR and browser-only card validation; administrative local decisions                                                                            |
-| Object storage                                        | Implemented (`v1.1.0`); orphan cleanup in `v2.0.0`   | `POST /imagens/{mouses\|marcas}`, `ImagemStorageServiceImpl`, AWS SDK S3 (`2.57.8`) for Cloudflare R2; public catalog URLs                                 |
-| Persistence                                           | Implemented (`V1`–`V10`); 3NF evolution `V11`–`V16`   | PostgreSQL 16, Flyway V1–V10 (`V9` normalizes `pais`, `sensor`, `switch_mouse`, `telefone_cliente`, `transportadora`), Hibernate schema validation; V10 seeds 5,571 official municipalities; next migration is `V11` |
+| Object storage                                        | Implemented with attachment download and orphan cleanup (`V11`) | AWS SDK S3 for Cloudflare R2, public catalog galleries and admin orphan inspection and deletion. See [ADR 0005](adr/0005-r2-image-lifecycle.md). |
+| Persistence | Implemented (`V1`–`V11`) | PostgreSQL 16 and Hibernate schema validation. V9 normalizes catalog and contacts, V10 seeds 5,571 IBGE municipalities, V11 reserves R2 deletions. |
 | Verification, CI/CD & packaging                       | Implemented (`v1.1.0`)                               | `.github/workflows/{verify,cd}.yml` (path-based scope detection, Trivy scan, GHCR, SSH Compose deploy), Dependabot, Playwright/Axe stack, deterministic ZIP |
 | AI governance, business rules & roadmap               | Implemented (`v1.1.0` + `BUSINESS_RULES.md`)         | `AGENTS.md`, `docs/BUSINESS_RULES.md`, `docs/modelagem/`, `.agents/rules/business-rules.md`, 13 skills, `scripts/ai_checks.py`, `scripts/sync_roadmap.py`, ADRs [0001](adr/0001-record-architecture-decisions.md) & [0002](adr/0002-post-1-1-roadmap-and-domain-evolution.md) |
-| 3NF normalization & Categories (`E1`–`E2`)            | `E1` (`V9`) implemented; `E2` (`V11`) next           | `Pais`, enriched `Marca`, `Sensor`, `SwitchMouse`, `TelefoneCliente`, `Transportadora`, and PlantUML reconciliation implemented in `V9`; `Categoria` + admin UI in `V11` |
+| 3NF normalization and categories | Normalization implemented in V9, categories planned | V9 covers countries, brands, sensors, switches, customer phones and carriers. |
 | Merchandising & Discount Coupons (`E3`–`E4`)          | Specified for `v1.3.0` (`V12`–`V13`)                 | Curated weekly highlights, real `mais-vendidos` sales aggregation, and `Cupom` checkout discounts                                                          |
 | Customer Reviews & Order Refunds (`E5`–`E6`)          | Specified for `v1.4.0` (`V14`–`V15`)                 | Purchase-verified `Avaliacao` (1–5 stars + JSON-LD `aggregateRating`) and atomic `REEMBOLSADO`/`ESTORNADO` stock restoration                               |
-| External Gateways & Integer-Cent Pricing (`E7`)       | Specified for `v2.0.0` (`V16`)                       | `PagamentoGateway`, `FreteGateway`, idempotent webhooks, R2 orphan cleanup, and integer-cent (`precoCentavos`) migration                                   |
+| External gateways and integer-cent pricing | Planned for `v2.0.0` | Payment and freight gateways, idempotent webhooks and `precoCentavos`. |
 
 ## Current architecture
 
@@ -34,8 +34,9 @@ complete `V1`–`V16` PlantUML models, and [ROADMAP.md](ROADMAP.md) for the `v1.
   standalone components, signals/services, reactive forms and functional resolvers.
 - Identity: Keycloak 26.8.1, single store, `admin`/`customer`, JWT subject ownership.
   **No multitenancy, organization selector or client-supplied tenant context.**
-- R2: public, immutable catalog image URLs; not a private-download/signed-URL
-  architecture. Upload limits/content checks exist.
+- R2 catalog image URLs are public and immutable. Quarkus serves original
+  bytes as attachments. Admin cleanup checks the object age and both reference
+  columns before committing a deletion reservation and deleting from R2.
 - Test profile explicitly uses PostgreSQL at `localhost:55439`; Dev Services is
   disabled. Failsafe integration tests remain skipped by `skipITs=true`.
 
@@ -46,10 +47,13 @@ complete `V1`–`V16` PlantUML models, and [ROADMAP.md](ROADMAP.md) for the `v1.
 - **Master Roadmap (`v1.2.0` → `v2.0.0`):** Seven sequential epics (`E1`–`E7`) are
   fully specified in [ROADMAP.md](ROADMAP.md) and [ADR 0002](adr/0002-post-1-1-roadmap-and-domain-evolution.md)
   to address the professor's 3NF modeling review and complete the e-commerce lifecycle:
-  1. **`v1.2.0` (`E1` + `E2`):** 3NF normalization (`V9`), PlantUML reconciliation, and Product Categories (`V11`).
+  1. **`v1.2.0` (`E1` + `E2`):** 3NF normalization (`V9`), PlantUML reconciliation, and Product Categories.
   2. **`v1.3.0` (`E3` + `E4`):** Real Merchandising (`V12`) and Discount Coupons (`V13`).
   3. **`v1.4.0` (`E5` + `E6`):** Verified Customer Reviews (`V14`) and Order Refunds (`V15`).
-  4. **`v2.0.0` (`E7`):** Pluggable Gateways/Webhooks (`V16`), R2 orphan cleanup, and integer-cent pricing.
+  4. **`v2.0.0` (`E7`):** Pluggable Gateways/Webhooks and integer-cent pricing.
+
+R2 orphan cleanup was implemented ahead of E7. V11 is allocated to its
+reservation table. Future migration numbers in the earlier roadmap are placeholders.
 
 ## Address resilience (2026-11-07)
 
@@ -64,6 +68,18 @@ complete `V1`–`V16` PlantUML models, and [ROADMAP.md](ROADMAP.md) for the `v1.
   allocation (future E2–E7 migrations move to V11–V16) and tradeoffs.
 - [Dependency inventory](others/external-dependencies.md) distinguishes runtime
   third parties, owned infrastructure and build dependencies.
+
+## Homepage presentation (2026-11-21)
+
+- Four campaign chapters use static Blender artwork with section-specific lighting.
+  Native CSS view timelines reveal text and cards and fill decorative rules as
+  sections pass through the viewport. Reduced motion uses the settled layout.
+- The catalog's public brand logos populate a rightward, edge-faded marquee.
+  Keyboard focus and reduced motion expose a static, horizontally browsable row.
+- Category discovery, independent product shelves and native grip disclosures
+  retain their existing catalog and shopping behavior.
+- The earlier frame sequence remains in offline authoring materials. See
+  [ADR 0006](adr/0006-native-home-scroll.md) and [homepage behavior](others/homepage.md).
 
 ## Known technical debt and uncertainty
 

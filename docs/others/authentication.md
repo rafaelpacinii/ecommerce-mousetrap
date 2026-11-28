@@ -1,10 +1,11 @@
 # Authentication, authorization and account ownership
 
-The third implementation slice uses Keycloak for credentials, verification,
-password recovery and sessions. Angular never collects or stores passwords.
-Quarkus validates bearer access tokens and enforces authorization independently
-of the frontend. Realm role names are `admin` and `customer`; an administrator
-may also maintain a shopping profile.
+MouseTrap uses Keycloak for credentials, token issuance and sessions, with all
+identity communication centralized in the Quarkus backend ([ADR 0007](../adr/0007-backend-mediated-keycloak-auth.md)).
+Angular communicates exclusively with the Quarkus REST API (`apiUrl`), never calls
+Keycloak directly, and never stores passwords or tokens in `localStorage`.
+PostgreSQL never stores user passwords. Realm role names are `admin` and `customer`;
+an administrator may also maintain a shopping profile.
 
 ## Local identity stack
 
@@ -17,94 +18,42 @@ set -gx KC_BOOTSTRAP_ADMIN_PASSWORD $KC_BOOTSTRAP_ADMIN_PASSWORD
 docker compose -f infra/identity/compose.yaml up -d
 ```
 
-Keycloak is at `http://localhost:8180`; Mailpit is at `http://localhost:8025`.
-Both bind to loopback. Keycloak persists its development data in a named Docker
-volume and imports `mousetrap-realm.json` on first startup. Import skips an
-existing realm: later configuration changes must be applied deliberately through
-the admin console, not assumed to overwrite existing data. Restarting with a new
-bootstrap password does not change an existing administrator's password.
-
-The bootstrap username defaults to `admin`. Use the console to establish a
-permanent administrator and manage users. To authorize an application operator,
-create a user in the **mousetrap** realm, confirm their email, set a password,
-then assign the **admin** realm role. An administrator of the Keycloak **master**
-realm does not automatically have access to the store's administrative screens.
-Public registration assigns `customer` and never `admin`.
-
-Mailpit captures local confirmation and recovery messages. Its SMTP service is
-available only to the Compose network. No real email delivery provider is
-configured. Use the Mailpit inbox to open links during local development.
-
-Start the API and SPA after the identity stack is ready:
-
-```fish
-cd api
-./mvnw quarkus:dev
-```
-
-```fish
-cd web
-npm ci
-npm start
-```
-
-Restart existing development processes after installing the new dependencies.
-Keep the isolated PostgreSQL test container running when using continuous tests;
-see [API test setup](../../api/README.md#testes).
+Keycloak runs at `http://localhost:8180` (backend-only); Mailpit runs at
+`http://localhost:8025`. Keycloak imports `mousetrap-realm.json` on first startup,
+provisioning realm `mousetrap`, resource audience `mousetrap-api`, and confidential
+backend client `mousetrap-backend` (service account with `manage-users` in
+`realm-management`). Copy the generated `mousetrap-backend` client secret from the
+Keycloak Admin Console into your local `KEYCLOAK_CLIENT_SECRET` (or `application.properties`).
+For disposable Docker rehearsal (`scripts/configure_stack.py` / `scripts/verify_release.sh`),
+a fresh `IDENTITY_CLIENT_SECRET` is generated and injected automatically.
 
 ## Configuration and protocol
 
-- `mousetrap-web` is a public SPA client. Authorization Code with S256 PKCE is
-  required. Implicit flow, password grants and service accounts are disabled.
-- The allowed SPA redirects are the exact local `/auth/callback` and
-  `/silent-check-sso.html` URLs on port 4200. Logout returns to the storefront.
-- The default `basic` scope supplies the token subject; it must not be removed.
-  Access tokens contain the `mousetrap-api` audience. The API checks issuer,
+- `mousetrap-backend` is a confidential client (`publicClient = false`,
+  `directAccessGrantsEnabled = true`, `serviceAccountsEnabled = true`) used only by Quarkus.
+- Access tokens carry the `mousetrap-api` audience. Quarkus validates issuer,
   signature, expiration and audience, and reads roles from `realm_access/roles`.
-  It does not accept opaque tokens or fall back to JWT introspection.
-- Tokens remain in adapter memory. Session storage contains only a validated
-  internal return path; access/refresh tokens are never persisted there.
-- The interceptor refreshes access tokens before protected API requests and
-  sends them only to the configured API origin and path. Public catalog and CEP
-  reads do not require a token. A 401 clears the local session and opens login
-  without replaying a write. A 403 does not trigger a login loop.
-- Silent SSO checks restore sessions where browser cookie policy permits.
-  Tracking protection can prevent silent restoration; explicit login still
-  works. Failed identity initialization displays a retry on the login page while
-  leaving public navigation available.
-
-`web/public/config.json` configures the API and identity URLs at runtime. Every
-HTTP service uses `APP_SETTINGS`; a new frontend build is not required to change
-these URLs. This file is public and must never contain credentials. On the API,
-`OIDC_AUTH_SERVER_URL` overrides the checked-in local OIDC defaults.
+- Angular holds only the short-lived `accessToken` in runtime memory (`AuthService`).
+  Quarkus stores the refresh token in an `HttpOnly; SameSite=Lax; Path=/auth` cookie
+  (`mousetrap_refresh`) used by `POST /auth/refresh` and revoked by `POST /auth/logout`.
+- `web/public/config.json` exposes only `apiUrl`. No Keycloak URL, realm, client ID,
+  or credential is exposed to the browser.
+- `authInterceptor` attaches `Authorization: Bearer` exclusively to protected requests
+  matching `apiUrl`, refreshes expiring tokens via `/auth/refresh`, clears local state
+  and redirects to `/login` on `401`, and avoids login loops on `403`.
 
 ## Navigation and authorization contracts
 
-| Endpoint / screen                                                        | Access                                                              |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`     | Public                                                              |
-| `GET /ceps/{cep}`                                                        | Public                                                              |
-| `/mouses/**`, `/marcas/**`, administrative `/clientes/**` API operations | `admin`                                                             |
-| `GET /clientes/me`, `PUT /clientes/me`                                   | `customer` or `admin`                                               |
-| `PUT /clientes/{id}/identidade`                                          | `admin`, after reviewing the legacy customer and confirmed identity |
-| `/admin/mouses`, `/admin/marcas`, `/admin/clientes` and their forms      | Admin guard plus API authorization                                  |
-| `/meus-dados`, `/enderecos`                                                           | Authenticated profile and delivery address                          |
-| `/login`, `/cadastro`, `/auth/callback`                                  | Unified account entry and callback                                  |
-
-Administrative API read payloads include inactive records and are now protected
-along with writes. Anonymous clients must use `/catalogo/**`. Existing API paths
-and DTO shapes are retained; their access requirements intentionally change in
-this authentication slice. Old frontend CRUD paths redirect to `/admin/**`,
-including create/edit links. Guards run before edit resolvers load private data.
-Administrators now land at `/admin/pedidos` for the implemented order-management dashboard;
-customers return to the storefront or their saved intended destination.
-
-The login and registration entry cards follow wireframes 07/08. Credential,
-verification and recovery forms are hosted by Keycloak with the MouseTrap theme
-and original SVG mark. Registration proceeds through identity verification and
-then the owned profile/address form. Password reset uses the login form's
-forgot-password link and the configured email delivery service. No duplicate
-password database or password-grant endpoint is introduced.
+| Endpoint / screen | Access |
+| --- | --- |
+| `POST /auth/login`, `POST /auth/cadastro`, `POST /auth/refresh`, `POST /auth/logout` | Public (`@PermitAll`, mediated by Quarkus) |
+| `GET /auth/me` | `customer` or `admin` |
+| `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`, `/ceps/**`, `/localidades/**` | Public |
+| `/mouses/**`, `/marcas/**`, `/imagens/**`, `/admin/pedidos/**`, administrative `/clientes/**` | `admin` |
+| `GET /clientes/me`, `PUT /clientes/me`, `/clientes/me/enderecos/**`, `/desejos/**`, `/pedidos/**` | `customer` or `admin` |
+| `/admin/**` | `adminGuard` plus backend `@RolesAllowed("admin")` |
+| `/meus-dados`, `/enderecos`, `/meus-pedidos`, `/lista-de-desejos`, `/checkout` | `authGuard` plus backend JWT ownership |
+| `/login`, `/cadastro`, `/acesso-negado` | Native Angular forms and role denial screen |
 
 ## Customer profile and migration V4
 

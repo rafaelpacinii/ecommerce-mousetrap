@@ -257,5 +257,5 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: mousetrap-source-submission
-          path: dist/mousetrap_submission.zip
+          path: dist/mousetrap_submission_*.zip
           retention-days: 7

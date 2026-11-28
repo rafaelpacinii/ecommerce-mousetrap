@@ -11,7 +11,7 @@ export interface ClienteDTO {
 }
 export interface Cliente extends ClienteDTO {
   id?: number;
-  municipio: Municipio;
+  municipio: Municipio | null;
 }
 export interface Cep {
   cep: string;

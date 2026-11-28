@@ -1,6 +1,6 @@
 # MouseTrap Design System & Architectural SVG Wireframes
 
-This directory contains the unified visual identity, Angular Material M3 theming rules, Dribbble reference synthesis, and **12 full-resolution (`1440x900`) minimalist SVG wireframes** for the **MouseTrap** esports e-commerce platform.
+This directory contains the unified visual identity, Angular Material M3 theming rules, Dribbble reference synthesis, and **12 SVG wireframes (1440 px wide)** for the **MouseTrap** esports e-commerce platform.
 
 ---
 
@@ -36,6 +36,8 @@ This directory contains the unified visual identity, Angular Material M3 theming
 ---
 
 ### `01-storefront-home.svg` — Storefront Landing Page (`/`)
+
+The storyboard includes static artwork, a rightward brand marquee and three product shelves.
 
 ![01 Storefront Homepage](./01-storefront-home.svg)
 

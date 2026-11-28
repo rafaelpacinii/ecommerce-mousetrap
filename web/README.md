@@ -1,7 +1,8 @@
 # MouseTrap — Web
 
-Angular frontend for the MouseTrap gaming mouse store. The homepage includes a
-responsive hero, grip guide and searchable preview of real catalog products.
+Angular frontend for the MouseTrap gaming mouse store. The homepage includes
+four campaign chapters, a brand marquee, a grip guide and three independent shelves
+of real catalog products.
 Separate administrative screens manage brands, mice, images, specifications and customers.
 The full public catalog is at `/catalogo`; product detail is at `/catalogo/:id`.
 
@@ -9,9 +10,11 @@ The full public catalog is at `/catalogo`; product detail is at `/catalogo/:id`.
 
 - Storefront at `/`, with SVG branding, responsive navigation and footer.
 - Brand colors mapped to Angular Material M3 and shared interface styles.
-- Optimized responsive WebP hero with the “Precisão absoluta…” heading.
-- Expandable grip guides and up to three active products per name search.
-- Catalog preview loading, empty, error and retry states.
+- Static Logitech Superlight artwork and native CSS scroll effects on text, cards and section rules.
+- Expandable grip guides with catalog links and up to four products per shelf (recent, DPI, under 60 g).
+- Rightward logo marquee with faded edges and links to the catalog by brand.
+  Category discovery and product controls remain available with reduced motion.
+- Independent shelf loading, empty, error and retry states; cancellable recent-product name search.
 - Administrative CRUD with validated reactive forms, edit resolvers, deletion
   confirmation, success notifications and API error handling.
 - Server-side pagination/name search for administrative brand and mouse lists.

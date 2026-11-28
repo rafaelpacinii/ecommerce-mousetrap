@@ -18,7 +18,7 @@ identity theme, SVG wireframes, automated verification and source packaging.
 Payments use a local demonstration engine, disabled outside dev/test unless explicitly
 enabled. Card credentials stay in the browser and are neither sent nor stored.
 Live payment providers, real settlement, refunds, carrier integration, categories
-and sales-based merchandising remain future work. Catalog images support Cloudflare R2 uploads.
+and sales-based merchandising remain future work. Cloudflare R2 stores catalog images.
 
 ## Start here
 
@@ -27,9 +27,9 @@ For agent-assisted setup on a new computer or to add missing services, use the
 infrastructure and completes PostgreSQL, Keycloak, local email, application and
 R2 configuration without resetting an existing installation.
 
-Read [setup from scratch](docs/ai/setup-environment.md) for the complete local stack or
-[developer authentication setup](docs/others/authentication.md) for independently running
-Angular and Quarkus. The root Compose stack uses its own databases and requires
+The repository also documents [setup from scratch](docs/ai/setup-environment.md).
+Use the [developer authentication setup](docs/others/authentication.md) when running
+Angular and Quarkus independently. The root Compose stack uses its own databases and requires
 an explicitly generated private environment; it does not reuse the older local
 identity stack or its credentials. Do not start both on the same ports.
 
@@ -51,7 +51,7 @@ This loopback-only stack is a release rehearsal. Before public deployment, follo
 ## Architecture and contracts
 
 The API follows Resource → Service → Repository with Java record DTOs and
-incremental Flyway migrations V1–V9. The SPA uses standalone components, Angular
+incremental Flyway migrations V1–V11. The SPA uses standalone components, Angular
 Material, services/signals and lazy routes. Backend roles and ownership are
 mandatory; guards only improve navigation. See [complete 3NF models](docs/modelagem/README.md)
 and [authoritative business rules](docs/BUSINESS_RULES.md).
@@ -59,7 +59,7 @@ and [authoritative business rules](docs/BUSINESS_RULES.md).
 | Area | Routes / documentation |
 | --- | --- |
 | Public catalog | `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`; [contracts](docs/others/public-catalog.md) |
-| Catalog image uploads | Admin-only `POST /imagens/{mouses\|marcas}`; [Cloudflare R2 setup](docs/others/cloudflare-r2.md) |
+| Catalog images | Admin upload and orphan cleanup, public gallery and attachment download. [Cloudflare R2 setup](docs/others/cloudflare-r2.md) |
 | Postcode / freight | `/ceps/{cep}`, `/ceps/{cep}/frete`; [addresses](api/docs/clientes-cep.md) |
 | Owned profile / addresses | `/clientes/me`, `/clientes/me/enderecos`; [authentication](docs/others/authentication.md) |
 | Checkout / payments | `/pedidos`; [transactional contracts](docs/others/transactional-checkout.md) |
@@ -75,7 +75,7 @@ See [implementation status](docs/others/implementation-backlog.md),
 For Codex and Antigravity, see [AI governance and daily skill usage](docs/ai-governance.md).
 Shared skills live in `.agents/skills/`; `TASK.md` records current execution state.
 
-## Verify and package
+## Verify and package from the repository
 
 ```fish
 cd web
@@ -99,11 +99,12 @@ cd ..
 sh scripts/verify_release.sh
 ```
 
-The generated `dist/mousetrap_submission.zip` contains source, build wrappers,
-configuration examples, deployment files and documentation. The script validates
-integrity, mandatory files and exclusions and reports sizes, reduction, file count
-and SHA256. It excludes dependencies, build outputs, caches, symlinks and local
-credentials. Archive bytes are deterministic for identical source contents.
+The generated `dist/mousetrap_submission_YYYY-MM-DD.zip` contains the application source,
+runtime assets, build wrappers, configuration examples and local Compose setup.
+Use the commands under **Start here** after extracting it. The full repository
+contains the test suite and design material. The packager enforces the
+2,000,000-byte upload limit and reports integrity, file count, sizes and SHA256.
+Identical inputs produce identical ZIP bytes.
 
 CI runs backend, frontend, browser and packaging jobs for PRs to `develop`/`main`.
 It never deploys. Features and bug fixes target `develop`; release publication

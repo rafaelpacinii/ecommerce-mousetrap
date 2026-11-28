@@ -135,6 +135,6 @@ cd web && npm run audit
 - Deliver seven items: outcome; categorized files; database impact; actual
   validations including failures/skips; risks/pending items; branch and staged/
   unstaged/untracked status; selective add/diff/commit/push/PR commands.
-- For grading, run `python3 scripts/package_release.py`; report path, compressed/
+- For grading, run `python3 scripts/package_release.py` (generates dated `dist/mousetrap_submission_YYYY-MM-DD.zip` and removes undated archives); report path, compressed/
   uncompressed size, reduction, count and SHA256. Inspect with `unzip -l`; exclude
   `.git`, `node_modules`, `target`, `.angular` and private configuration.

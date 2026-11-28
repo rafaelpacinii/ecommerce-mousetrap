@@ -38,6 +38,15 @@ quarkus.oidc.token.allow-jwt-introspection=false
 quarkus.oidc.token.allow-opaque-token-introspection=false
 quarkus.security.jaxrs.deny-unannotated-endpoints=true
 
+# Backend-mediated Keycloak authentication and user provisioning (secrets stay backend-only).
+keycloak.server-url=${KEYCLOAK_SERVER_URL:http://localhost:8180}
+keycloak.realm=${KEYCLOAK_REALM:mousetrap}
+keycloak.client-id=${KEYCLOAK_CLIENT_ID:mousetrap-backend}
+keycloak.client-secret=${KEYCLOAK_CLIENT_SECRET:}
+keycloak.admin-username=${KEYCLOAK_ADMIN:}
+keycloak.admin-password=${KEYCLOAK_ADMIN_PASSWORD:}
+auth.cookie.secure=${AUTH_COOKIE_SECURE:false}
+
 # Explicit opt-in outside dev/test; never enable for actual financial settlement.
 pagamentos.simulacao.habilitada=false
 %dev.pagamentos.simulacao.habilitada=true
@@ -52,3 +61,4 @@ storage.r2.bucket=${R2_BUCKET:}
 storage.r2.access-key-id=${R2_ACCESS_KEY_ID:}
 storage.r2.secret-access-key=${R2_SECRET_ACCESS_KEY:}
 storage.r2.public-url=${R2_PUBLIC_URL:}
+storage.r2.orphan-grace-period=${R2_ORPHAN_GRACE_PERIOD:PT24H}

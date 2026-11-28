@@ -12,7 +12,9 @@ transactional orders, events, carriers (`transportadora`) and wishlist (`desejo`
 - Public active catalog: `GET /catalogo/mouses`, `/catalogo/mouses/{id}`, `/catalogo/filtros`.
 - Public local reference catalog: `GET /localidades/estados`, `/localidades/estados/{uf}/municipios`.
 - Public postcode and freight: `GET /ceps/{cep}` and `GET /ceps/{cep}/frete`.
-- Protected admin CRUD: `/marcas`, `/mouses`, `/clientes`, and R2 image upload `POST /imagens`.
+- Protected admin CRUD: `/marcas`, `/mouses`, `/clientes`, and R2 image upload and orphan cleanup under `/imagens`.
+- Public catalog galleries include a download endpoint for R2 images. See [storage setup and HTTP contracts](../docs/others/cloudflare-r2.md).
+- Backend-mediated Keycloak authentication and registration: `POST /auth/login`, `POST /auth/cadastro`, `POST /auth/refresh`, `GET /auth/me`, and `POST /auth/logout` (`HttpOnly` refresh cookie).
 - Verified identity-owned profile: `GET/PUT /clientes/me`; saved addresses at `/clientes/me/enderecos`.
 - Idempotent transactional checkout, payment attempts, cancellation and expiration at `/pedidos`.
 - Owner-scoped history/details, administrative payment decisions and fulfillment at `/admin/pedidos`.

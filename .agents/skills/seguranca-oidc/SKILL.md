@@ -8,9 +8,9 @@ description: "Implement or review MouseTrap backend Keycloak OIDC validation, id
 1. Read [authentication](../../../docs/others/authentication.md), [policy](../../../AGENTS.md),
    `api/src/main/resources/META-INF/microprofile-config.properties`, the public
    realm definition and affected identity/customer services. Read examples, not secrets.
-2. Preserve realm `mousetrap`, API client/audience `mousetrap-api`, JWT-only token
-   validation and `realm_access/roles`. Discover issuer URLs from the configured
-   topology; do not invent production URLs or loosen issuer/audience verification.
+2. Preserve realm `mousetrap`, API audience `mousetrap-api`, confidential backend
+   client `mousetrap-backend`, JWT-only validation and `realm_access/roles`. Keep
+   Keycloak secrets/admin credentials strictly on the backend (`ADR 0007`).
 3. Resolve the local customer from verified `SecurityIdentity` subject. Preserve
    explicit account linking, verification and existing active-account rules.
    Neither matching email nor request-supplied customer ID proves ownership.

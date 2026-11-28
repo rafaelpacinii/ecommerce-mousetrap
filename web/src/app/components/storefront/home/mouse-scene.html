@@ -1,0 +1,43 @@
+<div class="scene-stage">
+  <svg class="scene-guide" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+    @switch (kind()) {
+      @case ('velocidade') {
+        <path d="M75 190H245 M40 235H185 M80 365H215 M115 410H280" />
+        <path class="guide-accent" d="M390 170H510 M420 205H555" />
+      }
+      @case ('precisao') {
+        <circle cx="300" cy="300" r="210" />
+        <path d="M300 65V120 M300 480V535 M65 300H120 M480 300H535" />
+        <path class="guide-accent" d="M120 160V120H160 M440 480H480V440" />
+      }
+      @case ('ultraleves') {
+        <ellipse cx="300" cy="300" rx="245" ry="185" transform="rotate(-25 300 300)" />
+        <path class="guide-accent" d="M120 420L135 385L150 420 M460 180L475 145L490 180" />
+      }
+      @default {
+        <path d="M65 380Q300 290 535 380 M65 420Q300 330 535 420 M65 460Q300 370 535 460" />
+        <path class="guide-accent" d="M430 350L470 355L450 385" />
+      }
+    }
+  </svg>
+  <div class="mouse-object">
+    <img
+      class="mouse-cutout"
+      [src]="'images/home-scenes/' + asset().file"
+      [width]="asset().width"
+      [height]="asset().width"
+      alt=""
+      decoding="async"
+      [attr.loading]="priority() ? 'eager' : 'lazy'"
+      [attr.fetchpriority]="priority() ? 'high' : 'auto'"
+    />
+  </div>
+  <div class="telemetry-card telemetry-primary">
+    <span class="telemetry-value">{{ asset().telemetryPrimary.value }}</span>
+    <span class="telemetry-caption">{{ asset().telemetryPrimary.caption }}</span>
+  </div>
+  <div class="telemetry-card telemetry-secondary">
+    <span class="telemetry-value">{{ asset().telemetrySecondary.value }}</span>
+    <span class="telemetry-caption">{{ asset().telemetrySecondary.caption }}</span>
+  </div>
+</div>

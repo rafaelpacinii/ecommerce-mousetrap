@@ -176,23 +176,22 @@ request idempotency and scheduler races; the browser exercises the complete flow
 
 ## Source delivery
 
-The versioned `scripts/package_release.py` includes source, wrappers, manifests,
-public assets, documentation, infrastructure and release scripts. It excludes
-`.git`, `.github`, `node_modules`, `target`, `.angular`, build/test outputs, local
-environments, active application.properties, private key formats and symlinks.
-The allowlist is defense in depth, not a replacement for reviewing public source
-for accidentally hardcoded secrets. ZIP timestamps and permissions are normalized;
-identical inputs produce identical bytes. The archive validates mandatory files,
-paths, duplicates, CRC integrity and exclusions before reporting SHA256 and sizes.
+The versioned `scripts/package_release.py` includes application source, wrappers,
+runtime assets, and the files and instructions for local Compose setup. The
+full repository contains tests, generated renders, design material and release
+tooling. The allowlist excludes local credentials, active configuration,
+dependencies, build outputs and symlinks. The packager checks paths, duplicate
+entries, required files, CRC integrity and the 2,000,000-byte limit before
+replacing the destination. Identical inputs produce identical ZIP bytes.
 
 ```fish
 python3 scripts/package_release.py
-unzip -l dist/mousetrap_submission.zip
+unzip -l dist/mousetrap_submission_$(date +%F).zip
 ```
 
-The default archive is under ignored root `dist/`, outside both application
-modules. It includes documentation and runtime assets needed for a clean setup;
-no fixed size claim is made.
+The default archive is dated (`dist/mousetrap_submission_YYYY-MM-DD.zip`) under
+ignored root `dist/`, outside both application modules, and automatically removes
+any previous undated `mousetrap_submission.zip`.
 
 ## Primary references
 

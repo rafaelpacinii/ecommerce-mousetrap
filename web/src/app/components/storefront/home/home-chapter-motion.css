@@ -1,0 +1,170 @@
+.chapter-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 0 0 28px;
+  list-style: none;
+}
+.highlight-pill {
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(7, 18, 32, 0.55);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(209, 245, 255, 0.35);
+  color: var(--light-cyan);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+.chapter-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.explore-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--light-cyan);
+  font-weight: 700;
+  text-underline-offset: 5px;
+  font-size: 13px;
+}
+.explore-link mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+.chapter-caption {
+  position: absolute;
+  inset: auto 0 26px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--light-cyan);
+  text-shadow: 0 2px 14px rgba(7, 18, 32, 0.95);
+  z-index: 2;
+}
+.caption-line {
+  position: relative;
+  height: 2px;
+  flex: 1;
+  background: rgba(209, 245, 255, 0.22);
+  overflow: hidden;
+}
+.caption-progress {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--golden-glow);
+  transform-origin: left center;
+}
+.title-word {
+  display: inline-block;
+  vertical-align: top;
+  overflow: clip;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.title-word-inner {
+  display: inline-block;
+}
+@media (max-width: 699px) {
+  .chapter-eyebrow {
+    margin-bottom: 18px;
+    font-size: 10px;
+  }
+  h1,
+  h2,
+  .opening h1 {
+    font-size: clamp(32px, 8.8vw, 52px);
+  }
+  .chapter-description {
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .chapter-caption {
+    position: static;
+    margin-top: 12px;
+  }
+  .store-button {
+    max-width: 100%;
+    padding-inline: 18px;
+    font-size: 12px;
+  }
+}
+@supports (animation-timeline: view()) and (animation-range: entry 0% entry 100%) {
+  @media (prefers-reduced-motion: no-preference) {
+    .chapter {
+      view-timeline-name: --chapter;
+    }
+    .chapter:not(.opening) .title-word-inner {
+      animation: chapter-word auto ease-out both;
+      animation-timeline: --chapter;
+      animation-range: entry calc(5% + var(--word-index) * 3%) entry
+        calc(39% + var(--word-index) * 3%);
+    }
+    .chapter:not(.opening) .chapter-description {
+      animation: chapter-copy auto ease-out both;
+      animation-timeline: --chapter;
+      animation-range: entry 18% entry 58%;
+    }
+    .chapter:focus-within :is(.title-word-inner, .chapter-description) {
+      animation: none;
+    }
+    .caption-line {
+      view-timeline-name: --caption-line;
+    }
+    .caption-progress {
+      animation: chapter-rule auto linear both;
+      animation-timeline: --caption-line;
+      animation-range: cover 8% cover 80%;
+    }
+    .chapter-caption {
+      animation: caption-exit auto ease-in both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+@keyframes chapter-word {
+  from {
+    transform: translateY(70%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes chapter-copy {
+  from {
+    transform: translateY(16px);
+    opacity: 0.72;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes chapter-rule {
+  from {
+    transform: scaleX(0.06);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes caption-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.35;
+  }
+}

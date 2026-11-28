@@ -1,0 +1,197 @@
+:host {
+  display: block;
+}
+.explore-section {
+  position: relative;
+  z-index: 1;
+  padding-block: 66px 36px;
+}
+.explore-heading {
+  max-width: 780px;
+  margin-bottom: 48px;
+}
+.explore-eyebrow {
+  color: var(--golden-glow);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+h2 {
+  margin: 18px 0;
+  font: 800 clamp(34px, 4.5vw, 64px)/1.06 var(--font-heading);
+  letter-spacing: -0.045em;
+}
+h2 span {
+  display: inline-block;
+}
+h2 span:last-child {
+  color: var(--light-cyan);
+}
+.explore-heading > p:last-child {
+  color: var(--alice-blue);
+  line-height: 1.7;
+}
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.explore-entry {
+  min-width: 0;
+}
+.explore-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: clip;
+  border: 1px solid var(--home-glass-border);
+  border-radius: 20px;
+  background: #101e30;
+  color: var(--alice-blue);
+  text-decoration: none;
+}
+.explore-entry:nth-child(2) .explore-panel {
+  background: #1b1b38;
+}
+.explore-entry:nth-child(3) .explore-panel {
+  background: #162b31;
+}
+.panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 0;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.panel-top mat-icon {
+  color: var(--golden-glow);
+}
+.panel-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.35;
+  overflow: clip;
+}
+.panel-art img {
+  position: relative;
+  width: 90%;
+  height: 100%;
+  object-fit: contain;
+}
+.panel-orbit {
+  position: absolute;
+  width: 65%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(209, 245, 255, 0.18);
+  border-radius: 50%;
+}
+.panel-copy {
+  padding: 0 24px 28px;
+  margin-top: auto;
+}
+h3 {
+  margin: 0 0 12px;
+  font: 750 clamp(24px, 2.4vw, 34px)/1.1 var(--font-heading);
+  letter-spacing: -0.04em;
+}
+.panel-copy p {
+  margin: 0 0 24px;
+  line-height: 1.6;
+  font-size: 14px;
+  color: var(--light-cyan);
+}
+.panel-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--home-glass-border);
+  font-size: 12px;
+  font-weight: 750;
+}
+.explore-panel:hover {
+  border-color: var(--light-cyan);
+}
+.explore-panel:focus-visible {
+  outline: 3px solid var(--golden-glow);
+  outline-offset: -4px;
+}
+@media (max-width: 999px) {
+  .explore-grid {
+    gap: 14px;
+  }
+  .panel-top {
+    padding: 20px 16px 0;
+  }
+  .panel-copy {
+    padding: 0 16px 22px;
+  }
+}
+@media (max-width: 699px) {
+  .explore-section {
+    padding-block: 48px;
+  }
+  .explore-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .explore-heading {
+    margin-bottom: 30px;
+  }
+  .panel-art {
+    aspect-ratio: 1.6;
+  }
+  .panel-copy {
+    padding: 0 24px 24px;
+  }
+}
+@supports (animation-timeline: view()) and (animation-range: entry 0% entry 100%) {
+  @media (prefers-reduced-motion: no-preference) {
+    .explore-entry {
+      view-timeline-name: --discovery-panel;
+    }
+    .explore-entry:nth-child(2) {
+      --label-delay: 7%;
+    }
+    .explore-entry:nth-child(3) {
+      --label-delay: 14%;
+    }
+    .panel-copy {
+      animation: discover-copy auto ease-out both;
+      animation-timeline: --discovery-panel;
+      animation-range: entry calc(15% + var(--label-delay, 0%)) entry 92%;
+    }
+    .panel-link mat-icon {
+      animation: discover-arrow auto ease-out both;
+      animation-timeline: --discovery-panel;
+      animation-range: entry 50% entry 100%;
+    }
+    .explore-entry:focus-within :is(.panel-copy, .panel-link mat-icon) {
+      animation: none;
+    }
+  }
+}
+@keyframes discover-copy {
+  from {
+    transform: translateY(16px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes discover-arrow {
+  from {
+    transform: translateX(-12px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
