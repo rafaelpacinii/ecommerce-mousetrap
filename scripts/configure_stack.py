@@ -22,13 +22,12 @@ def configure(name: str, web: int, api: int, identity: int, mail: int, demo: boo
         raise FileExistsError(f'{env} already exists; reuse it to preserve credentials')
     realm = json.loads((ROOT / 'infra/identity/realm/mousetrap-realm.json').read_text())
     origin = f'http://localhost:{web}'
-    client = next(c for c in realm['clients'] if c['clientId'] == 'mousetrap-web')
-    client['redirectUris'] = [origin + '/auth/callback', origin + '/silent-check-sso.html']
-    client['webOrigins'] = [origin]
-    client['attributes']['post.logout.redirect.uris'] = origin + '/'
+    client_secret = secrets.token_urlsafe(32)
+    client = next(c for c in realm['clients'] if c['clientId'] == 'mousetrap-backend')
+    client['secret'] = client_secret
     realm_dir = directory / 'realm'
     realm_dir.mkdir(mode=0o700, exist_ok=True)
-    # Container users need to read this public realm definition.
+    # Container users need to read this generated realm definition.
     os.chmod(realm_dir, 0o755)
     (realm_dir / 'mousetrap-realm.json').write_text(json.dumps(realm, indent=2) + '\n')
     values = {
@@ -36,6 +35,7 @@ def configure(name: str, web: int, api: int, identity: int, mail: int, demo: boo
         'DATABASE_PASSWORD': secrets.token_urlsafe(32),
         'IDENTITY_DATABASE_PASSWORD': secrets.token_urlsafe(32),
         'IDENTITY_ADMIN_PASSWORD': secrets.token_urlsafe(32),
+        'IDENTITY_CLIENT_SECRET': client_secret,
         'REALM_DIRECTORY': './.local/' + name + '/realm',
         'PUBLIC_WEB_URL': origin,
         'PUBLIC_API_URL': f'http://localhost:{api}',

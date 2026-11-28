@@ -38,7 +38,7 @@
         <ng-container matColumnDef="municipio"
           ><th mat-header-cell *matHeaderCellDef>Município / UF</th>
           <td mat-cell *matCellDef="let c">
-            {{ c.municipio.nome }} / {{ c.municipio.estado.sigla }}
+            {{ c.municipio ? c.municipio.nome + ' / ' + c.municipio.estado.sigla : 'Não informado' }}
           </td></ng-container
         >
         <ng-container matColumnDef="acoes"

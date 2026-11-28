@@ -2,6 +2,17 @@ import { inject } from '@angular/core';
 import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+export function roleGuard(rolesPermitidas: readonly string[]): CanActivateFn {
+  return (_route, state) => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+    if (!auth.authenticated()) {
+      return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+    }
+    return auth.hasAnyRole(rolesPermitidas) || router.createUrlTree(['/acesso-negado']);
+  };
+}
+
 export const authGuard: CanActivateFn = (_route, state) => {
   const auth = inject(AuthService);
   return (
@@ -13,7 +24,8 @@ export const authGuard: CanActivateFn = (_route, state) => {
 export const adminGuard: CanActivateChildFn = (_route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (!auth.authenticated())
+  if (!auth.authenticated()) {
     return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  }
   return auth.admin() || router.createUrlTree(['/acesso-negado']);
 };

@@ -3,16 +3,16 @@
   "enabled": true,
   "displayName": "MouseTrap",
   "sslRequired": "external",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
   "registrationEmailAsUsername": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": true,
-  "verifyEmail": true,
+  "verifyEmail": false,
   "editUsernameAllowed": false,
   "rememberMe": true,
   "bruteForceProtected": true,
-  "passwordPolicy": "length(12) and digits(1) and upperCase(1) and lowerCase(1)",
+  "passwordPolicy": "length(8) and digits(1) and upperCase(1) and lowerCase(1)",
   "loginTheme": "mousetrap",
   "internationalizationEnabled": true,
   "supportedLocales": [
@@ -70,29 +70,18 @@
       "directAccessGrantsEnabled": false
     },
     {
-      "clientId": "mousetrap-web",
-      "name": "MouseTrap",
+      "clientId": "mousetrap-backend",
+      "name": "MouseTrap Backend Auth Service",
       "enabled": true,
       "protocol": "openid-connect",
-      "publicClient": true,
-      "standardFlowEnabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "redirectUris": [
-        "http://localhost:4200/auth/callback",
-        "http://localhost:4200/silent-check-sso.html"
-      ],
-      "webOrigins": [
-        "http://localhost:4200"
-      ],
-      "attributes": {
-        "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:4200/"
-      },
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
       "defaultClientScopes": [
         "basic",
-        "web-origins",
         "acr",
         "roles",
         "profile",
@@ -111,6 +100,21 @@
         }
       ],
       "fullScopeAllowed": true
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-mousetrap-backend",
+      "enabled": true,
+      "serviceAccountClientId": "mousetrap-backend",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users",
+          "query-users",
+          "view-realm"
+        ]
+      }
     }
   ]
 }

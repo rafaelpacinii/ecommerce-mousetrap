@@ -116,10 +116,20 @@ export class ClienteFormComponent {
       this.carregarPerfil();
     }
     if (this.cliente) {
-      this.form.patchValue({ ...this.cliente, codigoIbge: this.cliente.municipio.codigoIbge });
-      this.cepConfirmado.set(this.cliente.cep);
-      this.municipio.set(this.cliente.municipio.nome);
-      this.estado.set(this.cliente.municipio.estado.sigla);
+      this.form.patchValue({
+        ...this.cliente,
+        cep: this.cliente.cep ?? '',
+        logradouro: this.cliente.logradouro ?? '',
+        bairro: this.cliente.bairro ?? '',
+        numero: this.cliente.numero ?? '',
+        complemento: this.cliente.complemento ?? '',
+        codigoIbge: this.cliente.municipio?.codigoIbge ?? '',
+      });
+      if (this.cliente.municipio) {
+        this.cepConfirmado.set(this.cliente.cep ?? '');
+        this.municipio.set(this.cliente.municipio.nome);
+        this.estado.set(this.cliente.municipio.estado.sigla);
+      }
     }
     this.form.controls.cep.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.consulta?.unsubscribe();
@@ -173,16 +183,28 @@ export class ClienteFormComponent {
       )
       .subscribe({
         next: (cliente) => {
-          this.perfilSalvo.set(true);
+          const temEndereco = !!cliente.municipio;
+          this.perfilSalvo.set(temEndereco);
           this.nomeOriginal.set(cliente.nome);
           this.form.patchValue(
-            { ...cliente, email: this.auth.email(), codigoIbge: cliente.municipio.codigoIbge },
+            {
+              nome: cliente.nome,
+              email: this.auth.email() || cliente.email,
+              cep: cliente.cep ?? '',
+              logradouro: cliente.logradouro ?? '',
+              bairro: cliente.bairro ?? '',
+              numero: cliente.numero ?? '',
+              complemento: cliente.complemento ?? '',
+              codigoIbge: cliente.municipio?.codigoIbge ?? '',
+            },
             { emitEvent: false },
           );
-          this.cepConfirmado.set(cliente.cep);
-          this.municipio.set(cliente.municipio.nome);
-          this.estado.set(cliente.municipio.estado.sigla);
-          this.carregarEnderecos();
+          if (cliente.municipio) {
+            this.cepConfirmado.set(cliente.cep ?? '');
+            this.municipio.set(cliente.municipio.nome);
+            this.estado.set(cliente.municipio.estado.sigla);
+            this.carregarEnderecos();
+          }
         },
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse && error.status === 404) {

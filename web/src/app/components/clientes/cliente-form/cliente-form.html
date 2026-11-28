@@ -42,9 +42,12 @@
             <ng-container [ngTemplateOutlet]="perfilForm" />
           }
         } @else {
-          <button mat-button type="button" (click)="auth.manageAccount()">
-            <mat-icon aria-hidden="true">manage_accounts</mat-icon>Alterar e-mail ou senha
-          </button>
+          @if (auth.perfilPrincipal()) {
+            <p class="account-role-badge">
+              <mat-icon aria-hidden="true">verified_user</mat-icon>
+              Perfil de acesso: <strong>{{ auth.perfilPrincipal() }}</strong>
+            </p>
+          }
           @if (auth.error()) {
             <p role="alert">{{ auth.error() }}</p>
           }

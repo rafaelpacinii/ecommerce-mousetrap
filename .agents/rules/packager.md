@@ -4,5 +4,5 @@ description: "Use when preparing an academic source ZIP or reviewing submission 
 ---
 
 Follow [packaging profile](../../.github/agents/packager-agent.md) and
-[root policy](../../AGENTS.md). Execute the existing `scripts/package_release.py`;
-verify exclusions, integrity and actual metrics. Do not package secrets or builds.
+[root policy](../../AGENTS.md). Execute `scripts/package_release.py` to generate a dated
+`dist/mousetrap_submission_YYYY-MM-DD.zip` and automatically remove undated ZIPs.

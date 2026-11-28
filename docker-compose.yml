@@ -69,6 +69,12 @@ services:
       QUARKUS_OIDC_DISCOVERY_ENABLED: 'false'
       QUARKUS_OIDC_JWKS_PATH: /protocol/openid-connect/certs
       QUARKUS_OIDC_TOKEN_ISSUER: ${PUBLIC_IDENTITY_URL}/realms/mousetrap
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: mousetrap
+      KEYCLOAK_CLIENT_ID: mousetrap-backend
+      KEYCLOAK_CLIENT_SECRET: ${IDENTITY_CLIENT_SECRET:?Generate the stack environment first}
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${IDENTITY_ADMIN_PASSWORD}
       WEB_ORIGIN: ${PUBLIC_WEB_URL:?Required public web URL}
       PAGAMENTOS_SIMULACAO_HABILITADA: ${PAYMENT_DEMO_ENABLED:-false}
       VIACEP_URL: ${VIACEP_URL:-https://viacep.com.br/ws/}
@@ -78,6 +84,7 @@ services:
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      R2_ORPHAN_GRACE_PERIOD: ${R2_ORPHAN_GRACE_PERIOD:-PT24H}
     ports:
       - '127.0.0.1:${API_PORT:-8080}:8080'
     depends_on:
@@ -90,7 +97,6 @@ services:
     build: ./web
     environment:
       PUBLIC_API_URL: ${PUBLIC_API_URL:?Required public API URL}
-      PUBLIC_IDENTITY_URL: ${PUBLIC_IDENTITY_URL}
     ports:
       - '127.0.0.1:${WEB_PORT:-4200}:80'
     depends_on:
